@@ -1,0 +1,22 @@
+# API Keys and secrets
+infrastructure/*/.env
+.env
+
+# Local settings (user-specific)
+.claude/settings.local.json
+
+# Runtime logs
+*.log
+
+# Node
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

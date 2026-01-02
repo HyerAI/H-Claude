@@ -1,0 +1,17 @@
+{
+  "name": "cc-claude",
+  "version": "1.0.0",
+  "description": "Claude Code Pass-Through Proxy - Enables any agent to call Claude for reasoning tasks",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

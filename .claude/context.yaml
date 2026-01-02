@@ -1,0 +1,39 @@
+# .claude/context.yaml
+# LIVE CONTEXT - Updated after every significant task/commit
+# Read this at session start to resume work
+# See: .claude/PM/SSoT/NORTHSTAR.md for project guidance
+
+meta:
+  last_modified: ''  # ISO 8601 timestamp
+  project_phase: 'Foundation'  # Foundation | MVP | Hardening | Production
+
+# PROJECT INFO - Customize for your project
+project:
+  name: 'Your Project Name'
+  description: 'Brief description of your project'
+  type: 'application'  # template | application | library
+
+# THE BRAIN (What are we thinking about right now?)
+focus:
+  current_objective: ''
+  active_decisions: []
+
+# THE LOG (Rolling history - last 10 actions only)
+recent_actions: []
+
+# THE QUEUE
+tasks:
+  active: []
+  backlog: []
+  completed_this_session: []
+
+# BLOCKERS (only if strictly blocking current active task)
+blockers: []
+
+# THINK-TANK SESSIONS (ongoing deep dives - remove when done)
+think_tank: []
+
+# GIT COMMIT CONTROL (git-engineer watches this)
+git:
+  status: idle  # idle | ready | working
+  note: ''

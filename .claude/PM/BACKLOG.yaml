@@ -1,0 +1,13 @@
+# .claude/PM/BACKLOG.yaml
+# Work we defer for later - prevents losing track
+#
+# RULES:
+#   - Add item when deferring work with clear context
+#   - Remove when done or moved to context.yaml active
+#   - Link to relevant files so future-you has context
+
+meta:
+  last_updated: ''
+  description: 'Deferred work items'
+
+items: []
