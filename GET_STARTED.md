@@ -297,4 +297,4 @@ curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | b
 
 ---
 
-*Version: 3.0.0 | Updated: 2026-01-02*
+*Version: 0.1.0 | Updated: 2026-01-02*
