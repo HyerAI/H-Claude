@@ -1,0 +1,79 @@
+# .claude/PM/SSoT/ROADMAP.yaml
+# STATE document - Development story: HOW we build it, in what order
+# Paired with: NORTHSTAR.md (the WHAT - user story, features, requirements)
+#
+# RULES:
+# - Git is our versioning (commit before changes for rollback)
+# - Dependencies determine phase transitions and parallelism
+# - Each phase links to its think-tank execution-plan
+# - Tech debt discovered during development belongs to relevant phases
+#
+# WORKFLOW:
+# 1. /think-tank --roadmap creates/updates this file
+# 2. /think-tank "Phase Name" --phase=PHASE-XXX creates phase plan
+# 3. Phase plan links back here (plan_path)
+# 4. /hc-plan-execute runs the phase
+# 5. Phase complete -> dependencies unlock next phases
+
+meta:
+  created: ''
+  last_updated: ''
+  status: draft  # draft | active | complete | paused
+
+# Reference to user story (the WHAT)
+northstar: .claude/PM/SSoT/NORTHSTAR.md
+
+# Currently active phases (can be multiple if no blocking dependencies)
+active_phases: []
+
+# Ordered phases - execution sequence determined by dependencies
+phases: []
+  # Example:
+  # - id: PHASE-001
+  #   title: 'Foundation'
+  #   status: planned  # planned | active | complete | blocked
+  #   description: 'Core infrastructure and primitives'
+  #   dependencies: []  # Empty = can start immediately
+  #   plan_path: null   # Populated when phase think-tank creates plan
+  #   tech_debt: []     # Debt items to address in this phase
+  #
+  # - id: PHASE-002
+  #   title: 'MVP Features'
+  #   status: planned
+  #   description: 'Core user-facing features'
+  #   dependencies: [PHASE-001]  # Blocked until Foundation complete
+  #   plan_path: null
+  #   tech_debt: []
+
+# Side-quests: Ad-hoc think-tanks not tied to main phases
+# These are investigations, research, or exploratory work
+side_quests: []
+  # Example:
+  # - id: SQ-001
+  #   title: 'Auth System Research'
+  #   status: active
+  #   path: .claude/PM/think-tank/auth_research_20260102/
+  #   relates_to: PHASE-002  # Optional: may feed into a phase
+
+# Archived phases: Removed phases kept for history
+# Phases move here when removed via --remove-phase
+archived_phases: []
+  # Example:
+  # - id: PHASE-004
+  #   title: 'Removed Feature'
+  #   archived: '2026-01-02'
+  #   reason: 'Scope reduction - feature deferred'
+  #   had_dependents: []
+
+# Changelog: Track scope changes for visibility
+# Major changes logged here; git provides full history
+changelog: []
+  # Example:
+  # - date: '2026-01-02'
+  #   action: added_phase
+  #   phase_id: PHASE-005
+  #   reason: 'New requirement from user feedback'
+  # - date: '2026-01-03'
+  #   action: removed_phase
+  #   phase_id: PHASE-004
+  #   reason: 'Scope reduction'

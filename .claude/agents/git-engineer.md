@@ -110,6 +110,8 @@ git commit -m "..."
 | Operation | Trigger | Action |
 |-----------|---------|--------|
 | `commit` | "commit these changes" | Craft proper conventional commit |
+| `checkpoint` | "create rollback point" | Pre-execution safety checkpoint |
+| `rollback` | "rollback to checkpoint" | Restore to last checkpoint |
 | `review` | "review last N commits" | Analyze against protocols, suggest improvements |
 | `pr-prep` | "prepare PR" | Generate description, checklist |
 | `improve` | "improve git workflow" | Add item to GIT_PLAN.md |
@@ -158,6 +160,130 @@ When delegated a commit:
 5. **Log Operation:**
    - Append to SESSION_LOG.md (if exists)
    - context.yaml is auto-staged with every commit (session state persistence)
+
+### Stage 2.5: Pre-Execution Checkpoint Protocol
+
+**CRITICAL:** Trigger this BEFORE major executions (`/hc-plan-execute`, phase implementations).
+
+**Purpose:** Create a known-good rollback point so failed executions can be cleanly reverted.
+
+#### When to Create Checkpoint
+
+| Trigger | Why |
+|---------|-----|
+| Before `/hc-plan-execute` | Multi-task execution may fail mid-way |
+| Before phase implementation | Isolate phase changes for clean rollback |
+| Before risky refactoring | Safety net for breaking changes |
+| User requests "checkpoint" | Explicit safety point |
+
+#### Checkpoint Execution
+
+1. **Verify Clean State:**
+   ```bash
+   git status --porcelain
+   ```
+   - If dirty: Prompt to commit or stash first
+   - Never checkpoint with uncommitted changes
+
+2. **Create Checkpoint Commit:**
+   ```bash
+   # Format: chkpt(scope): description [CHECKPOINT]
+   git add .claude/context.yaml
+   git commit --allow-empty -m "$(cat <<'EOF'
+   chkpt(pre-execution): checkpoint before ${OPERATION}
+
+   CHECKPOINT: ${CHECKPOINT_ID}
+   Operation: ${OPERATION}
+   Phase: ${PHASE_ID:-N/A}
+   Plan: ${PLAN_PATH:-N/A}
+   Created: $(date -Iseconds)
+
+   Safe rollback point. Run: git reset --hard ${CHECKPOINT_ID}
+   EOF
+   )"
+   ```
+
+3. **Tag Checkpoint (Optional but Recommended):**
+   ```bash
+   # Tag for easy reference
+   git tag -a "checkpoint/${CHECKPOINT_ID}" -m "Pre-execution checkpoint: ${OPERATION}"
+   ```
+
+4. **Record in STATE:**
+   - Update context.yaml with checkpoint reference
+   - Log in SESSION_LOG.md
+
+5. **Return Checkpoint Reference:**
+   ```
+   CHECKPOINT_CREATED: ${CHECKPOINT_ID}
+   COMMIT_HASH: ${COMMIT_HASH}
+   ROLLBACK_CMD: git reset --hard ${COMMIT_HASH}
+   ```
+
+#### Checkpoint ID Format
+
+```
+chkpt-{YYYYMMDD}-{HHMMSS}-{OPERATION_SLUG}
+```
+
+Examples:
+- `chkpt-20260102-143022-execute-plan`
+- `chkpt-20260102-150000-phase-001`
+
+#### Rollback Execution
+
+When delegated a rollback:
+
+1. **Find Checkpoint:**
+   ```bash
+   # By tag
+   git tag -l "checkpoint/*"
+
+   # By commit message
+   git log --oneline --grep="CHECKPOINT:"
+   ```
+
+2. **Verify Target:**
+   ```bash
+   git log --oneline -1 ${CHECKPOINT_HASH}
+   git diff --stat ${CHECKPOINT_HASH}..HEAD
+   ```
+
+3. **Confirm with User:**
+   - Show what will be lost
+   - Require explicit confirmation
+
+4. **Execute Rollback:**
+   ```bash
+   git reset --hard ${CHECKPOINT_HASH}
+   ```
+
+5. **Cleanup (Optional):**
+   ```bash
+   # Remove checkpoint tag after rollback
+   git tag -d "checkpoint/${CHECKPOINT_ID}"
+   ```
+
+#### Integration with /hc-plan-execute
+
+The `/hc-plan-execute` orchestrator SHOULD:
+
+1. **Before execution begins:**
+   ```
+   Spawn git-engineer: checkpoint "pre-execution for ${PLAN_SLUG}"
+   Store: ROLLBACK_HASH
+   ```
+
+2. **If execution fails:**
+   ```
+   Ask user: "Execution failed. Rollback to checkpoint?"
+   If yes: Spawn git-engineer: rollback ${ROLLBACK_HASH}
+   ```
+
+3. **On success:**
+   ```
+   Optionally: Delete checkpoint tag (keep commit for history)
+   ```
 
 ### Stage 3: Review Execution
 
@@ -244,6 +370,8 @@ When `.claude/PM/GIT/PROTOCOLS.md` doesn't exist:
 | Input State | Action | Output State |
 |-------------|--------|--------------|
 | Dirty working tree | `commit` delegation | Clean tree, new commit |
+| Clean tree | `checkpoint` delegation | Checkpoint commit + tag |
+| Any state | `rollback` delegation | Reset to checkpoint |
 | Commit history | `review` delegation | Review report generated |
 | Empty protocols | First invocation | PROTOCOLS.md initialized |
 | Stale GIT_PLAN | `audit` delegation | Plan updated |
@@ -332,4 +460,4 @@ Working directory: ${WORKSPACE}
 
 ---
 
-*Git Engineer Agent V1.1.0 | SUPPORT Loop | Last Updated: 2026-01-01*
+*Git Engineer Agent V1.2.0 | SUPPORT Loop | Last Updated: 2026-01-02*

@@ -2,45 +2,59 @@
 # LIVE CONTEXT - Updated after every significant task/commit
 # Read this at session start to resume work
 # See: .claude/PM/SSoT/NORTHSTAR.md for project guidance
+# See: .claude/PM/SSoT/ROADMAP.yaml for development phases
 
 meta:
-  last_modified: ''  # ISO 8601 timestamp
-  project_phase: 'Foundation'  # Foundation | MVP | Hardening | Production
+  last_modified: '2026-01-02T00:00:00Z'
 
 # PROJECT INFO - Customize for your project
 project:
-  name: 'Your Project Name'
-  description: 'Brief description of your project'
-  type: 'application'  # template | application | library
+  name: 'H-Claude Template'
+  description: 'AI agent orchestration template for Claude Code projects'
+  type: 'template'  # template | application | library
+
+# Reference to development roadmap (the HOW)
+# active_phases read directly from ROADMAP.yaml - no duplication
+roadmap:
+  path: .claude/PM/SSoT/ROADMAP.yaml
 
 # THE BRAIN (What are we thinking about right now?)
 focus:
-  current_objective: ''
+  current_objective: 'Roadmap hierarchy implementation'
   active_decisions: []
 
 # THE LOG (Rolling history - last 10 actions only)
-recent_actions: []
+recent_actions:
+  - '[2026-01-02] Implemented ROADMAP.yaml hierarchy system'
+  - '[2026-01-02] Updated think-tank.md with --roadmap and --phase flags'
+  - '[2026-01-02] Updated CLAUDE.md with Product Owner workflow'
+  - '[2026-01-02] Created ROADMAP.yaml template in SSoT'
+  - '[2026-01-02] Completed Session Start Protocol implementation'
+  - '[2026-01-02] Completed hc_init execution plan (37 tasks)'
 
 # THE QUEUE
 tasks:
   active: []
-  backlog: []
   completed_this_session: []
 
 # BLOCKERS (only if strictly blocking current active task)
 blockers: []
 
-# THINK-TANK SESSIONS (ongoing deep dives - remove when done)
-# Each entry tracks a topic workspace and its execution plan status
-#
-# Example:
-#   - topic: auth_system
-#     path: .claude/PM/think-tank/auth_system_20260102/
-#     status: decided           # active | paused | decided | archived
-#     plan_status: in_progress  # draft | review | approved | in_progress | complete | null
-#     plan_path: .claude/PM/think-tank/auth_system_20260102/execution-plan.yaml
-#
-think_tank: []
+# UNSORTED BACKLOG - Tasks not yet assigned to a phase
+# Triage agent surfaces these; assign to phases or tech_debt
+backlog: []
+  # Example:
+  # - id: BACK-001
+  #   description: 'Task we noticed but not sure where it fits'
+  #   added: '2026-01-02'
+
+# THINK-TANK SESSIONS (phase sessions, side-quests)
+# Roadmap sessions don't need tracking here - ROADMAP.yaml is the state
+think_tank:
+  - topic: hc_init
+    path: .claude/PM/think-tank/hc_init_20260102/
+    status: decided  # Plan executed successfully
+    type: legacy  # This was before roadmap system
 
 # GIT COMMIT CONTROL (git-engineer watches this)
 git:

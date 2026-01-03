@@ -68,24 +68,83 @@ When reviewing work, validate against:
 
 ## Core Workflow
 
+H-Claude uses a **hierarchical workflow** where the development roadmap breaks into phases, each planned and executed independently.
+
+### The Two Sources of Truth
+
+| Document | Contains | Perspective |
+|----------|----------|-------------|
+| **NORTHSTAR.md** | WHAT - User story, features, requirements | User/Customer |
+| **ROADMAP.yaml** | HOW - Development phases, execution order | Developer/Builder |
+
+These MUST stay aligned. NORTHSTAR is the destination; ROADMAP is the route.
+
+### The Pattern: NORTHSTAR → Roadmap → Phases → Execute
+
 ```
-/think-tank      → Research, decisions, AND planning
-       ↓              (outputs execution-plan.yaml)
-/hc-plan-execute → Execute plan with worker agents
-       ↓
-/hc-glass        → Code review, find issues
-       ↓
-/red-team        → Deep dive on specific bugs/issues
+┌─────────────────────────────────────────────────────────────┐
+│  User fills out NORTHSTAR.md                                │
+│    └── Vision, goals, features, requirements                │
+│    └── This is the USER story - what they want built       │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  /think-tank --roadmap "Project Name"                       │
+│    └── Council analyzes NORTHSTAR                           │
+│    └── Creates ROADMAP.yaml with phases                     │
+│    └── Each phase has dependencies                          │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  For each phase (respecting dependencies):                  │
+│                                                             │
+│    /think-tank "Phase Name" --phase=PHASE-XXX               │
+│      └── Phase council creates execution-plan.yaml          │
+│      └── Links plan back to ROADMAP.yaml                    │
+│                              ↓                              │
+│    git-engineer: Create rollback point                      │
+│                              ↓                              │
+│    /hc-plan-execute                                         │
+│      └── Workers implement with QA gates                    │
+│      └── SWEEP & VERIFY catches 15% missed work             │
+│                              ↓                              │
+│    /hc-glass (optional)                                     │
+│      └── Code review, security audit                        │
+│                              ↓                              │
+│    Phase complete → ROADMAP.yaml updated                    │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  Side-Quests (ad-hoc research)                              │
+│    └── /think-tank "Research Topic" (no flag)               │
+│    └── May inform future phases                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### The Hierarchy
+
+```
+NORTHSTAR.md (WHAT - User Story)
+     ↓ aligned with
+ROADMAP.yaml (HOW - Phases)
+├── PHASE-001 → Phase Think-Tank → execution-plan.yaml → Execute
+├── PHASE-002 (depends on PHASE-001) → ...
+└── PHASE-003 → ...
+
+Side-Quests (recorded in ROADMAP.yaml)
+└── Research Topic → may inform future phases
 ```
 
 ### Command Roles
 
-| Command | Purpose |
-|---------|---------|
-| `/think-tank` | The Brain - research, decide, plan |
-| `/hc-plan-execute` | The Hands - execute approved plans |
-| `/hc-glass` | The Eyes - scan for issues |
-| `/red-team` | The Auditor - deep quality review |
+| Command | Purpose | Output |
+|---------|---------|--------|
+| `/think-tank --roadmap` | Define project phases | `ROADMAP.yaml` |
+| `/think-tank --phase=X` | Plan specific phase | `execution-plan.yaml` |
+| `/think-tank "Topic"` | Side-quest research | `STATE.yaml` |
+| `/hc-plan-execute` | Execute approved plans | Implemented code |
+| `/hc-glass` | Scan for issues | Issue report |
+| `/red-team` | Deep quality review | Root cause analysis |
 
 ---
 
