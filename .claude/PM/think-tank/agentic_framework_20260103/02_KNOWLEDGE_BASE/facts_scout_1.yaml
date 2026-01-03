@@ -1,0 +1,288 @@
+meta:
+  scout_id: 1
+  focus_area: 'Commands & orchestration'
+  problem: 'How should we update H-Claude to implement the Agentic Framework (PO, ORCA, RCH, ARC, WR, QA, VA agents)?'
+  collected: '2026-01-03'
+
+facts:
+  # ============================================
+  # COMMAND STRUCTURE
+  # ============================================
+  - id: F1-001
+    source: '.claude/commands/ (directory listing)'
+    type: code
+    content: 'H-Claude has 4 commands: think-tank.md, hc-execute.md, hc-glass.md, red-team.md'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [commands, structure]
+
+  - id: F1-002
+    source: '.claude/commands/think-tank.md:1-8'
+    type: doc
+    content: 'think-tank is version V2.2.0, described as "Council-based decision support - Dynamic experts collaborate to map options and help you think"'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, versioning]
+
+  - id: F1-003
+    source: '.claude/commands/hc-execute.md:1-8'
+    type: doc
+    content: 'hc-execute is version V2.6.0, described as "SWEEP & VERIFY plan execution protocol with Oraca Phase Orchestrators"'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-execute, versioning]
+
+  # ============================================
+  # ORCHESTRATION PATTERNS
+  # ============================================
+  - id: F1-004
+    source: '.claude/commands/think-tank.md:109-113'
+    type: doc
+    content: 'Think-tank workflow is: INTAKE → CASTING → RESEARCH (facts + validation) → COUNCIL → DECISION MAP → VALIDATION → REVIEW → ADR → SPEC → PLAN'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, workflow, orchestration]
+
+  - id: F1-005
+    source: '.claude/commands/hc-execute.md:36-54'
+    type: doc
+    content: 'hc-execute has 5 phases: (1) Parse/Batch/Contract, (2) Phased Execution via Oraca[X], (3) QA Synthesis, (4) Sweep, (5) Validation/Report'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-execute, workflow, phases]
+
+  - id: F1-006
+    source: '.claude/commands/think-tank.md:98-106'
+    type: doc
+    content: 'Think-tank cast includes: HD (Chair), Orchestrator (Opus), Domain Expert (Opus 2408), Pragmatist (Pro 2406), Flash Scouts (Flash 2405)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, agents, models]
+
+  - id: F1-007
+    source: '.claude/commands/hc-execute.md:58-81'
+    type: doc
+    content: 'Oraca = Oracle + Captain. Flash agents that own one phase. Responsibilities: receive phase spec, spawn Flash workers (max 3 parallel), collect evidence, handle retries (up to 2), spawn Pro Phase QA, report status'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-execute, oraca, delegation]
+
+  # ============================================
+  # DELEGATION MECHANISMS
+  # ============================================
+  - id: F1-008
+    source: '.claude/commands/think-tank.md:139-143'
+    type: code
+    content: 'Proxy configuration uses ANTHROPIC_API_BASE_URL with ports: Flash (2405), Pro (2406), Opus (2408)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [proxy, models, infrastructure]
+
+  - id: F1-009
+    source: '.claude/templates/template-prompts/hc-execute/orchestrator.md:9-22'
+    type: code
+    content: 'Sub-agents MUST be spawned synchronously using: AGENT_OUTPUT=$(ANTHROPIC_API_BASE_URL=http://localhost:240X claude --dangerously-skip-permissions -p "PROMPT" 2>&1). Fire-and-forget spawning is explicitly prohibited.'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [spawning, synchronous, anti-pattern]
+
+  - id: F1-010
+    source: '.claude/templates/template-prompts/hc-execute/oraca_phase.md:21-24'
+    type: doc
+    content: 'Oraca execution rules: Max 3 parallel workers, sync spawns only, evidence required per task, max 2 retries before BLOCKED'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [oraca, rules, parallelism]
+
+  # ============================================
+  # SSoT HIERARCHY
+  # ============================================
+  - id: F1-011
+    source: '.claude/commands/think-tank.md:19-30'
+    type: doc
+    content: 'SSoT Hierarchy: NORTHSTAR.md (WHAT) → ROADMAP.yaml (HOW) → Phase Think-Tanks (Detailed Execution Plans) → /hc-execute (Implementation)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [ssot, hierarchy, documents]
+
+  - id: F1-012
+    source: '.claude/commands/think-tank.md:36-50'
+    type: doc
+    content: 'Think-tank has 3 session types: Roadmap (--roadmap flag, outputs ROADMAP.yaml), Phase (--phase=PHASE-XXX, outputs execution-plan.yaml), Side-Quest (no flag, outputs STATE.yaml)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, session-types, flags]
+
+  # ============================================
+  # TEMPLATE STRUCTURE
+  # ============================================
+  - id: F1-013
+    source: '.claude/templates/template-prompts/think-tank/ (directory listing)'
+    type: code
+    content: 'Think-tank has 19 template files including: scout_facts.md, merge_facts.md, arbiter_conflict.md, fact_validator.md, council_domain_expert.md, council_pragmatist.md, synthesizer_decision_map.md, validator.md, generator_adr.md, generator_spec.md, generator_execution_plan.md'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [templates, think-tank]
+
+  - id: F1-014
+    source: '.claude/templates/template-prompts/hc-execute/ (directory listing)'
+    type: code
+    content: 'hc-execute has 6 template files: orchestrator.md, oraca_phase.md, worker_task.md, qa_phase.md, synthesizer_qa.md, sweeper.md'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [templates, hc-execute]
+
+  # ============================================
+  # RESEARCH PHASE
+  # ============================================
+  - id: F1-015
+    source: '.claude/commands/think-tank.md:190-207'
+    type: doc
+    content: 'Think-tank spawns 4 parallel Flash scouts for fact collection with focus areas: (1) Commands & orchestration, (2) Agents & delegation, (3) Templates & prompts, (4) State & PM workflows'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, scouts, research]
+
+  - id: F1-016
+    source: '.claude/commands/think-tank.md:208-228'
+    type: doc
+    content: 'After scout collection: Flash merger combines outputs (merge_facts.md), Flash arbiter resolves conflicts if found (arbiter_conflict.md), 2 Flash validators verify facts in parallel (fact_validator.md)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, fact-pipeline, validation]
+
+  # ============================================
+  # COUNCIL PHASE
+  # ============================================
+  - id: F1-017
+    source: '.claude/commands/think-tank.md:259-279'
+    type: doc
+    content: 'Council session spawns agents sequentially: Domain Expert (using council_domain_expert.md) then Pragmatist (using council_pragmatist.md). Max 6 rounds, max 3 research rounds per council round.'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, council, iteration]
+
+  - id: F1-018
+    source: '.claude/commands/think-tank.md:293-309'
+    type: doc
+    content: 'Consensus validation spawns 4 validators in parallel (2 Pro + 2 Opus). Flash synthesizer aggregates results. 3-4 agree = CONSENSUS_MUST_FIX, 2 agree = TIEBREAKER_NEEDED, 1 only = NO_CONSENSUS (ignore)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [think-tank, validation, consensus]
+
+  # ============================================
+  # EXECUTION PLAN GENERATION
+  # ============================================
+  - id: F1-019
+    source: '.claude/templates/template-prompts/think-tank/generator_execution_plan.md:28-31'
+    type: doc
+    content: 'Execution plan requires: Traceability (every task links to NORTHSTAR requirement via trace_req), Definition of Done (explicit success criteria), Target Context (files/components affected), Dependencies (explicit task dependencies)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [execution-plan, requirements, traceability]
+
+  - id: F1-020
+    source: '.claude/templates/template-prompts/think-tank/generator_execution_plan.md:39-89'
+    type: code
+    content: 'Execution plan schema: meta (created, decided_path, confidence, spec_path, northstar_path, status), phases array (id, title, description, tasks array with id/action/trace_req/definition_of_done/target_context/dependencies/status), risks array, validation array'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [execution-plan, schema, yaml]
+
+  # ============================================
+  # QA AND SWEEP
+  # ============================================
+  - id: F1-021
+    source: '.claude/commands/hc-execute.md:265-274'
+    type: doc
+    content: 'Sweep phase (Phase 4) spawns Pro agent using sweeper.md. If GAPS_FOUND: create fix tasks, spawn Oraca[FIX], re-sweep after fixes.'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-execute, sweep, qa]
+
+  - id: F1-022
+    source: '.claude/commands/hc-execute.md:10-11'
+    type: doc
+    content: 'hc-execute philosophy: "Trust but Verify. Assume 15% of tasks will be missed or partially implemented."'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-execute, philosophy, qa]
+
+  # ============================================
+  # ROADMAP SYNC
+  # ============================================
+  - id: F1-023
+    source: '.claude/commands/hc-execute.md:285-306'
+    type: doc
+    content: 'Phase 6 (ROADMAP SYNC): On success - update ROADMAP.yaml phase status to complete, unlock dependent phases. On failure - do NOT update status, present COMPLETION_REPORT with failures, offer RETRY_FAILED/ROLLBACK/MANUAL options'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-execute, roadmap, sync]
+
+  # ============================================
+  # GIT INTEGRATION
+  # ============================================
+  - id: F1-024
+    source: '.claude/agents/git-engineer.md:109-118'
+    type: doc
+    content: 'Git-engineer handles operations: commit, checkpoint, rollback, review, pr-prep, improve, audit. Spawned via proxy like other agents.'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [git-engineer, operations]
+
+  - id: F1-025
+    source: '.claude/commands/hc-execute.md:195-218'
+    type: doc
+    content: 'Phase 0 (PRE-EXECUTION CHECKPOINT): Check git status, spawn git-engineer with checkpoint operation, store ROLLBACK_HASH in EXECUTION_STATE.md for crash recovery'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-execute, checkpoint, rollback]
+
+  # ============================================
+  # AGENT DEFINITION
+  # ============================================
+  - id: F1-026
+    source: '.claude/agents/git-engineer.md:1-9'
+    type: doc
+    content: 'Agent files have frontmatter with: name, description, tools, model, proxy, skills, loop. Git-engineer uses Flash (2405), has loop: SUPPORT'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [agents, definition, schema]
+
+  - id: F1-027
+    source: '.claude/agents/ (directory listing)'
+    type: code
+    content: 'H-Claude has 2 agent definitions: git-engineer.md, session-triage.md'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [agents, structure]
+
+  # ============================================
+  # REVIEW COMMANDS
+  # ============================================
+  - id: F1-028
+    source: '.claude/commands/hc-glass.md:35-63'
+    type: doc
+    content: 'hc-glass architecture: Phase 0 (Setup), Phase 1 (6 Pro Sector Commanders with Flash scouts in parallel), Phase 2 (Pro Merge Gate synthesizer), Phase 3 (Pro Classification Arbiter), Phase 4 (Opus Board Report)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [hc-glass, architecture, sectors]
+
+  - id: F1-029
+    source: '.claude/commands/red-team.md:35-55'
+    type: doc
+    content: 'red-team architecture: Phase 0 (Setup), Phase 1 (Pro Sector Commanders with Flash specialists in batches), Phase 2 (Pro Sector Synthesis), Phase 3 (Opus Final Audit)'
+    confidence: HIGH
+    relevance: HIGH
+    tags: [red-team, architecture, phases]
+
+gaps:
+  - 'No explicit ORCA, PO, RCH, ARC, WR, QA, VA agent role definitions found - these are proposed in the new framework but not yet implemented'
+  - 'No Sub-Task Tickets document structure found - current system uses execution-plan.yaml with tasks, not tiered tickets'
+  - 'No Phase Roadmap intermediate document between ROADMAP.yaml and execution-plan.yaml - current hierarchy jumps directly'
+  - 'Unable to find explicit "anti-bloat" mechanisms beyond the 15% sweep assumption in hc-execute'
+
+notes:
+  - 'Current system has implicit role mapping: Orchestrator ≈ ORCA, Domain Expert + Pragmatist ≈ PO consultation, Scouts ≈ RCH function, SPEC generator ≈ ARC function, Workers ≈ WR, Phase QA + Sweep ≈ QA, Validators ≈ VA'
+  - 'Commands follow consistent patterns: frontmatter metadata, proxy configuration, template references, phase-based workflows'
+  - 'All orchestration uses synchronous Bash proxy spawning, not Task tool - this is intentional per CLAUDE.md rules'

@@ -1,0 +1,195 @@
+meta:
+  scout_id: 2
+  focus_area: 'Agents & delegation patterns'
+  collected: '2026-01-03'
+
+facts:
+  # Current Agent Definitions
+  - id: F2-001
+    source: '.claude/agents/git-engineer.md:1-9'
+    type: code
+    content: 'git-engineer agent has frontmatter metadata: name, description, tools (Read/Write/Edit/Glob/Grep/Bash), model: flash, proxy: http://localhost:2405, skills: commit-gate, loop: SUPPORT'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-002
+    source: '.claude/agents/git-engineer.md:11-12'
+    type: code
+    content: 'git-engineer is typed as a SUPPORT Agent with role "Git Guardian"'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-003
+    source: '.claude/agents/git-engineer.md:106-118'
+    type: code
+    content: 'git-engineer handles specific operations: commit, checkpoint, rollback, review, pr-prep, improve, audit'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-004
+    source: '.claude/agents/git-engineer.md:426-441'
+    type: code
+    content: 'git-engineer spawning command uses Bash proxy pattern: ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "..." with OPERATION and DETAILS variables'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-005
+    source: '.claude/agents/session-triage.md:4-6'
+    type: code
+    content: 'session-triage is a Background analysis agent, invoked via Bash tool with Flash proxy (port 2405), model: Flash'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-006
+    source: '.claude/agents/session-triage.md:28-29'
+    type: code
+    content: 'session-triage notes: Task tool subagent_type parameter only recognizes hardcoded values (general-purpose, Explore, Plan). Custom agents must use Bash+proxy approach.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # Proxy Configuration
+  - id: F2-007
+    source: 'CLAUDE.md:162-168'
+    type: code
+    content: 'Three proxy tiers defined: Flash (port 2405), Pro (port 2406), Claude/Opus (port 2408)'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-008
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:30-34'
+    type: code
+    content: 'Three-Tier Model: Opus (2408) - Orchestrate/reason/synthesize (HIGH context cost), Pro (2406) - Coordinate/challenge/curate/QA (MEDIUM), Flash (2405) - Research/execute/validate (LOW/disposable)'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-009
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:36'
+    type: code
+    content: 'Golden Rule: Opus never reads raw output. Pro curates first.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # Agent Spawning Patterns
+  - id: F2-010
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:96-127'
+    type: code
+    content: 'Oraca Pattern: Flash "mini-orchestrators" that own one phase. Etymology: Oraca = Oracle + Captain. Opus spawns Oraca, Oraca spawns Flash workers + Pro Phase QA. Oraca cannot spawn other Oraca (no recursion).'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-011
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:225-254'
+    type: code
+    content: 'Sector Pattern: Pro Commanders coordinate domains. Opus talks to Commanders, not specialists. Pro Commander spawns 2-3 Flash specialists, then synthesizes into sector report.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-012
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:379-386'
+    type: code
+    content: 'Standard spawning syntax: ANTHROPIC_API_BASE_URL=http://localhost:240X claude --dangerously-skip-permissions -p "..."'
+    confidence: HIGH
+    relevance: HIGH
+
+  # Agent Communication Patterns
+  - id: F2-013
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:44-54'
+    type: code
+    content: 'Synthesis Before Reasoning pattern: Flash Researchers (parallel) → Pro Curator → Opus. Research files (2000+ lines) curated to CONTEXT_BRIEF.md (300 lines).'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-014
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:159-184'
+    type: code
+    content: 'Session Folders pattern: One folder per session with structured subfolders. ORCHESTRATOR_LOG.md as Flight Recorder (append-only event log).'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-015
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:197-222'
+    type: code
+    content: 'Flight Recorder event types: [INIT], [SPAWN], [COMPLETE], [PHASE], [WARN], [CRITICAL], [DONE]. Format: [TIMESTAMP] [EVENT_TYPE] Message'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-016
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:391-493'
+    type: code
+    content: 'Stall Detection Protocol: Agents write HEARTBEAT_${ID}.md, Orchestrator polls for activity. 3-level escalation: NUDGE (write to COMMANDS.md) → RESPAWN → ESCALATE to HD. Check every 5 minutes.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-017
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:285-328'
+    type: code
+    content: 'Circuit Breaker pattern: 3-Strike Rule (same task fails QA 3x → BLOCKED → escalate), Token Ceiling, Duplicate Guard. Prevents infinite hallucination loops.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # hc-execute Agents
+  - id: F2-018
+    source: '.claude/commands/hc-execute.md:58-82'
+    type: code
+    content: 'Oraca[X] Phase Orchestrators defined: Receive phase spec from Opus, spawn Flash workers (max 3 parallel), collect worker evidence, handle retries (up to 2 per task), spawn Pro Phase QA, report COMPLETE|PARTIAL|BLOCKED.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-019
+    source: '.claude/templates/template-prompts/hc-execute/oraca_phase.md:1-4'
+    type: code
+    content: 'Oraca template variables: SESSION_PATH, PHASE_NUM, PHASE_TASKS, RELEVANT_INTERFACES. Model: Flash (2405)'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-020
+    source: '.claude/templates/template-prompts/hc-execute/worker_task.md:1-3'
+    type: code
+    content: 'Worker template variables: SESSION_PATH, PHASE_NUM, TASK_ID, TASK_DESCRIPTION, SUCCESS_CRITERIA, FILES, RELEVANT_INTERFACES. Model: Flash (2405)'
+    confidence: HIGH
+    relevance: HIGH
+
+  # think-tank Agents
+  - id: F2-021
+    source: '.claude/commands/think-tank.md:99-106'
+    type: code
+    content: 'think-tank cast: HD (Human Chair), Orchestrator (Opus), Domain Expert (Opus 2408), Pragmatist (Pro 2406), Flash Scouts (Flash 2405)'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-022
+    source: '.claude/commands/think-tank.md:194-245'
+    type: code
+    content: 'Fact-based research uses 4 Flash scouts in parallel for different focus areas (Commands/Agents/Templates/State), followed by Flash merge, optional Flash arbiter for conflicts, and 2 Flash validators in parallel.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # Agent Relationship Map
+  - id: F2-023
+    source: '.claude/agents/git-engineer.md:412-419'
+    type: code
+    content: 'git-engineer relationships: Code Worker requests commit via git-engineer, Quality Gatekeeper reviews commits, Lead Architect approves protocol changes, HD delegates operations.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F2-024
+    source: '.claude/agents/session-triage.md:170-217'
+    type: code
+    content: 'session-triage lifecycle: Spawn in background (T+0.2) → User responds (T+15) → TaskOutput(block:true) to retrieve. Critical: Always retrieve with block:true for cleanup. Never fire-and-forget.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # Interface Contracts
+  - id: F2-025
+    source: '.claude/skills/command-designer/ORCHESTRATION_PATTERNS.md:257-282'
+    type: code
+    content: 'Interface Contracts pattern: Generate INTERFACES.md before spawning workers. Defines task-to-task contracts and file ownership. Required for parallel execution and cross-phase dependencies.'
+    confidence: HIGH
+    relevance: HIGH
+
+gaps:
+  - 'No explicit agent registry or enumeration file found - agents are defined individually in .claude/agents/'
+  - 'No formal agent role taxonomy (like PO, ORCA, RCH, ARC, WR, QA, VA from briefing) - current system uses informal roles'
+  - 'No explicit agent lifecycle management beyond session-triage for startup'
+  - 'No formal inter-agent messaging protocol beyond file-based communication (write to .md files, read by next agent)'
+  - 'Agent permissions/constraints defined per-agent, no centralized permission model'

@@ -1,0 +1,258 @@
+meta:
+  created: '2026-01-03'
+  decided_path: 'Path C: Full Diffusion Implementation'
+  confidence: HIGH
+  adr_path: .claude/PM/SSoT/ADRs/ADR-001-diffusion-development-framework.md
+  philosophy_doc: .claude/PM/think-tank/agentic_framework_20260103/02_KNOWLEDGE_BASE/Diffusion Development Philosophy.md
+  status: draft
+
+phases:
+  # ============================================
+  # PHASE 1: Document Templates
+  # ============================================
+  - id: PHASE-01
+    title: 'Document Templates'
+    description: 'Create new resolution-level document templates'
+    tasks:
+      - id: P1-TASK-01
+        action: 'Create phase_roadmap.yaml template'
+        trace_req: 'Diffusion Stack Level 3 - Structure'
+        definition_of_done:
+          - 'Template exists at .claude/templates/think-tank/PHASE_ROADMAP_SCHEMA.md'
+          - 'Schema includes: phase_id, title, bedrock_analysis, tasks[], validation_status'
+          - 'Bedrock_analysis section documents current codebase state'
+        target_context:
+          - '.claude/templates/think-tank/'
+        dependencies: []
+        status: pending
+
+      - id: P1-TASK-02
+        action: 'Create task_plan.yaml template'
+        trace_req: 'Diffusion Stack Level 4 - Blueprint'
+        definition_of_done:
+          - 'Template exists at .claude/templates/think-tank/TASK_PLAN_SCHEMA.md'
+          - 'Schema includes: tasks[] with deliverable, trace_req, physics_check'
+          - 'Each task links to Phase Roadmap and NS'
+        target_context:
+          - '.claude/templates/think-tank/'
+        dependencies: [P1-TASK-01]
+        status: pending
+
+      - id: P1-TASK-03
+        action: 'Create triangulated_ticket.yaml template'
+        trace_req: 'Diffusion Stack Level 5 - Instruction'
+        definition_of_done:
+          - 'Template exists at .claude/templates/think-tank/TICKET_SCHEMA.md'
+          - 'Schema includes triangulated context: goal, bedrock[], instruction'
+          - 'Acceptance criteria field mandatory'
+        target_context:
+          - '.claude/templates/think-tank/'
+        dependencies: [P1-TASK-02]
+        status: pending
+
+  # ============================================
+  # PHASE 2: Generator Templates
+  # ============================================
+  - id: PHASE-02
+    title: 'Generator Templates'
+    description: 'Create agent templates for each resolution level'
+    tasks:
+      - id: P2-TASK-01
+        action: 'Create generator_phase_roadmap.md prompt template'
+        trace_req: 'Phase 4 Step 6 - Phase Definition'
+        definition_of_done:
+          - 'Template at .claude/templates/template-prompts/think-tank/generator_phase_roadmap.md'
+          - 'Variables: SESSION_PATH, PHASE_ID, ROADMAP_PATH'
+          - 'Agent reads codebase to produce bedrock_analysis'
+          - 'Includes Simulation Check validation'
+        target_context:
+          - '.claude/templates/template-prompts/think-tank/'
+        dependencies: [P1-TASK-01]
+        status: pending
+
+      - id: P2-TASK-02
+        action: 'Create generator_task_plan.md prompt template'
+        trace_req: 'Phase 4 Step 7 - Task Planning'
+        definition_of_done:
+          - 'Template at .claude/templates/template-prompts/think-tank/generator_task_plan.md'
+          - 'Variables: SESSION_PATH, PHASE_ROADMAP_PATH'
+          - 'Includes Scope & Physics Check'
+          - 'Anti-bloat validation against NS'
+        target_context:
+          - '.claude/templates/template-prompts/think-tank/'
+        dependencies: [P1-TASK-02, P2-TASK-01]
+        status: pending
+
+      - id: P2-TASK-03
+        action: 'Create generator_tickets.md prompt template'
+        trace_req: 'Phase 4 Step 8 - Ticket Creation'
+        definition_of_done:
+          - 'Template at .claude/templates/template-prompts/think-tank/generator_tickets.md'
+          - 'Variables: SESSION_PATH, TASK_PLAN_PATH'
+          - 'Outputs tickets with triangulated context'
+          - 'Includes Resolution Check (deterministic?)'
+        target_context:
+          - '.claude/templates/template-prompts/think-tank/'
+        dependencies: [P1-TASK-03, P2-TASK-02]
+        status: pending
+
+  # ============================================
+  # PHASE 3: Validation Templates
+  # ============================================
+  - id: PHASE-03
+    title: 'Validation Templates'
+    description: 'Create VA[1] validation templates for each gate'
+    tasks:
+      - id: P3-TASK-01
+        action: 'Create validator_simulation.md (Step 6 gate)'
+        trace_req: 'Simulation Check - Phase Roadmap validation'
+        definition_of_done:
+          - 'Template at .claude/templates/template-prompts/think-tank/validator_simulation.md'
+          - 'Checks: Phase Roadmap aligns with NS AND respects codebase constraints'
+          - 'Output: PASS | FAIL with specific issues'
+        target_context:
+          - '.claude/templates/template-prompts/think-tank/'
+        dependencies: [P2-TASK-01]
+        status: pending
+
+      - id: P3-TASK-02
+        action: 'Create validator_physics.md (Step 7 gate)'
+        trace_req: 'Scope & Physics Check - Task Plan validation'
+        definition_of_done:
+          - 'Template at .claude/templates/template-prompts/think-tank/validator_physics.md'
+          - 'Checks: Every task traces to Phase Roadmap, no bloat, logical architecture'
+          - 'Output: PASS | FAIL with bloat items identified'
+        target_context:
+          - '.claude/templates/template-prompts/think-tank/'
+        dependencies: [P2-TASK-02]
+        status: pending
+
+      - id: P3-TASK-03
+        action: 'Create validator_resolution.md (Step 8 gate)'
+        trace_req: 'Resolution Check - Ticket validation'
+        definition_of_done:
+          - 'Template at .claude/templates/template-prompts/think-tank/validator_resolution.md'
+          - 'Checks: Ticket is deterministic, bedrock context provided, small enough for worker'
+          - 'Output: PASS | FAIL with complexity warnings'
+        target_context:
+          - '.claude/templates/template-prompts/think-tank/'
+        dependencies: [P2-TASK-03]
+        status: pending
+
+      - id: P3-TASK-04
+        action: 'Create validator_lookahead.md (Step 9 horizon check)'
+        trace_req: 'Lookahead Loop - Track B Horizon validation'
+        definition_of_done:
+          - 'Template at .claude/templates/template-prompts/think-tank/validator_lookahead.md'
+          - 'Checks: Does this code block future User Experience per NS?'
+          - 'Runs after each ticket completion'
+        target_context:
+          - '.claude/templates/template-prompts/think-tank/'
+        dependencies: [P3-TASK-03]
+        status: pending
+
+  # ============================================
+  # PHASE 4: Update think-tank.md
+  # ============================================
+  - id: PHASE-04
+    title: 'Update think-tank Command'
+    description: 'Integrate Diffusion workflow into think-tank.md'
+    tasks:
+      - id: P4-TASK-01
+        action: 'Add Diffusion Philosophy section to think-tank.md'
+        trace_req: 'Document the philosophical shift'
+        definition_of_done:
+          - 'New section explaining Triangulated Context'
+          - 'New section explaining Progressive Resolution'
+          - 'Reference to Diffusion Development Philosophy doc'
+        target_context:
+          - '.claude/commands/think-tank.md'
+        dependencies: [P3-TASK-04]
+        status: pending
+
+      - id: P4-TASK-02
+        action: 'Update PHASE SESSION PROTOCOL with resolution steps'
+        trace_req: 'Phase 4 Steps 6-8 integration'
+        definition_of_done:
+          - 'Step 6: Phase Definition with generator_phase_roadmap.md'
+          - 'Step 7: Task Planning with generator_task_plan.md'
+          - 'Step 8: Ticket Creation with generator_tickets.md'
+          - 'VA[1] gates at each step'
+        target_context:
+          - '.claude/commands/think-tank.md'
+        dependencies: [P4-TASK-01]
+        status: pending
+
+      - id: P4-TASK-03
+        action: 'Update Template Reference table'
+        trace_req: 'Document new templates'
+        definition_of_done:
+          - 'Add all new generator templates'
+          - 'Add all new validator templates'
+          - 'Bump version to V2.3.0'
+        target_context:
+          - '.claude/commands/think-tank.md'
+        dependencies: [P4-TASK-02]
+        status: pending
+
+  # ============================================
+  # PHASE 5: Update hc-execute.md
+  # ============================================
+  - id: PHASE-05
+    title: 'Update hc-execute Command'
+    description: 'Integrate Lookahead Loop into execution'
+    tasks:
+      - id: P5-TASK-01
+        action: 'Add Lookahead validation to execution loop'
+        trace_req: 'Phase 5 Step 9 - The Rolling Focus Loop'
+        definition_of_done:
+          - 'After each ticket: spawn validator_lookahead.md'
+          - 'Track B (Horizon) runs parallel to Track A (Reality)'
+          - 'Lookahead FAIL triggers pause and escalation'
+        target_context:
+          - '.claude/commands/hc-execute.md'
+          - '.claude/templates/template-prompts/hc-execute/orchestrator.md'
+        dependencies: [P4-TASK-03]
+        status: pending
+
+      - id: P5-TASK-02
+        action: 'Update worker_task.md to accept triangulated context'
+        trace_req: 'Triangulated Context for workers'
+        definition_of_done:
+          - 'Worker template includes: goal, bedrock[], instruction'
+          - 'Worker reads bedrock files before executing'
+          - 'Worker validates output against goal'
+        target_context:
+          - '.claude/templates/template-prompts/hc-execute/worker_task.md'
+        dependencies: [P5-TASK-01]
+        status: pending
+
+      - id: P5-TASK-03
+        action: 'Update EXECUTION_STATE.md schema for ticket tracking'
+        trace_req: 'Track completion at ticket level'
+        definition_of_done:
+          - 'State tracks: current_ticket, tickets_completed[], lookahead_status'
+          - 'Rolling context update after each ticket'
+        target_context:
+          - '.claude/commands/hc-execute.md'
+        dependencies: [P5-TASK-02]
+        status: pending
+
+risks:
+  - id: R1
+    description: 'More validation steps may slow execution'
+    mitigation: 'Flash agents for validation gates (fast + cheap)'
+
+  - id: R2
+    description: 'Complex hierarchy may overwhelm for small projects'
+    mitigation: 'Allow OUTLINE mode that skips Task Plan (Phase Roadmap → Tickets directly)'
+
+  - id: R3
+    description: 'Bedrock analysis requires reading codebase at each phase'
+    mitigation: 'Cache bedrock analysis in phase_roadmap.yaml, only refresh on significant changes'
+
+validation:
+  - 'All 5 phases complete with templates created'
+  - 'think-tank.md V2.3.0 with Diffusion workflow'
+  - 'hc-execute with Lookahead Loop integrated'
+  - 'End-to-end test: NS → Phase Roadmap → Task Plan → Tickets → Execute with validation'

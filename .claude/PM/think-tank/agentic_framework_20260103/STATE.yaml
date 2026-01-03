@@ -1,0 +1,34 @@
+topic: agentic_framework
+created: '2026-01-03'
+status: decided
+lifecycle:
+  type: side_quest
+  status: decided
+current_session:
+  number: 1
+  step: 7  # PLAN GENERATION
+sessions:
+  - number: 1
+    started: '2026-01-03'
+    trigger: initial
+    steps_completed: [intake, cast, research, council, map, review, adr, plan]
+decisions:
+  - path: 'Path C: Full Diffusion Implementation'
+    confidence: HIGH
+    adr: .claude/PM/SSoT/ADRs/ADR-001-diffusion-development-framework.md
+    made: '2026-01-03'
+validation:
+  current_round: 1
+  max_rounds: 5
+  status: complete
+learnings: []
+open_questions: []
+escalations: []
+
+artifacts:
+  briefing: 00_BRIEFING.md
+  decision_map: 04_DECISION_MAP.md
+  philosophy: 02_KNOWLEDGE_BASE/Diffusion Development Philosophy.md
+  facts_merged: 02_KNOWLEDGE_BASE/facts_merged.yaml
+  execution_plan: execution-plan.yaml
+  adr: .claude/PM/SSoT/ADRs/ADR-001-diffusion-development-framework.md

@@ -1,7 +1,7 @@
 ---
-version: V2.1.0
+version: V2.2.0
 status: current
-timestamp: 2026-01-02
+timestamp: 2026-01-03
 tags: [command, decision-support, multi-agent, council, planning, adr, roadmap, phases]
 description: "Council-based decision support - Dynamic experts collaborate to map options and help you think"
 templates: .claude/templates/template-prompts/think-tank/
@@ -109,7 +109,7 @@ CONTEXT:
 ## Workflow
 
 ```
-INTAKE → CASTING → RESEARCH → COUNCIL → DECISION MAP → VALIDATION → REVIEW → ADR → PLAN
+INTAKE → CASTING → RESEARCH (facts + validation) → COUNCIL → DECISION MAP → VALIDATION → REVIEW → ADR → SPEC → PLAN
 ```
 
 ### Workspace: `.claude/PM/think-tank/{topic_slug}_{YYYYMMDD}/`
@@ -117,14 +117,21 @@ INTAKE → CASTING → RESEARCH → COUNCIL → DECISION MAP → VALIDATION → 
 ```
 00_BRIEFING.md               # Problem statement
 01_CAST.md                   # Expert personas
-02_KNOWLEDGE_BASE/           # Scout research + BRIEFING_PACK.md
+02_KNOWLEDGE_BASE/           # Fact-based research
+    facts_scout_N.yaml       # Raw scout outputs
+    facts_merged.yaml        # Merged + deduped
+    resolution_*.yaml        # Conflict resolutions (if any)
+    validation_N.yaml        # Validator outputs
+    facts.yaml               # Final validated facts
+    BRIEFING_PACK.md         # Optional prose summary
 03_SESSIONS/                 # Transcripts + SUMMARY_LATEST.md
 04_DECISION_MAP.md           # Living document
 04B_VALIDATION/              # Validator feedback by round
-05_LEARNINGS.md              # Implementation learnings
+05_SPEC.md                   # Technical feasibility spec
+05B_LEARNINGS.md             # Implementation learnings
 STATE.yaml                   # Session tracking
 action-items.yaml            # Roadmap sessions only
-execution-plan.yaml          # After DECIDE
+execution-plan.yaml          # After DECIDE (test-driven)
 ```
 
 ---
@@ -180,70 +187,70 @@ If confidence is MEDIUM, ask user approval.
 
 ---
 
-### STEP 3: CONTEXT GATHERING (KB Research)
+### STEP 3: FACT-BASED RESEARCH
 
-**Spawn 4 Flash scouts IN PARALLEL** for comprehensive knowledge base research.
+**Philosophy:** Collect structured facts, not prose analysis. Validate before Council consumes.
 
-#### Research Modes
+#### 3.1 Fact Collection (4 Flash Scouts in Parallel)
 
-Select mode based on session needs:
+Spawn 4 Flash scouts with `scout_facts.md`:
 
-| Mode | When to Use | Scout Configuration |
-|------|-------------|---------------------|
-| **DIVERSITY** | High-level planning, exploring options | 4 scouts with different focus areas |
-| **CONSENSUS** | Fact-finding, validating assumptions | 4 scouts with SAME prompt for accuracy |
+| Scout | Focus Area |
+|-------|------------|
+| 1 | Commands & orchestration |
+| 2 | Agents & delegation |
+| 3 | Templates & prompts |
+| 4 | State & PM workflows |
 
-**DIVERSITY Mode** (default for planning):
-```
-Scout-1: Commands & orchestration patterns
-Scout-2: Agents & delegation patterns
-Scout-3: Templates & prompt engineering
-Scout-4: State management & PM workflows
-```
+**Output:** `facts_scout_N.yaml` (structured facts with sources)
 
-**CONSENSUS Mode** (for fact verification):
-```
-All 4 scouts: Same query, same prompt
-→ Compare findings for truth/accuracy
-→ Conflicts = needs clarification
-```
+Variables: `SESSION_PATH`, `PROBLEM`, `FOCUS_AREA`, `SCOUT_ID`
 
-#### Research Rounds
+#### 3.2 Fact Merge (Flash)
 
-**Up to 3 research rounds per think-tank round.** Agents can request additional research as needed.
+Spawn Flash with `merge_facts.md`:
+- Combine 4 scout outputs
+- Deduplicate (same fact from multiple scouts)
+- Flag conflicts for arbitration
 
-| Round | Purpose |
-|-------|---------|
-| Round 1 | Initial context gathering (automatic) |
-| Round 2 | Deep-dive on gaps identified |
-| Round 3 | Validation/clarification of conflicts |
+**Output:** `facts_merged.yaml`
 
-#### Scout Templates
+Variables: `SESSION_PATH`
 
-| Template | Variables | Purpose |
-|----------|-----------|---------|
-| `scout_codebase.md` | `SESSION_PATH`, `PROBLEM`, `FOCUS_AREA` | Search project code |
-| `scout_docs.md` | `SESSION_PATH`, `PROBLEM`, `FOCUS_AREA` | Search docs/ADRs |
-| `scout_web.md` | `SESSION_PATH`, `PROBLEM`, `FOCUS_AREA` | Web research |
-| `scout_consensus.md` | `SESSION_PATH`, `QUERY` | Consensus verification |
+#### 3.3 Conflict Resolution (Flash Arbiter - if needed)
 
-#### Agent Research Signal
+**If conflicts found:** Spawn Flash with `arbiter_conflict.md`:
+- Investigate disagreement
+- Go to sources, verify
+- Resolve with evidence
 
-**All council agents have access to research.** When an agent needs information:
+**Output:** `resolution_{{CONFLICT_ID}}.yaml`
 
-```
-RESEARCH_REQUEST: [query]
-MODE: DIVERSITY | CONSENSUS
-FOCUS: [optional - specific area to investigate]
-```
+Variables: `SESSION_PATH`, `CONFLICT_ID`
 
-Orchestrator spawns scouts and returns `RESEARCH_RESPONSE.md` within same round.
+#### 3.4 Fact Validation (2 Flash Validators in Parallel)
+
+Spawn 2 Flash validators with `fact_validator.md`:
+- Verify HIGH relevance facts (source exists, content accurate)
+- Spot-check MEDIUM relevance facts
+- Skip LOW relevance facts
+
+**Aggregation:**
+- Both VERIFIED → fact is trusted
+- One flags → investigate
+- Both flag → remove fact
+
+**Output:** `validation_N.yaml`, then final `facts.yaml`
+
+Variables: `SESSION_PATH`, `VALIDATOR_ID`
 
 ---
 
-### STEP 3.5: BRIEFING PACK SYNTHESIS
+### STEP 3.5: BRIEFING PACK (Optional)
 
-Spawn Pro agent with `synthesizer_briefing.md` → `BRIEFING_PACK.md`
+If Council needs prose summary, spawn Pro with `synthesizer_briefing.md`.
+
+Otherwise, Council reads `facts.yaml` directly (preferred - less token overhead).
 
 Variables: `SESSION_PATH`
 
@@ -320,7 +327,34 @@ Update STATE.yaml with ADR reference.
 
 ---
 
+### STEP 6.75: TECHNICAL SPECIFICATION (Feasibility Gate)
+
+**Before planning HOW, prove we CAN.**
+
+Spawn Pro/Sonnet (Architect) with `generator_spec.md`:
+- Architecture overview
+- Critical path identification
+- Technical risks
+- Dependencies
+- Proof of concept (pseudo-code for critical parts)
+- Requirement traceability (link to NORTHSTAR)
+
+**Output:** `05_SPEC.md`
+
+Variables: `SESSION_PATH`, `DECIDED_PATH`
+
+**Feasibility Verdicts:**
+| Verdict | Action |
+|---------|--------|
+| FEASIBLE | Proceed to PLAN |
+| FEASIBLE_WITH_RISKS | Proceed, include mitigations in plan |
+| NOT_FEASIBLE | Return to USER REVIEW, adjust scope |
+
+---
+
 ### STEP 7: PLAN GENERATION
+
+**Requires:** `05_SPEC.md` must exist and verdict must be FEASIBLE or FEASIBLE_WITH_RISKS.
 
 Ask plan scope: FULL | OUTLINE | SKIP
 
@@ -328,7 +362,13 @@ Spawn Pro with `generator_execution_plan.md`:
 
 Variables: `SESSION_PATH`, `DECIDED_PATH`, `CONFIDENCE`, `PLAN_LEVEL`
 
-Output: `execution-plan.yaml` ready for `/hc-execute`
+**Output:** `execution-plan.yaml` with:
+- `trace_req` - Every task links to NORTHSTAR requirement
+- `definition_of_done` - Explicit success criteria per task
+- `target_context` - Files/components affected
+- `risks` - Carried forward from SPEC.md
+
+Ready for `/hc-execute`
 
 ---
 
@@ -680,21 +720,49 @@ We ask "what fails?" before "what succeeds?"
 
 All prompts in: `.claude/templates/template-prompts/think-tank/`
 
+### Research Phase (Fact-Based)
+
 | Template | Model | Purpose |
 |----------|-------|---------|
-| `scout_codebase.md` | Flash | Search codebase |
-| `scout_docs.md` | Flash | Search docs/ADRs |
-| `scout_web.md` | Flash | Web research |
-| `synthesizer_briefing.md` | Pro | Reconcile scout findings |
+| `scout_facts.md` | Flash | Collect structured facts (primary) |
+| `merge_facts.md` | Flash | Combine + dedupe scout outputs |
+| `arbiter_conflict.md` | Flash | Resolve fact disagreements |
+| `fact_validator.md` | Flash | Verify fact accuracy |
+| `synthesizer_briefing.md` | Pro | Optional prose summary |
+
+### Council Phase
+
+| Template | Model | Purpose |
+|----------|-------|---------|
 | `council_domain_expert.md` | Opus | Domain expertise |
 | `council_pragmatist.md` | Pro | Reality checks + Pre-Mortem |
+
+### Synthesis & Validation
+
+| Template | Model | Purpose |
+|----------|-------|---------|
 | `synthesizer_decision_map.md` | Pro | Generate Decision Map |
 | `validator.md` | Pro/Opus | Independent review |
 | `synthesizer_consensus.md` | Flash | Aggregate feedback |
 | `correction_directive.md` | Pro | Fix consensus issues |
-| `generator_execution_plan.md` | Pro | Create execution plan |
-| `generator_action_items.md` | Pro | Extract action items (roadmap) |
+
+### Generation
+
+| Template | Model | Purpose |
+|----------|-------|---------|
 | `generator_adr.md` | Flash | Create/update ADR |
+| `generator_spec.md` | Pro | Technical feasibility spec |
+| `generator_execution_plan.md` | Pro | Test-driven execution plan |
+| `generator_action_items.md` | Pro | Extract action items (roadmap) |
+
+### Legacy (Deprecated)
+
+| Template | Status | Replaced By |
+|----------|--------|-------------|
+| `scout_codebase.md` | deprecated | `scout_facts.md` with FOCUS_AREA |
+| `scout_docs.md` | deprecated | `scout_facts.md` with FOCUS_AREA |
+| `scout_web.md` | deprecated | `scout_facts.md` with FOCUS_AREA |
+| `scout_consensus.md` | deprecated | `fact_validator.md` |
 
 ---
 
@@ -716,4 +784,4 @@ CONTEXT:
 
 ---
 
-**Version:** V2.1.0 | Roadmap hierarchy: --roadmap replaces --main, --phase replaces --parent
+**Version:** V2.2.0 | Fact-based research, SPEC feasibility gate, test-driven execution plans

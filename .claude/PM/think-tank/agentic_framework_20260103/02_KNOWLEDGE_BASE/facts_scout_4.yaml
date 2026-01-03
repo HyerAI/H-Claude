@@ -1,0 +1,303 @@
+meta:
+  scout_id: 4
+  focus_area: 'State management & PM workflows'
+  collected: '2026-01-03'
+  sources_searched:
+    - .claude/context.yaml
+    - .claude/PM/SSoT/ROADMAP.yaml
+    - .claude/PM/SSoT/NORTHSTAR.md
+    - .claude/PM/BACKLOG.yaml
+    - .claude/PM/think-tank/agentic_framework_20260103/STATE.yaml
+    - .claude/templates/think-tank/STATE_SCHEMA.md
+    - .claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md
+    - .claude/examples/execution-plan-example.yaml
+    - CLAUDE.md
+    - .claude/commands/think-tank.md
+    - .claude/commands/hc-execute.md
+
+facts:
+  # ============================================
+  # STATE FILES - context.yaml
+  # ============================================
+  - id: F4-001
+    source: '.claude/context.yaml:1-53'
+    type: code
+    content: 'context.yaml is the LIVE CONTEXT file updated after every significant task/commit. Contains: meta, project, roadmap reference, focus, recent_actions (last 10), tasks, blockers, backlog, think_tank sessions, git status.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-002
+    source: '.claude/context.yaml:18-19'
+    type: code
+    content: 'context.yaml references roadmap via path field: `roadmap.path: .claude/PM/SSoT/ROADMAP.yaml` - does NOT duplicate active_phases (reads from ROADMAP.yaml directly).'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-003
+    source: '.claude/context.yaml:29-32'
+    type: code
+    content: 'context.yaml tasks section has: active[] and completed_this_session[] - simple task tracking within session.'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  - id: F4-004
+    source: '.claude/context.yaml:45-47'
+    type: code
+    content: 'context.yaml think_tank array tracks sessions with: topic, path, status (active|paused|decided|archived). Roadmap sessions tracked in ROADMAP.yaml, not here.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # ============================================
+  # STATE FILES - ROADMAP.yaml
+  # ============================================
+  - id: F4-005
+    source: '.claude/PM/SSoT/ROADMAP.yaml:1-80'
+    type: code
+    content: 'ROADMAP.yaml is the STATE document for development story (HOW). Paired with NORTHSTAR.md (WHAT). Contains: meta, northstar reference, active_phases[], phases[], side_quests[], archived_phases[], changelog[].'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-006
+    source: '.claude/PM/SSoT/ROADMAP.yaml:29-46'
+    type: code
+    content: 'ROADMAP.yaml phases structure: id (PHASE-XXX), title, status (planned|active|complete|blocked), description, dependencies[], plan_path (links to execution-plan.yaml), tech_debt[].'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-007
+    source: '.claude/PM/SSoT/ROADMAP.yaml:48-56'
+    type: code
+    content: 'ROADMAP.yaml side_quests[] array tracks ad-hoc think-tanks: id (SQ-XXX), title, status, path to workspace, optional relates_to phase.'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  - id: F4-008
+    source: '.claude/PM/SSoT/ROADMAP.yaml:6-9'
+    type: code
+    content: 'ROADMAP.yaml rules: Git is versioning (commit before changes for rollback), dependencies determine phase transitions and parallelism, each phase links to its think-tank execution-plan.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # ============================================
+  # STATE FILES - STATE.yaml (think-tank)
+  # ============================================
+  - id: F4-009
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:9-99'
+    type: documentation
+    content: 'STATE.yaml schema for think-tank workspaces: topic, created, last_active, status, lifecycle (type: roadmap|phase|side_quest|legacy, status), parent (for SUB sessions), escalations[], current_session, sessions[], decisions[], learnings[], open_questions[], cast, action_items[].'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-010
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:17-25'
+    type: documentation
+    content: 'STATE.yaml lifecycle.type enum: roadmap (--roadmap flag), phase (--phase=PHASE-XXX flag), side_quest (no flag), legacy (pre-V2.0.0 migration).'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-011
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:46-49'
+    type: documentation
+    content: 'STATE.yaml current_session tracks: number (1,2,3...), step (1=intake, 2=cast, 3=research, 4=council, 5=map, 6=review), started, trigger (initial|new_info|issue|reevaluate).'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  - id: F4-012
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:94-99'
+    type: documentation
+    content: 'STATE.yaml action_items[] for MAIN sessions: id (AI-XXX), status (pending|in_progress|completed|blocked), sub_session_path.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-013
+    source: '.claude/PM/think-tank/agentic_framework_20260103/STATE.yaml:1-17'
+    type: code
+    content: 'Current think-tank STATE.yaml example: topic, created, status:active, lifecycle.type:side_quest, current_session (number:1, step:3=RESEARCH), validation (current_round:0, max_rounds:5, status:pending).'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  # ============================================
+  # DOCUMENT HIERARCHY
+  # ============================================
+  - id: F4-014
+    source: 'CLAUDE.md:6-14'
+    type: documentation
+    content: 'Core document hierarchy: NORTHSTAR.md (WHAT - Goals, features, requirements, User/Customer perspective) paired with ROADMAP.yaml (HOW - Phases, execution order, Developer/Builder perspective). These MUST stay aligned.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-015
+    source: '.claude/PM/SSoT/NORTHSTAR.md:69-136'
+    type: documentation
+    content: 'NORTHSTAR.md workflow pattern: NORTHSTAR → /think-tank --roadmap → ROADMAP.yaml → /think-tank --phase=PHASE-XXX → execution-plan.yaml → git-engineer checkpoint → /hc-execute → Phase complete → ROADMAP updated.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-016
+    source: '.claude/PM/SSoT/NORTHSTAR.md:124-136'
+    type: documentation
+    content: 'Document hierarchy flow: NORTHSTAR.md (WHAT-User Story) → aligned with → ROADMAP.yaml (HOW-Phases) → PHASE-XXX → Phase Think-Tank → execution-plan.yaml → Execute. Side-quests recorded in ROADMAP.yaml may inform future phases.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-017
+    source: '.claude/commands/think-tank.md:17-29'
+    type: documentation
+    content: 'think-tank SSoT hierarchy: NORTHSTAR.md (WHAT) → ROADMAP.yaml (HOW) → Phase Think-Tanks (Detailed Execution Plans) → /hc-execute (Implementation).'
+    confidence: HIGH
+    relevance: HIGH
+
+  # ============================================
+  # EXECUTION-PLAN STRUCTURE
+  # ============================================
+  - id: F4-018
+    source: '.claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md:9-53'
+    type: documentation
+    content: 'execution-plan.yaml schema: topic, created, last_updated, status (draft|review|approved|in_progress|complete), decision (path, version, confidence), phases[] (id, name, status, tasks[]), execution tracking, reviews[].'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-019
+    source: '.claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md:32-38'
+    type: documentation
+    content: 'execution-plan.yaml task structure: id (e.g., "1.1"), description, files[] to create/modify, dependencies[], success_criteria, status (pending|in_progress|complete|blocked), notes.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-020
+    source: '.claude/examples/execution-plan-example.yaml:1-143'
+    type: code
+    content: 'execution-plan.yaml example shows: meta (phase_id, phase_title, status), roadmap_path reference, success_criteria[], execution_phases[] with nested tasks, risks[], notes[].'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  - id: F4-021
+    source: '.claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md:312-341'
+    type: documentation
+    content: 'execution-plan.yaml file location: .claude/PM/think-tank/{topic_slug}_{date}/ alongside STATE.yaml, 00_BRIEFING.md, 01_CAST.md, 02_KNOWLEDGE_BASE/, 03_SESSIONS/, 04_DECISION_MAP.md, 05_LEARNINGS.md.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # ============================================
+  # PM FOLDER STRUCTURE
+  # ============================================
+  - id: F4-022
+    source: 'CLAUDE.md:125-145'
+    type: documentation
+    content: 'PM folder structure: .claude/PM/ contains SSoT/ (NORTHSTAR.md, ROADMAP.yaml, ADRs/), think-tank/, hc-execute/, hc-glass/, GIT/, BACKLOG.yaml, CHANGELOG.md.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-023
+    source: '.claude/PM/* (glob results)'
+    type: code
+    content: 'Actual PM folder contents: think-tank/, red-team/, hc-glass/, hc-execute/, TEMP/, SSoT/ADRs/, execute-plan/ (deprecated?), GIT/, BACKLOG.yaml.'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  - id: F4-024
+    source: '.claude/commands/think-tank.md:115-135'
+    type: documentation
+    content: 'think-tank workspace structure: .claude/PM/think-tank/{topic_slug}_{YYYYMMDD}/ with 00_BRIEFING.md, 01_CAST.md, 02_KNOWLEDGE_BASE/, 03_SESSIONS/, 04_DECISION_MAP.md, 04B_VALIDATION/, 05_SPEC.md, 05B_LEARNINGS.md, STATE.yaml, action-items.yaml (roadmap only), execution-plan.yaml.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-025
+    source: '.claude/commands/hc-execute.md:86-103'
+    type: documentation
+    content: 'hc-execute session structure: .claude/PM/hc-execute/${session-slug}/ with EXECUTION_STATE.md, ORCHESTRATOR_LOG.md, COMMANDS.md, INTERFACES.md, PHASE_N/ folders, ANALYSIS/ (QA_SYNTHESIS.md, SWEEP_REPORT.md), COMPLETION_REPORT.md.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # ============================================
+  # BACKLOG STRUCTURE
+  # ============================================
+  - id: F4-026
+    source: '.claude/PM/BACKLOG.yaml:1-38'
+    type: code
+    content: 'BACKLOG.yaml structure: meta, P1 (Critical-ready now), P2 (Important-has dependencies), P3 (Nice to have), P4 (Someday/Maybe). Each item: id, title, context, blocked_by, added.'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  - id: F4-027
+    source: '.claude/PM/BACKLOG.yaml:5-8'
+    type: code
+    content: 'BACKLOG.yaml rules: P1 items should have blocked_by: null (ready to work), Session-triage validates dependencies at session start, Move items as blockers clear, Include enough context for future-you.'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  # ============================================
+  # WORKFLOW INTEGRATION
+  # ============================================
+  - id: F4-028
+    source: 'CLAUDE.md:175-187'
+    type: documentation
+    content: 'Development workflow: NORTHSTAR.md (WHAT) → /think-tank --roadmap → ROADMAP.yaml → /think-tank --phase=X → execution-plan.yaml → git-engineer checkpoint → /hc-execute → Phase complete → ROADMAP updated → next phase unlocked.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-029
+    source: '.claude/commands/hc-execute.md:285-306'
+    type: documentation
+    content: 'hc-execute ROADMAP SYNC: On success - update phase.status to complete, unlock dependent phases, update active_phases[]. On failure - do NOT update ROADMAP, offer RETRY_FAILED, ROLLBACK, or MANUAL options.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-030
+    source: 'CLAUDE.md:191-205'
+    type: documentation
+    content: 'Session lifecycle: During session update context.yaml, log recent_actions (keep 10), document decisions as ADRs, unsorted tasks to backlog, tech debt to ROADMAP phases. End/Commit: update context.yaml, ROADMAP.yaml (if changed), CHANGELOG.md, spawn git-engineer.'
+    confidence: HIGH
+    relevance: HIGH
+
+  # ============================================
+  # SESSION START PROTOCOL
+  # ============================================
+  - id: F4-031
+    source: 'CLAUDE.md:77-117'
+    type: documentation
+    content: 'Session start protocol: Step 1 - Read context.yaml and ROADMAP.yaml. Step 2 - Spawn triage via Bash+proxy (NOT Task tool). Step 3 - Greet user without waiting. Step 4 - Merge triage output when user responds.'
+    confidence: HIGH
+    relevance: MEDIUM
+
+  # ============================================
+  # PROPOSED FRAMEWORK COMPARISON
+  # ============================================
+  - id: F4-032
+    source: '.claude/PM/think-tank/agentic_framework_20260103/00_BRIEFING.md:20-37'
+    type: documentation
+    content: 'Current vs Proposed comparison: Current hierarchy NS→RM→execution-plan.yaml. Proposed hierarchy NS→RM→Phase Roadmap→Task Plan→Sub-Task Tickets. More granular drill-down proposed.'
+    confidence: HIGH
+    relevance: HIGH
+
+  - id: F4-033
+    source: '.claude/PM/think-tank/agentic_framework_20260103/00_BRIEFING.md:39-46'
+    type: documentation
+    content: 'Proposed 5-phase workflow: 1-Discovery & Definition (PO+User→NS), 2-Targeted Research & Validation (RCH+VA), 3-Architecture & Roadmap (ARC→master roadmap), 4-Granular Planning (ORCA drills Phase→Task→Sub-Task), 5-Execution Loop (WR executes, QA tests, VA validates, ORCA orchestrates).'
+    confidence: HIGH
+    relevance: HIGH
+
+  # ============================================
+  # ADR TRACKING
+  # ============================================
+  - id: F4-034
+    source: 'CLAUDE.md:195'
+    type: documentation
+    content: 'ADR location: .claude/PM/SSoT/ADRs/ - template provided but folder is empty (only .gitkeep exists currently).'
+    confidence: HIGH
+    relevance: LOW
+
+  - id: F4-035
+    source: '.claude/commands/think-tank.md:320-327'
+    type: documentation
+    content: 'ADR creation is MANDATORY for every decision using generator_adr.md template. Update STATE.yaml with ADR reference after creation.'
+    confidence: HIGH
+    relevance: MEDIUM
+
+gaps:
+  - 'No explicit Phase Roadmap document exists - current system goes from ROADMAP.yaml phases directly to execution-plan.yaml'
+  - 'No Task Plan or Sub-Task Tickets structure - tasks are flat within execution-plan.yaml phases'
+  - 'No dedicated state file for ORCA-style orchestrator - hc-execute uses EXECUTION_STATE.md'
+  - 'No explicit agent role definitions in state files - agents are cast dynamically in think-tank'
+  - 'No cross-phase state synchronization mechanism documented beyond ROADMAP.yaml active_phases'
+  - 'Current lifecycle types (roadmap|phase|side_quest|legacy) do not map to proposed agent roles (PO, ORCA, RCH, ARC, WR, QA, VA)'
