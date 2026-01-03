@@ -1,7 +1,7 @@
 # Session-Triage Agent
 
 **Type:** Background analysis agent
-**Invocation:** Task tool with `subagent_type: "session-triage"`
+**Invocation:** Bash tool with Flash proxy (port 2405)
 **Model:** Flash (fast, low cost)
 
 ---
@@ -15,15 +15,18 @@ Runs in BACKGROUND while user types - never blocks conversation.
 
 ## When Spawned
 
-Main Claude spawns this agent at session start:
+Main Claude spawns this agent at session start using **Bash tool with proxy**:
 
+```bash
+# Use Bash tool with run_in_background: true
+ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+You are the Session-Triage agent. Generate a SESSION BRIEF.
+WORKSPACE: $(pwd)
+[... triage prompt ...]
+"
 ```
-Task(
-  subagent_type: "session-triage",
-  run_in_background: true,
-  prompt: "Generate SESSION BRIEF for alignment"
-)
-```
+
+**Note:** Task tool's `subagent_type` parameter only recognizes hardcoded values (general-purpose, Explore, Plan, etc.). Custom agents must use the Bash+proxy approach.
 
 ---
 
@@ -167,21 +170,23 @@ WORKSPACE: [project root]
 ## Integration with Main Claude
 
 ### At Session Start (T+0.2)
-```python
-# Main Claude spawns triage in background
-triage_task = Task(
-  subagent_type: "session-triage",
-  run_in_background: true,
-  prompt: "Generate SESSION BRIEF"
-)
-# Returns task_id immediately
+```bash
+# Main Claude spawns triage in background using Bash tool
+# Set run_in_background: true in Bash tool call
+ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+You are the Session-Triage agent. Generate a SESSION BRIEF.
+WORKSPACE: $(pwd)
+Read: .claude/context.yaml, .claude/PM/SSoT/ROADMAP.yaml
+Output: SESSION BRIEF with Last Session, Roadmap Status, Phase Progress, Drift Alerts, Recommended Action.
+"
+# Returns shell_id immediately
 ```
 
 ### After User Responds (T+15)
 ```python
 # Main Claude retrieves triage output - BLOCKING to ensure cleanup
 triage_result = TaskOutput(
-  task_id: triage_task.id,
+  task_id: shell_id,
   block: true  # MUST block to ensure proper cleanup
 )
 # Merge with user intent for informed response

@@ -15,6 +15,50 @@ These MUST stay aligned. NORTHSTAR = destination; ROADMAP = route.
 
 ---
 
+## SESSION START (Do This First)
+
+**On EVERY new session, IMMEDIATELY:**
+
+### Step 1: Read State
+```
+Read .claude/context.yaml
+Read .claude/PM/SSoT/ROADMAP.yaml
+```
+
+### Step 2: Spawn Triage (Background)
+
+Use **Bash tool with proxy** (NOT Task tool - custom subagent_types don't work):
+
+```bash
+# Run in background - don't wait
+ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+You are the Session-Triage agent. Generate a SESSION BRIEF.
+
+WORKSPACE: $(pwd)
+
+Read these files:
+1. .claude/context.yaml - extract focus, recent_actions, blockers, backlog
+2. .claude/PM/SSoT/ROADMAP.yaml - extract phases, dependencies, active_phases
+3. Glob .claude/PM/think-tank/*/STATE.yaml - check workspace statuses
+
+Output a SESSION BRIEF with: Last Session, Roadmap Status, Phase Progress, Drift Alerts, Recommended Action.
+
+Be fast (<8 seconds). Read-only. Missing data shows N/A.
+"
+```
+
+Use Bash tool's `run_in_background: true` parameter.
+
+### Step 3: Greet User (Don't Wait)
+```
+"Last session we [recent_action from context.yaml]. Current focus: [objective]. What's next?"
+```
+
+### Step 4: Merge Triage Output
+When user responds, retrieve triage output with `TaskOutput(block: true)` and combine with user intent.
+
+---
+
 ## Quick Reference
 
 ### Folder Structure
@@ -85,20 +129,7 @@ Phase complete         →  ROADMAP updated → next phase unlocked
 
 ---
 
-## Session Protocol
-
-### Start (T+0)
-
-1. **Read** `context.yaml` and `ROADMAP.yaml`
-2. **Spawn** session-triage agent in background → outputs SESSION BRIEF
-3. **Greet** user based on context (don't wait for triage)
-4. **Merge** triage SESSION BRIEF when user responds
-
-```
-Greet: "Last session we [recent_action]. Current focus: [objective]. What's next?"
-```
-
-### During Session
+## During Session
 
 - Update `context.yaml` after significant work
 - Log actions in `recent_actions` (keep last 10)
@@ -106,7 +137,7 @@ Greet: "Last session we [recent_action]. Current focus: [objective]. What's next
 - Unsorted tasks → `context.yaml` backlog
 - Tech debt → relevant phase in `ROADMAP.yaml`
 
-### End / Commit
+## End / Commit
 
 1. Update `context.yaml` with current state
 2. Update `ROADMAP.yaml` if phase progress changed
