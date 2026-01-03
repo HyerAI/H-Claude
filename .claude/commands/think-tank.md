@@ -180,15 +180,64 @@ If confidence is MEDIUM, ask user approval.
 
 ---
 
-### STEP 3: CONTEXT GATHERING
+### STEP 3: CONTEXT GATHERING (KB Research)
 
-Spawn Flash scouts IN PARALLEL based on problem type:
+**Spawn 4 Flash scouts IN PARALLEL** for comprehensive knowledge base research.
 
-| Trigger | Template | Variables |
-|---------|----------|-----------|
-| Technical | `scout_codebase.md` | `SESSION_PATH`, `PROBLEM` |
-| Architecture | `scout_docs.md` | `SESSION_PATH`, `PROBLEM` |
-| External tech | `scout_web.md` | `SESSION_PATH`, `PROBLEM` |
+#### Research Modes
+
+Select mode based on session needs:
+
+| Mode | When to Use | Scout Configuration |
+|------|-------------|---------------------|
+| **DIVERSITY** | High-level planning, exploring options | 4 scouts with different focus areas |
+| **CONSENSUS** | Fact-finding, validating assumptions | 4 scouts with SAME prompt for accuracy |
+
+**DIVERSITY Mode** (default for planning):
+```
+Scout-1: Commands & orchestration patterns
+Scout-2: Agents & delegation patterns
+Scout-3: Templates & prompt engineering
+Scout-4: State management & PM workflows
+```
+
+**CONSENSUS Mode** (for fact verification):
+```
+All 4 scouts: Same query, same prompt
+→ Compare findings for truth/accuracy
+→ Conflicts = needs clarification
+```
+
+#### Research Rounds
+
+**Up to 3 research rounds per think-tank round.** Agents can request additional research as needed.
+
+| Round | Purpose |
+|-------|---------|
+| Round 1 | Initial context gathering (automatic) |
+| Round 2 | Deep-dive on gaps identified |
+| Round 3 | Validation/clarification of conflicts |
+
+#### Scout Templates
+
+| Template | Variables | Purpose |
+|----------|-----------|---------|
+| `scout_codebase.md` | `SESSION_PATH`, `PROBLEM`, `FOCUS_AREA` | Search project code |
+| `scout_docs.md` | `SESSION_PATH`, `PROBLEM`, `FOCUS_AREA` | Search docs/ADRs |
+| `scout_web.md` | `SESSION_PATH`, `PROBLEM`, `FOCUS_AREA` | Web research |
+| `scout_consensus.md` | `SESSION_PATH`, `QUERY` | Consensus verification |
+
+#### Agent Research Signal
+
+**All council agents have access to research.** When an agent needs information:
+
+```
+RESEARCH_REQUEST: [query]
+MODE: DIVERSITY | CONSENSUS
+FOCUS: [optional - specific area to investigate]
+```
+
+Orchestrator spawns scouts and returns `RESEARCH_RESPONSE.md` within same round.
 
 ---
 
@@ -214,8 +263,10 @@ Spawn agents sequentially for each round:
 - Every 3-4 exchanges: update `SUMMARY_LATEST.md` (max 2000 tokens)
 
 **Handle signals:**
-- `RESEARCH_REQUEST:` → spawn Flash scout
+- `RESEARCH_REQUEST:` → spawn 4 Flash scouts (see STEP 3 for modes)
 - `USER_QUESTION:` → log to STATE.yaml
+
+**Research budget:** Up to 3 research rounds per council round. Agents should use this tool proactively.
 
 **Convergence:** 2-3 paths with trade-offs understood. Max 6 rounds.
 

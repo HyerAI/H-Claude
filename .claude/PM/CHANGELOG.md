@@ -8,6 +8,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-01-02 - Global Installer & Enhanced Research
+
+### Added
+- install.sh - One-command global installer (`curl ... | bash`)
+- /hc-init skill - Initialize H-Claude workflow in any project
+- Global infrastructure: proxies install to ~/.claude/infrastructure/
+- Enhanced KB research: 4 Flash scouts with DIVERSITY/CONSENSUS modes
+- Up to 3 research rounds per think-tank council round
+- Agent research signal: `RESEARCH_REQUEST:` with mode selection
+
+### Changed
+- README.md - New global install flow with curl command
+- GET_STARTED.md - Dual installation methods (global vs clone)
+- think-tank.md STEP 3 - Enhanced context gathering with 4 scouts
+
+---
+
 ## [2.0.0] - 2026-01-02 - GitHub Release Ready
 
 ### Added

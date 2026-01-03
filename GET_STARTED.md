@@ -11,74 +11,122 @@ AI agent orchestration template for Claude Code projects. Provides structured wo
 | **Claude CLI** | Installed and authenticated (`claude --version`) |
 | **Node.js** | >= 18.0.0 |
 | **Google AI API Key** | For Gemini proxies (CG-Flash, CG-Pro) |
-| **Claude Subscription** | For CC-Claude proxy (uses CLI auth) |
+| **git** | For version control |
+| **curl** | For installer script |
 
 ---
 
-## Installation
+## Installation Methods
 
-### 1. Create Project from Template
+### Method 1: One-Command Global Install (Recommended)
 
-**Option A: GitHub "Use this template" button**
-1. Go to [HyerAI/H-Claude](https://github.com/HyerAI/H-Claude)
-2. Click "Use this template" → "Create a new repository"
-3. Clone your new repository:
-   ```bash
-   git clone https://github.com/your-username/your-project.git
-   cd your-project
-   ```
-
-**Option B: Clone directly**
 ```bash
-git clone https://github.com/HyerAI/H-Claude.git your-project
-cd your-project
-rm -rf .git && git init  # Start fresh git history
+curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | bash
 ```
 
-### 2. Run Setup
+This installs H-Claude globally to `~/.claude/`:
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| Proxies | `~/.claude/infrastructure/` | CG-Flash, CG-Pro, CC-Claude |
+| Scripts | `~/.claude/bin/` | start-proxies.sh, stop-proxies.sh |
+| Templates | `~/.claude/h-claude-template/` | Workflow files for /hc-init |
+
+**After install:**
+1. Configure API keys (see below)
+2. Start proxies: `~/.claude/bin/start-proxies.sh`
+3. In any project: `claude` → `/hc-init`
+
+---
+
+### Method 2: Clone Template Directly
+
+If you prefer everything in one project folder:
 
 ```bash
+git clone https://github.com/HyerAI/H-Claude.git my-project
+cd my-project
 ./setup.sh
 ```
 
-This single command:
-- Installs all proxy dependencies (npm install)
-- Creates `.env` files from templates
-- Validates the installation
-- Reports any issues
+---
 
-### 3. Configure API Keys
+## Configure API Keys
 
-Edit the `.env` files created by setup:
+### For Global Install
 
 ```bash
-# Gemini proxies (CG-Flash, CG-Pro)
-# Edit: infrastructure/CG-Flash/.env
-# Edit: infrastructure/CG-Pro/.env
-# Add: GOOGLE_AI_API_KEY=your-key-here
+# Edit these files:
+~/.claude/infrastructure/CG-Flash/.env
+~/.claude/infrastructure/CG-Pro/.env
+
+# Add your Google AI API key:
+GOOGLE_AI_API_KEY=your-key-here
+```
+
+### For Template Clone
+
+```bash
+# Edit these files:
+infrastructure/CG-Flash/.env
+infrastructure/CG-Pro/.env
 ```
 
 Get your Google AI API key at: https://aistudio.google.com/apikey
 
-**Claude Proxy (CC-Claude):** Uses Claude CLI authentication (no API key needed if CLI is authenticated).
+**CC-Claude proxy** uses Claude CLI authentication (no API key needed).
 
 ---
 
 ## Start Proxies
 
-Start all proxies with a single command:
+### Global Install
+
+```bash
+~/.claude/bin/start-proxies.sh
+```
+
+### Template Clone
 
 ```bash
 ./start-proxies.sh
 ```
 
-This starts CG-Flash, CG-Pro, and CC-Claude in the background. To stop them:
+To stop proxies:
 
 ```bash
-./stop-proxies.sh
+~/.claude/bin/stop-proxies.sh   # Global
+./stop-proxies.sh               # Template clone
 ```
 
-### Proxy Reference
+---
+
+## Initialize a Project
+
+After global install, initialize H-Claude in any project:
+
+```bash
+# Navigate to your project
+cd my-project
+
+# Open Claude Code
+claude
+
+# Run initialization skill
+/hc-init
+```
+
+This copies workflow files to your project:
+- `.claude/commands/` - Orchestration commands
+- `.claude/agents/` - Agent definitions
+- `.claude/skills/` - Reusable skills
+- `.claude/templates/` - Prompt templates
+- `.claude/PM/` - Project management state
+- `CLAUDE.md` - Project instructions
+
+---
+
+## Proxy Reference
 
 | Proxy | Port | Backend | Use Case |
 |-------|------|---------|----------|
@@ -91,7 +139,7 @@ This starts CG-Flash, CG-Pro, and CC-Claude in the background. To stop them:
 
 ## Verify Installation
 
-Check each running proxy:
+Check proxy health:
 
 ```bash
 curl http://localhost:2405/health  # Flash
@@ -99,7 +147,7 @@ curl http://localhost:2406/health  # Pro
 curl http://localhost:2408/health  # Claude
 ```
 
-Expected response: `{"status":"ok"}` or similar health message.
+Expected response: `{"status":"ok"}`
 
 Test a sub-agent spawn:
 
@@ -111,46 +159,72 @@ ANTHROPIC_API_BASE_URL=http://localhost:2405 claude -p "echo 'Hello from Flash p
 
 ## First Steps
 
-1. **Start Claude Code** in your project:
-   ```bash
-   cd your-project
-   claude
+1. **Edit NORTHSTAR.md** - Define your project goals, requirements, constraints
+
+2. **Create roadmap**:
+   ```
+   /think-tank --roadmap
    ```
 
-2. **Read the workflow guide**: See `WORKFLOW_GUIDE.md` for how to:
-   - Define your NORTHSTAR (project goals)
-   - Create a ROADMAP (development phases)
-   - Plan phases with `/think-tank`
-   - Execute plans with `/hc-plan-execute`
+3. **Plan a phase**:
+   ```
+   /think-tank "Phase Name" --phase=PHASE-001
+   ```
 
-3. **Quick start commands**:
-   - `/think-tank --roadmap` - Create development phases
-   - `/think-tank "Phase Name" --phase=PHASE-XXX` - Plan a specific phase
-   - `/hc-plan-execute` - Execute an approved plan
-   - `/hc-glass` - Code review and audit
+4. **Execute the plan**:
+   ```
+   /hc-plan-execute
+   ```
+
+See `WORKFLOW_GUIDE.md` for complete workflow documentation.
 
 ---
 
 ## Troubleshooting
 
+### Installer Failed
+
+```bash
+# Check prerequisites
+node --version    # Should be >= 18
+git --version
+curl --version
+
+# Run installer with debug
+bash -x install.sh
+```
+
 ### Proxy Connection Refused
 
 ```bash
-# Check if proxy is running
+# Check if proxies are running
 curl http://localhost:2405/health
 
-# If not, start all proxies
-./start-proxies.sh
+# Start proxies (global install)
+~/.claude/bin/start-proxies.sh
+
+# Check logs
+cat /tmp/h-claude/cg-flash.log
 ```
 
 ### Port Already in Use
 
 ```bash
-# Stop all proxies cleanly
-./stop-proxies.sh
+# Stop existing proxies
+~/.claude/bin/stop-proxies.sh
 
-# Then restart
-./start-proxies.sh
+# Or kill by port
+lsof -ti:2405 | xargs kill -9
+```
+
+### /hc-init Not Working
+
+```bash
+# Verify global install
+ls ~/.claude/h-claude-template/
+
+# If missing, re-run installer
+curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | bash
 ```
 
 ### Invalid Google API Key
@@ -160,64 +234,67 @@ curl http://localhost:2405/health
 curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_KEY"
 ```
 
-Error `API key not valid` → regenerate at https://aistudio.google.com/apikey
+If error: regenerate at https://aistudio.google.com/apikey
 
-### Claude CLI Not Authenticated
+---
 
-```bash
-# Check auth status
-claude --version
+## File Structure
 
-# If not authenticated, run:
-claude
-# Follow prompts to authenticate
+### Global Installation (`~/.claude/`)
+
+```
+~/.claude/
+├── infrastructure/         # Proxy servers (shared)
+│   ├── CG-Flash/
+│   ├── CG-Pro/
+│   └── CC-Claude/
+├── bin/                    # Helper scripts
+│   ├── start-proxies.sh
+│   └── stop-proxies.sh
+└── h-claude-template/      # Workflow templates for /hc-init
 ```
 
-### hc-init Permission Denied
+### Per-Project (after /hc-init)
 
-```bash
-chmod +x ./hc-init
 ```
-
-### Context Not Loading
-
-```bash
-# Verify context.yaml is valid YAML
-python3 -c "import yaml; yaml.safe_load(open('.claude/context.yaml'))"
+your-project/
+├── .claude/                # Workflow files
+│   ├── commands/           # think-tank, hc-plan-execute, etc.
+│   ├── agents/             # git-engineer, session-triage
+│   ├── skills/             # adr-writer, hc-init, etc.
+│   ├── templates/          # Prompt templates
+│   ├── context.yaml        # Session state
+│   └── PM/                 # Project management
+│       ├── SSoT/           # NORTHSTAR.md, ROADMAP.yaml
+│       ├── think-tank/     # Planning sessions
+│       └── hc-plan-execute/  # Execution artifacts
+├── src/                    # Your code
+└── CLAUDE.md               # Project instructions
 ```
 
 ---
 
-## File Structure Overview
+## Updating H-Claude
 
+To update workflow files in a project:
+
+```bash
+claude
+/hc-init --update
 ```
-your-project/
-├── .claude/                    # Internal config (do not ship)
-│   ├── context.yaml            # Session state
-│   ├── agents/                 # Agent definitions
-│   ├── commands/               # Multi-agent orchestration
-│   └── PM/                     # Project Management
-│       ├── SSoT/               # Single Source of Truth
-│       │   ├── NORTHSTAR.md    # WHAT - Goals, requirements
-│       │   └── ROADMAP.yaml    # HOW - Development phases
-│       └── think-tank/         # Planning session artifacts
-│
-├── infrastructure/             # LLM Proxy servers
-│   ├── CG-Flash/               # Gemini Flash (port 2405)
-│   ├── CG-Pro/                 # Gemini Pro (port 2406)
-│   └── CC-Claude/              # Claude CLI (port 2408)
-│
-├── src/                        # Your production code
-├── CLAUDE.md                   # Project instructions
-└── GET_STARTED.md              # This file
+
+To update global installation:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | bash
 ```
 
 ---
 
 ## Next Steps
 
-→ Read **WORKFLOW_GUIDE.md** for the complete workflow documentation
+→ Read **WORKFLOW_GUIDE.md** for complete workflow documentation
 
 ---
 
-*Version: 2.1.0 | Updated: 2026-01-02*
+*Version: 3.0.0 | Updated: 2026-01-02*

@@ -9,25 +9,50 @@ AI agent orchestration template for Claude Code projects.
 - **Code review audits** (`/hc-glass`) - Comprehensive codebase analysis
 - **Checkpoint/rollback** - Safe execution with git-based recovery
 
-## Quick Start
+## Installation
+
+### One-Command Install (Recommended)
 
 ```bash
-# 1. Clone
-git clone https://github.com/HyerAI/H-Claude.git my-project
-cd my-project
+curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | bash
+```
 
-# 2. Setup (installs dependencies, creates .env files)
-./setup.sh
+This installs H-Claude globally to `~/.claude/`:
+- Proxy infrastructure (shared across all projects)
+- Helper scripts (`start-proxies.sh`, `stop-proxies.sh`)
+- Workflow templates for project initialization
 
-# 3. Configure API keys
-# Edit infrastructure/CG-Flash/.env and infrastructure/CG-Pro/.env
-# Add your Google AI API key: GOOGLE_AI_API_KEY=your-key
+### Configure API Keys
 
-# 4. Start proxies
-./start-proxies.sh
+```bash
+# Edit these files and add your Google AI API key:
+~/.claude/infrastructure/CG-Flash/.env
+~/.claude/infrastructure/CG-Pro/.env
+```
 
-# 5. Open Claude Code
+Get your API key at: https://aistudio.google.com/apikey
+
+### Start Proxies
+
+```bash
+~/.claude/bin/start-proxies.sh
+```
+
+## Quick Start (New Project)
+
+```bash
+# 1. Create your project
+mkdir my-project && cd my-project
+git init
+
+# 2. Open Claude Code
 claude
+
+# 3. Initialize H-Claude workflow
+/hc-init
+
+# 4. Follow the workflow
+# Edit NORTHSTAR.md → /think-tank --roadmap → /hc-plan-execute
 ```
 
 ## The Workflow
@@ -65,4 +90,4 @@ See `.claude/examples/` for filled-out examples:
 
 ## License
 
-MIT
+MIT - [HyerAI](https://github.com/HyerAI)
