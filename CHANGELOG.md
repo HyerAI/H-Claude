@@ -9,6 +9,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Added
+- **WORKFLOW_GUIDE.md** - Complete workflow documentation (NORTHSTAR → ROADMAP → phases → execution)
 - **ROADMAP.yaml** - New SSoT document for development phases at `.claude/PM/SSoT/ROADMAP.yaml`
 - **Pre-Execution Checkpoint Protocol** - git-engineer can now create rollback points before major executions
 - **Rollback Protocol** - git-engineer can restore to checkpoints if execution fails
@@ -23,6 +24,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Scope Change Protocol** - Documented process for handling requirement changes
 
 ### Changed
+- **GET_STARTED.md** (V2.0.0) - Rewritten as installation-only guide, workflow moved to WORKFLOW_GUIDE.md
 - **think-tank.md** (V2.1.0) - Added Dynamic Phase Management section, updated flags table
 - **CLAUDE.md** - Added Claude's Role: Product Owner, updated workflow hierarchy
 - **NORTHSTAR.md** - Added Core Workflow section with NORTHSTAR/ROADMAP hierarchy
