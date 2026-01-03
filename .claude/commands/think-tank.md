@@ -26,7 +26,7 @@ ROADMAP.yaml (HOW - Development Phases, Execution Order)
      ↓ links to
 Phase Think-Tanks (Detailed Execution Plans)
      ↓ executed by
-/hc-plan-execute (Implementation)
+/hc-execute (Implementation)
 ```
 
 ---
@@ -41,7 +41,7 @@ Phase Think-Tanks (Detailed Execution Plans)
 
 ```
 ROADMAP.yaml (Project Development Plan)
-├── PHASE-001 → Phase Think-Tank → execution-plan.yaml → /hc-plan-execute
+├── PHASE-001 → Phase Think-Tank → execution-plan.yaml → /hc-execute
 ├── PHASE-002 (depends_on: PHASE-001) → ...
 └── PHASE-003 → ...
 
@@ -328,7 +328,7 @@ Spawn Pro with `generator_execution_plan.md`:
 
 Variables: `SESSION_PATH`, `DECIDED_PATH`, `CONFIDENCE`, `PLAN_LEVEL`
 
-Output: `execution-plan.yaml` ready for `/hc-plan-execute`
+Output: `execution-plan.yaml` ready for `/hc-execute`
 
 ---
 

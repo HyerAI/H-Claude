@@ -8,7 +8,7 @@ Initialize an H-Claude workflow in the current project directory.
 
 Copies H-Claude workflow files from the global cache (`~/.claude/h-claude-template/`) to your project's `.claude/` folder, setting up:
 
-- **Commands**: think-tank, hc-plan-execute, hc-glass, red-team
+- **Commands**: think-tank, hc-execute, hc-glass, red-team
 - **Agents**: git-engineer, session-triage
 - **Skills**: adr-writer, command-designer, commit-gate, update-context
 - **Templates**: Prompt templates for all commands
@@ -58,7 +58,7 @@ mkdir -p .claude/skills
 mkdir -p .claude/templates
 mkdir -p .claude/PM/SSoT/ADRs
 mkdir -p .claude/PM/think-tank
-mkdir -p .claude/PM/hc-plan-execute
+mkdir -p .claude/PM/hc-execute
 mkdir -p .claude/PM/hc-glass
 mkdir -p .claude/PM/red-team
 mkdir -p .claude/PM/TEMP

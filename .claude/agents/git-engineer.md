@@ -163,7 +163,7 @@ When delegated a commit:
 
 ### Stage 2.5: Pre-Execution Checkpoint Protocol
 
-**CRITICAL:** Trigger this BEFORE major executions (`/hc-plan-execute`, phase implementations).
+**CRITICAL:** Trigger this BEFORE major executions (`/hc-execute`, phase implementations).
 
 **Purpose:** Create a known-good rollback point so failed executions can be cleanly reverted.
 
@@ -171,7 +171,7 @@ When delegated a commit:
 
 | Trigger | Why |
 |---------|-----|
-| Before `/hc-plan-execute` | Multi-task execution may fail mid-way |
+| Before `/hc-execute` | Multi-task execution may fail mid-way |
 | Before phase implementation | Isolate phase changes for clean rollback |
 | Before risky refactoring | Safety net for breaking changes |
 | User requests "checkpoint" | Explicit safety point |
@@ -264,9 +264,9 @@ When delegated a rollback:
    git tag -d "checkpoint/${CHECKPOINT_ID}"
    ```
 
-#### Integration with /hc-plan-execute
+#### Integration with /hc-execute
 
-The `/hc-plan-execute` orchestrator SHOULD:
+The `/hc-execute` orchestrator SHOULD:
 
 1. **Before execution begins:**
    ```

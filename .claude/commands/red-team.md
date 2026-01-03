@@ -249,7 +249,7 @@ Trust but Verify.
 | Related | When to Use Instead |
 |---------|---------------------|
 | `/think-tank` | Research, decisions, planning |
-| `/hc-plan-execute` | Implementing approved plans |
+| `/hc-execute` | Implementing approved plans |
 | Direct code review | Single file investigation |
 
 ---

@@ -27,12 +27,12 @@ fi
 - PLAN_PATH: {{PLAN_PATH}}
 - MODE: {{MODE}}
 - WORKSPACE: {{WORKSPACE}}
-- TEMPLATES: .claude/templates/template-prompts/hc-plan-execute/
+- TEMPLATES: .claude/templates/template-prompts/hc-execute/
 
 ## Session Setup
 
 1. Generate PLAN_SLUG (lowercase, underscores, max 50 chars)
-2. Create session folder: `mkdir -p .claude/PM/hc-plan-execute/${SESSION_SLUG}/{ANALYSIS}`
+2. Create session folder: `mkdir -p .claude/PM/hc-execute/${SESSION_SLUG}/{ANALYSIS}`
 3. Initialize ORCHESTRATOR_LOG.md and EXECUTION_STATE.md
 4. Log: `[INIT] Session initialized. Mode: ${MODE}.`
 

@@ -15,8 +15,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Pre-Execution Checkpoint Protocol** - git-engineer can now create rollback points before major executions
 - **Rollback Protocol** - git-engineer can restore to checkpoints if execution fails
 - **Dynamic Phase Management** - `--add-phase`, `--remove-phase` flags for evolving roadmaps
-- **Phase 0: CHECKPOINT** in hc-plan-execute.md - Mandatory checkpoint before execution
-- **Phase 6: ROADMAP SYNC** in hc-plan-execute.md - Auto-update ROADMAP.yaml on completion
+- **Phase 0: CHECKPOINT** in hc-execute.md - Mandatory checkpoint before execution
+- **Phase 6: ROADMAP SYNC** in hc-execute.md - Auto-update ROADMAP.yaml on completion
 - **EXECUTION_STATE.md schema** - Formal schema for crash recovery and status tracking
 - **NORTHSTAR validation** - think-tank --roadmap validates NORTHSTAR before creating roadmap
 - **Phase existence validation** - think-tank --phase validates phase exists before planning
@@ -32,12 +32,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **session-triage.md** (V2.0.0) - Now reads ROADMAP.yaml, shows phase progress, validates dependencies
 - **context.yaml** - Added roadmap reference, removed active_phases duplication
 - **git-engineer.md** (V1.2.0) - Added checkpoint/rollback operations
-- **hc-plan-execute.md** - Added Phases 0 and 6, EXECUTION_STATE.md schema, edge cases
+- **hc-execute.md** - Added Phases 0 and 6, EXECUTION_STATE.md schema, edge cases
 - **ROADMAP.yaml** - Added `archived_phases[]` and `changelog[]` for phase history
 - **STATE_SCHEMA.md** - lifecycle.type now: roadmap | phase | side_quest | legacy
 
 ### Fixed
-- Command name consistency: All refs now use `/hc-plan-execute` (not /execute-plan)
+- Command name consistency: All refs now use `/hc-execute` (not /execute-plan)
 - Removed active_phases duplication between context.yaml and ROADMAP.yaml
 
 ### Removed

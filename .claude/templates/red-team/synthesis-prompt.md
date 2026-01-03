@@ -166,9 +166,9 @@ The final audit should specifically verify:
 
 ---
 
-## Handoff to /hc-plan-execute
+## Handoff to /hc-execute
 
-Priority findings ready for execution can be passed to /hc-plan-execute.
+Priority findings ready for execution can be passed to /hc-execute.
 
 ### When to Handoff
 
@@ -178,7 +178,7 @@ Priority findings ready for execution can be passed to /hc-plan-execute.
 
 ### Handoff Format
 
-When passing findings to `/hc-plan-execute`, structure the request as:
+When passing findings to `/hc-execute`, structure the request as:
 
 ```markdown
 Execute fixes from Red Team audit:
@@ -194,7 +194,7 @@ Quick wins:
 - [Easy fix with high value]
 ```
 
-The `/hc-plan-execute` command will:
+The `/hc-execute` command will:
 1. Read the synthesis report for full context
 2. Create execution plan for specified items
 3. Coordinate workers to implement fixes

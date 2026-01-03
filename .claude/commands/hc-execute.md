@@ -4,10 +4,10 @@ status: current
 timestamp: 2026-01-02
 tags: [command, execution, orchestration, plan, oraca, think-tank]
 description: "SWEEP & VERIFY plan execution protocol with Oraca Phase Orchestrators"
-templates: .claude/templates/template-prompts/hc-plan-execute/
+templates: .claude/templates/template-prompts/hc-execute/
 ---
 
-# /hc-plan-execute - SWEEP & VERIFY Execution
+# /hc-execute - SWEEP & VERIFY Execution
 
 **Philosophy:** Trust but Verify. Assume 15% of tasks will be missed or partially implemented.
 
@@ -18,7 +18,7 @@ templates: .claude/templates/template-prompts/hc-plan-execute/
 ## Quick Start
 
 ```markdown
-/hc-plan-execute
+/hc-execute
 
 PLAN_PATH: [path to execution-plan.yaml from think-tank]
 MODE: [standard|careful]
@@ -26,7 +26,7 @@ MODE: [standard|careful]
 
 Or by topic name (auto-locates approved plan):
 ```markdown
-/hc-plan-execute TOPIC: auth_system
+/hc-execute TOPIC: auth_system
 ```
 
 ---
@@ -34,7 +34,7 @@ Or by topic name (auto-locates approved plan):
 ## Architecture
 
 ```
-HD invokes /hc-plan-execute
+HD invokes /hc-execute
      ↓
 Spawn OPUS Orchestrator (BACKGROUND)
      ↓
@@ -84,7 +84,7 @@ Spawn OPUS Orchestrator (BACKGROUND)
 ## Session Folder Structure
 
 ```
-.claude/PM/hc-plan-execute/${session-slug}/
+.claude/PM/hc-execute/${session-slug}/
 ├── EXECUTION_STATE.md          # Dashboard
 ├── ORCHESTRATOR_LOG.md         # Flight Recorder
 ├── COMMANDS.md                 # HD→Orchestrator channel
@@ -337,7 +337,7 @@ If execution fails mid-phase:
 2. Offer recovery options:
    - `RETRY_FAILED` - Re-run only failed tasks
    - `ROLLBACK` - Restore to checkpoint
-   - `MANUAL` - User fixes issues, runs `/hc-plan-execute` again
+   - `MANUAL` - User fixes issues, runs `/hc-execute` again
 3. `RETRY_FAILED`:
    - Reads EXECUTION_STATE.md for failed task list
    - Re-spawns workers for those tasks only
@@ -363,7 +363,7 @@ If session crashes during execution:
    checkpoint:
      hash: abc123
    ```
-2. Resume: `/hc-plan-execute --resume ${SESSION_SLUG}`
+2. Resume: `/hc-execute --resume ${SESSION_SLUG}`
 3. System reads state, continues from last checkpoint
 4. Already-completed tasks are skipped
 
@@ -380,7 +380,7 @@ If urgent fix needed while executing:
 
 ## Template Reference
 
-All prompts in: `.claude/templates/template-prompts/hc-plan-execute/`
+All prompts in: `.claude/templates/template-prompts/hc-execute/`
 
 | Template | Model | Purpose |
 |----------|-------|---------|
@@ -412,7 +412,7 @@ Trust but Verify.
 ```
 /think-tank → DECIDE → execution-plan.yaml
                            ↓
-/hc-plan-execute TOPIC: {topic}
+/hc-execute TOPIC: {topic}
                            ↓
                 COMPLETION_REPORT.md
 ```

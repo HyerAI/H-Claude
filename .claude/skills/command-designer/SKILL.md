@@ -303,7 +303,7 @@ Before finalizing, verify:
 | Command | Patterns Used | Why It Works |
 |---------|---------------|--------------|
 | `/hc-plan` | 1, 3, 4, 5, 6 | Research → Synthesis → Dialectic → Validation |
-| `/hc-plan-execute` | 2, 3, 4, 5, 7, 8 | Oraca phases → QA gates → Sweep → Circuit breakers |
+| `/hc-execute` | 2, 3, 4, 5, 7, 8 | Oraca phases → QA gates → Sweep → Circuit breakers |
 | `/red-team` | 3, 4, 5, 6 | Sector commanders → Synthesis → Final audit |
 
 ---
@@ -339,7 +339,7 @@ When invoked, this skill will:
 |----------|---------|
 | [ORCHESTRATION_PATTERNS.md](../../ORCHESTRATION_PATTERNS.md) | Pattern definitions |
 | [hc-plan.md](../../commands/hc-plan.md) | Example: planning command |
-| [hc-plan-execute.md](../../commands/hc-plan-execute.md) | Example: execution command |
+| [hc-execute.md](../../commands/hc-execute.md) | Example: execution command |
 | [red-team.md](../../commands/red-team.md) | Example: audit command |
 
 ---

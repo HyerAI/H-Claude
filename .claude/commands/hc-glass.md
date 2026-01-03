@@ -234,7 +234,7 @@ I am the brutal truth.
 | Document | Purpose |
 |----------|---------|
 | `/red-team` | Sister command (doc audit) |
-| `/hc-plan-execute` | Fix what /hc-glass finds |
+| `/hc-execute` | Fix what /hc-glass finds |
 | `/think-tank` | Research and planning |
 
 ---

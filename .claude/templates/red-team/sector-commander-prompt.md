@@ -136,7 +136,7 @@ timestamp: [ISO-8601]
 1. [Priority fix]
 2. [Secondary fix]
 
-> **Handoff Note:** Findings can be passed to `/hc-plan-execute` for fixes.
+> **Handoff Note:** Findings can be passed to `/hc-execute` for fixes.
 
 ### Raw Specialist Reports
 

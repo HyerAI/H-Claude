@@ -173,7 +173,7 @@ ANTHROPIC_API_BASE_URL=http://localhost:2405 claude -p "echo 'Hello from Flash p
 
 4. **Execute the plan**:
    ```
-   /hc-plan-execute
+   /hc-execute
    ```
 
 See `WORKFLOW_GUIDE.md` for complete workflow documentation.
@@ -259,7 +259,7 @@ If error: regenerate at https://aistudio.google.com/apikey
 ```
 your-project/
 ├── .claude/                # Workflow files
-│   ├── commands/           # think-tank, hc-plan-execute, etc.
+│   ├── commands/           # think-tank, hc-execute, etc.
 │   ├── agents/             # git-engineer, session-triage
 │   ├── skills/             # adr-writer, hc-init, etc.
 │   ├── templates/          # Prompt templates
@@ -267,7 +267,7 @@ your-project/
 │   └── PM/                 # Project management
 │       ├── SSoT/           # NORTHSTAR.md, ROADMAP.yaml
 │       ├── think-tank/     # Planning sessions
-│       └── hc-plan-execute/  # Execution artifacts
+│       └── hc-execute/  # Execution artifacts
 ├── src/                    # Your code
 └── CLAUDE.md               # Project instructions
 ```

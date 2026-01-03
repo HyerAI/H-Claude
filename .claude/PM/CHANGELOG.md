@@ -22,7 +22,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Multi-agent planning councils (`/think-tank`)
-- Parallel execution with QA gates (`/hc-plan-execute`)
+- Parallel execution with QA gates (`/hc-execute`)
 - Code review audits (`/hc-glass`, `/red-team`)
 - Global installer (`curl` one-liner)
 - Per-project initialization (`/hc-init`)

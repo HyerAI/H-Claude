@@ -25,7 +25,7 @@ readonly SCRIPT_NAME="hc-init"
 readonly REQUIRED_FOLDERS=(
     ".claude"
     ".claude/PM/think-tank"
-    ".claude/PM/hc-plan-execute"
+    ".claude/PM/hc-execute"
     ".claude/PM/hc-glass"
     ".claude/PM/red-team"
     ".claude/PM/TEMP"

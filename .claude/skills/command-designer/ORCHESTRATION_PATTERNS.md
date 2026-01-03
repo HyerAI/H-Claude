@@ -125,7 +125,7 @@ Opus Orchestrator
 4. Oraca reports status: `COMPLETE | PARTIAL | BLOCKED`
 5. Oraca CANNOT spawn other Oraca (no recursion)
 
-**Used In:** `/hc-plan-execute` (Phase 2)
+**Used In:** `/hc-execute` (Phase 2)
 
 ---
 
@@ -152,7 +152,7 @@ Workers claim "DONE"
    Fix Phase if needed
 ```
 
-**Used In:** `/hc-plan-execute` (Sweep Phase), `/red-team` (Sector validation)
+**Used In:** `/hc-execute` (Sweep Phase), `/red-team` (Sector validation)
 
 ---
 
@@ -278,7 +278,7 @@ Task B expects: exactly those keys
 - Cross-phase dependencies
 - Shared data structures
 
-**Used In:** `/hc-plan-execute` (Phase 1: Contract generation)
+**Used In:** `/hc-execute` (Phase 1: Contract generation)
 
 ---
 
@@ -325,7 +325,7 @@ def on_qa_rejection(task_id, reason):
 - Loops waste tokens and time
 - Human intervention beats infinite retry
 
-**Used In:** `/hc-plan-execute` (Worker Retry Loop), `/red-team` (Commander Timeout)
+**Used In:** `/hc-execute` (Worker Retry Loop), `/red-team` (Commander Timeout)
 
 ---
 
@@ -491,7 +491,7 @@ check_stall() {
 - Without heartbeats, orchestrators wait forever
 - Escalation ladder prevents both false positives (nudge first) and infinite waits (eventual escalate)
 
-**Used In:** All orchestration commands (`/hc-plan-execute`, `/hc-plan`, `/hc-glass`, `/init-sim`, `/red-team`)
+**Used In:** All orchestration commands (`/hc-execute`, `/hc-plan`, `/hc-glass`, `/init-sim`, `/red-team`)
 
 ---
 
@@ -526,7 +526,7 @@ I synthesize before I conclude.
 | Document | Purpose |
 |----------|---------|
 | [hc-plan.md](commands/hc-plan.md) | Dialectic planning command |
-| [hc-plan-execute.md](commands/hc-plan-execute.md) | SWEEP & VERIFY execution command |
+| [hc-execute.md](commands/hc-execute.md) | SWEEP & VERIFY execution command |
 | [red-team.md](commands/red-team.md) | Quality Seals Audit command |
 | [ADR-1201](../../PM/SSoT/ADRs/1201-functional-agent-roster.md) | Agent roles and layers |
 

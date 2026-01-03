@@ -5,7 +5,7 @@ AI agent orchestration template for Claude Code projects.
 ## What You Get
 
 - **Multi-agent planning councils** (`/think-tank`) - Expert personas collaborate to map decisions
-- **Parallel execution with QA gates** (`/hc-plan-execute`) - Workers implement, QA verifies, Sweeper catches the 15% missed
+- **Parallel execution with QA gates** (`/hc-execute`) - Workers implement, QA verifies, Sweeper catches the 15% missed
 - **Code review audits** (`/hc-glass`) - Comprehensive codebase analysis
 - **Checkpoint/rollback** - Safe execution with git-based recovery
 
@@ -52,7 +52,7 @@ claude
 /hc-init
 
 # 4. Follow the workflow
-# Edit NORTHSTAR.md → /think-tank --roadmap → /hc-plan-execute
+# Edit NORTHSTAR.md → /think-tank --roadmap → /hc-execute
 ```
 
 ## The Workflow
@@ -64,7 +64,7 @@ ROADMAP.yaml (HOW)      →  Development phases, execution order
      ↓
 /think-tank --phase     →  Plan each phase with expert council
      ↓
-/hc-plan-execute        →  Parallel workers implement with QA
+/hc-execute        →  Parallel workers implement with QA
 ```
 
 ## Documentation

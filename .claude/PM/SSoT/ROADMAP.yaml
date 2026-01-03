@@ -12,7 +12,7 @@
 # 1. /think-tank --roadmap creates/updates this file
 # 2. /think-tank "Phase Name" --phase=PHASE-XXX creates phase plan
 # 3. Phase plan links back here (plan_path)
-# 4. /hc-plan-execute runs the phase
+# 4. /hc-execute runs the phase
 # 5. Phase complete -> dependencies unlock next phases
 
 meta:

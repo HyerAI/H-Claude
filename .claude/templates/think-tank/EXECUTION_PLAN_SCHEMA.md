@@ -41,7 +41,7 @@ phases:
 execution:
   started: ISO8601 | null
   completed: ISO8601 | null
-  session_path: string     # Path to hc-plan-execute session folder
+  session_path: string     # Path to hc-execute session folder
   completion_report: string | null  # Path to final report
 
 # Review tracking
@@ -256,7 +256,7 @@ phases:
 execution:
   started: 2026-01-02T10:30:00Z
   completed: null
-  session_path: ".claude/PM/hc-plan-execute/auth_system_20260102/"
+  session_path: ".claude/PM/hc-execute/auth_system_20260102/"
   completion_report: null
 
 reviews:
@@ -292,7 +292,7 @@ reviews:
                   │ approved │
                   └────┬─────┘
                        │
-           /hc-plan-execute
+           /hc-execute
                        │
                        ▼
                 ┌─────────────┐

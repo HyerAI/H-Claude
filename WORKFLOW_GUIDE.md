@@ -15,7 +15,7 @@ ROADMAP.yaml (HOW)      →  Development phases, execution order
      ↓ links to
 Phase Think-Tanks       →  Detailed execution plans
      ↓ executed by
-/hc-plan-execute        →  Code implementation with QA
+/hc-execute        →  Code implementation with QA
 ```
 
 **NORTHSTAR** is the destination. **ROADMAP** is the route.
@@ -180,12 +180,12 @@ Before execution, the system creates a rollback point:
 ### Run Execution
 
 ```
-/hc-plan-execute PLAN_PATH: .claude/PM/think-tank/api_gateway_20260102/execution-plan.yaml
+/hc-execute PLAN_PATH: .claude/PM/think-tank/api_gateway_20260102/execution-plan.yaml
 ```
 
 Or by topic:
 ```
-/hc-plan-execute TOPIC: api_gateway
+/hc-execute TOPIC: api_gateway
 ```
 
 **Modes:**
@@ -209,7 +209,7 @@ Phase 6: ROADMAP SYNC      →  Mark phase complete, unlock next
 ### Session Folder
 
 ```
-.claude/PM/hc-plan-execute/api_gateway_20260102/
+.claude/PM/hc-execute/api_gateway_20260102/
 ├── EXECUTION_STATE.md       # Dashboard - current status
 ├── ORCHESTRATOR_LOG.md      # What happened
 ├── PHASE_1/
@@ -341,7 +341,7 @@ Rules:
 
 ### Checkpoint / Rollback
 
-Every `/hc-plan-execute` creates a checkpoint BEFORE execution:
+Every `/hc-execute` creates a checkpoint BEFORE execution:
 
 ```yaml
 # EXECUTION_STATE.md
@@ -374,7 +374,7 @@ If session crashes mid-execution:
 
 2. Resume:
    ```
-   /hc-plan-execute --resume api_gateway_20260102
+   /hc-execute --resume api_gateway_20260102
    ```
 
 3. System continues from last checkpoint, skips completed tasks.
@@ -411,9 +411,9 @@ If urgent fix needed:
 | Add a new phase | `/think-tank --add-phase "Title"` |
 | Remove a phase | `/think-tank --remove-phase=PHASE-XXX` |
 | Plan a specific phase | `/think-tank "Title" --phase=PHASE-XXX` |
-| Execute a plan | `/hc-plan-execute PLAN_PATH: ...` |
-| Execute by topic | `/hc-plan-execute TOPIC: topic_name` |
-| Resume crashed execution | `/hc-plan-execute --resume session_slug` |
+| Execute a plan | `/hc-execute PLAN_PATH: ...` |
+| Execute by topic | `/hc-execute TOPIC: topic_name` |
+| Resume crashed execution | `/hc-execute --resume session_slug` |
 | Ad-hoc research | `/think-tank "Research Topic"` |
 | Code review | `/hc-glass` |
 | Deep investigation | `/red-team` |
@@ -428,7 +428,7 @@ If urgent fix needed:
 | `.claude/PM/SSoT/ROADMAP.yaml` | HOW - Development phases |
 | `.claude/PM/SSoT/ADRs/` | Architectural decisions |
 | `.claude/PM/think-tank/` | Think-tank session workspaces |
-| `.claude/PM/hc-plan-execute/` | Execution session artifacts |
+| `.claude/PM/hc-execute/` | Execution session artifacts |
 | `.claude/context.yaml` | Session state |
 | `.claude/PM/CHANGELOG.md` | Change history |
 

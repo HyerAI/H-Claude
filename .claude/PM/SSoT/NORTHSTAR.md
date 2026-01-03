@@ -104,7 +104,7 @@ These MUST stay aligned. NORTHSTAR is the destination; ROADMAP is the route.
 │                              ↓                              │
 │    git-engineer: Create rollback point                      │
 │                              ↓                              │
-│    /hc-plan-execute                                         │
+│    /hc-execute                                         │
 │      └── Workers implement with QA gates                    │
 │      └── SWEEP & VERIFY catches 15% missed work             │
 │                              ↓                              │
@@ -142,7 +142,7 @@ Side-Quests (recorded in ROADMAP.yaml)
 | `/think-tank --roadmap` | Define project phases | `ROADMAP.yaml` |
 | `/think-tank --phase=X` | Plan specific phase | `execution-plan.yaml` |
 | `/think-tank "Topic"` | Side-quest research | `STATE.yaml` |
-| `/hc-plan-execute` | Execute approved plans | Implemented code |
+| `/hc-execute` | Execute approved plans | Implemented code |
 | `/hc-glass` | Scan for issues | Issue report |
 | `/red-team` | Deep quality review | Root cause analysis |
 

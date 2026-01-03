@@ -67,13 +67,13 @@ When user responds, retrieve triage output with `TaskOutput(block: true)` and co
 .claude/
 ├── context.yaml          # Session state (read at start, update regularly)
 ├── agents/               # git-engineer.md, session-triage.md
-├── commands/             # think-tank, hc-plan-execute, hc-glass, red-team
+├── commands/             # think-tank, hc-execute, hc-glass, red-team
 ├── skills/               # Reusable capabilities
 ├── templates/            # Prompt templates
 └── PM/
     ├── SSoT/             # NORTHSTAR.md, ROADMAP.yaml, ADRs/
     ├── think-tank/       # Session artifacts
-    ├── hc-plan-execute/  # Execution artifacts
+    ├── hc-execute/  # Execution artifacts
     ├── hc-glass/         # Review reports
     ├── GIT/              # Protocols
     ├── BACKLOG.yaml      # Deferred work
@@ -92,7 +92,7 @@ infrastructure/               # LLM Proxy servers (global: ~/.claude/infrastruct
 | `/think-tank --roadmap` | Create project phases | `ROADMAP.yaml` |
 | `/think-tank --phase=X` | Plan specific phase | `execution-plan.yaml` |
 | `/think-tank "Topic"` | Ad-hoc research | Findings |
-| `/hc-plan-execute` | Execute approved plan | Implementation |
+| `/hc-execute` | Execute approved plan | Implementation |
 | `/hc-glass` | Code/system review | Issues list |
 | `/red-team` | Deep investigation | Root cause analysis |
 
@@ -122,7 +122,7 @@ NORTHSTAR.md (WHAT)  →  User fills out goals/requirements
         ↓
 git-engineer           →  Creates rollback checkpoint
         ↓
-/hc-plan-execute       →  Workers implement with QA gates
+/hc-execute       →  Workers implement with QA gates
         ↓
 Phase complete         →  ROADMAP updated → next phase unlocked
 ```
