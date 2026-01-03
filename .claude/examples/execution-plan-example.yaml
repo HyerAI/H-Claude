@@ -1,0 +1,142 @@
+# execution-plan.yaml
+# Phase 2: Core Chatbot Features
+# Created by: /think-tank "Core Chatbot Features" --phase=PHASE-002
+#
+# This is an EXAMPLE of a filled-out execution plan
+
+meta:
+  phase_id: PHASE-002
+  phase_title: 'Core Chatbot Features'
+  created: '2026-01-02'
+  status: approved  # draft | in_review | approved | executing | complete
+
+# Link back to roadmap
+roadmap_path: .claude/PM/SSoT/ROADMAP.yaml
+
+# Overall success criteria for this phase
+success_criteria:
+  - 'Chatbot responds to 10 predefined FAQ categories'
+  - 'Intent detection accuracy > 85% on test dataset'
+  - 'Average response time < 2 seconds'
+  - 'Graceful fallback for unrecognized intents'
+
+# Execution phases within this plan
+execution_phases:
+  - phase: 1
+    name: 'Intent Detection System'
+    tasks:
+      - id: TASK-001
+        title: 'Create intent classification module'
+        description: 'Build intent classifier using embeddings + cosine similarity'
+        files:
+          - src/chat/intent_classifier.py
+          - tests/test_intent_classifier.py
+        success_criteria: 'Classifier returns top-3 intents with confidence scores'
+        dependencies: []
+
+      - id: TASK-002
+        title: 'Define FAQ intent categories'
+        description: 'Create 10 FAQ categories with example phrases for each'
+        files:
+          - config/intents.yaml
+        success_criteria: 'Each category has 5+ example phrases'
+        dependencies: []
+
+      - id: TASK-003
+        title: 'Build intent matching service'
+        description: 'Service that takes user message and returns matched intent'
+        files:
+          - src/services/intent_service.py
+          - tests/test_intent_service.py
+        success_criteria: 'Service handles 100 requests/second with <50ms latency'
+        dependencies:
+          - TASK-001
+          - TASK-002
+
+  - phase: 2
+    name: 'Response Generation'
+    tasks:
+      - id: TASK-004
+        title: 'Create response template system'
+        description: 'Template engine for generating context-aware responses'
+        files:
+          - src/chat/response_generator.py
+          - config/response_templates.yaml
+        success_criteria: 'Templates support variable substitution and conditionals'
+        dependencies:
+          - TASK-003
+
+      - id: TASK-005
+        title: 'Implement FAQ response handler'
+        description: 'Handler that retrieves and formats FAQ responses'
+        files:
+          - src/handlers/faq_handler.py
+          - tests/test_faq_handler.py
+        success_criteria: 'All 10 FAQ categories have working responses'
+        dependencies:
+          - TASK-004
+
+      - id: TASK-006
+        title: 'Build fallback response system'
+        description: 'Graceful handling when intent is not recognized'
+        files:
+          - src/handlers/fallback_handler.py
+        success_criteria: 'Fallback offers 3 suggested topics + escalation option'
+        dependencies:
+          - TASK-004
+
+  - phase: 3
+    name: 'Conversation Flow'
+    tasks:
+      - id: TASK-007
+        title: 'Implement conversation state manager'
+        description: 'Track conversation context across multiple messages'
+        files:
+          - src/chat/conversation_state.py
+          - tests/test_conversation_state.py
+        success_criteria: 'State persists for 30 minutes, supports context references'
+        dependencies:
+          - TASK-005
+
+      - id: TASK-008
+        title: 'Create multi-turn dialog handler'
+        description: 'Handle follow-up questions and clarifications'
+        files:
+          - src/handlers/dialog_handler.py
+        success_criteria: 'Correctly handles 3+ turn conversations'
+        dependencies:
+          - TASK-007
+
+      - id: TASK-009
+        title: 'Build conversation summarizer'
+        description: 'Summarize conversation for potential escalation'
+        files:
+          - src/chat/summarizer.py
+        success_criteria: 'Summary captures key points in <100 words'
+        dependencies:
+          - TASK-008
+
+      - id: TASK-010
+        title: 'Integration testing'
+        description: 'End-to-end tests for full conversation flows'
+        files:
+          - tests/integration/test_conversations.py
+        success_criteria: 'All 10 FAQ flows pass with 85%+ intent accuracy'
+        dependencies:
+          - TASK-009
+
+# Risk register
+risks:
+  - risk: 'Intent detection accuracy below target'
+    mitigation: 'Prepare fallback to simpler keyword matching'
+    severity: medium
+
+  - risk: 'Response latency exceeds SLA'
+    mitigation: 'Pre-compute embeddings, add caching layer'
+    severity: low
+
+# Notes from think-tank session
+notes:
+  - 'Decided to use OpenAI embeddings based on SQ-001 research'
+  - 'Response templates will be YAML-based for easy editing'
+  - 'State management uses Redis for distributed sessions'

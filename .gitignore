@@ -7,6 +7,10 @@ infrastructure/*/.env
 
 # Runtime logs
 *.log
+/tmp/h-claude/
+
+# Plan files (user-specific)
+.claude/plans/
 
 # Node
 node_modules/

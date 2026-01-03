@@ -20,7 +20,7 @@ AI agent orchestration template for Claude Code projects. Provides structured wo
 ### 1. Create Project from Template
 
 **Option A: GitHub "Use this template" button**
-1. Go to the H-Claude repository
+1. Go to [HyerAI/H-Claude](https://github.com/HyerAI/H-Claude)
 2. Click "Use this template" → "Create a new repository"
 3. Clone your new repository:
    ```bash
@@ -30,80 +30,52 @@ AI agent orchestration template for Claude Code projects. Provides structured wo
 
 **Option B: Clone directly**
 ```bash
-git clone https://github.com/YourOrg/H-Claude.git your-project
+git clone https://github.com/HyerAI/H-Claude.git your-project
 cd your-project
 rm -rf .git && git init  # Start fresh git history
 ```
 
-### 2. Install Proxy Dependencies
-
-Each proxy needs its own dependencies:
+### 2. Run Setup
 
 ```bash
-# Flash proxy (fast workers)
-cd infrastructure/CG-Flash && npm install && cd ../..
-
-# Pro proxy (reasoning/QA)
-cd infrastructure/CG-Pro && npm install && cd ../..
-
-# Claude proxy (complex tasks)
-cd infrastructure/CC-Claude && npm install && cd ../..
-
-# Image proxy (optional - image generation)
-cd infrastructure/CG-Image && npm install && cd ../..
+./setup.sh
 ```
+
+This single command:
+- Installs all proxy dependencies (npm install)
+- Creates `.env` files from templates
+- Validates the installation
+- Reports any issues
 
 ### 3. Configure API Keys
 
-**Gemini Proxies (CG-Flash, CG-Pro, CG-Image):**
+Edit the `.env` files created by setup:
 
 ```bash
-# Copy example config
-cp infrastructure/CG-Flash/.env.example infrastructure/CG-Flash/.env
-cp infrastructure/CG-Pro/.env.example infrastructure/CG-Pro/.env
-
-# Edit each .env file:
-# GOOGLE_AI_API_KEY=your-google-ai-key-here
+# Gemini proxies (CG-Flash, CG-Pro)
+# Edit: infrastructure/CG-Flash/.env
+# Edit: infrastructure/CG-Pro/.env
+# Add: GOOGLE_AI_API_KEY=your-key-here
 ```
 
 Get your Google AI API key at: https://aistudio.google.com/apikey
 
-**Claude Proxy (CC-Claude):**
-
-Uses Claude CLI authentication (no API key needed if CLI is authenticated):
-
-```bash
-cp infrastructure/CC-Claude/.env.example infrastructure/CC-Claude/.env
-# Default settings work if Claude CLI is authenticated
-```
-
-### 4. Validate Installation
-
-```bash
-./hc-init --fix
-```
-
-This will:
-- Check folder structure
-- Verify proxy configurations
-- Create missing files
-- Report any issues
+**Claude Proxy (CC-Claude):** Uses Claude CLI authentication (no API key needed if CLI is authenticated).
 
 ---
 
 ## Start Proxies
 
-Start the proxies you need (each in a separate terminal):
+Start all proxies with a single command:
 
 ```bash
-# Terminal 1 - Flash (fast workers, simple tasks)
-cd infrastructure/CG-Flash && npm start
+./start-proxies.sh
+```
 
-# Terminal 2 - Pro (reasoning, QA, planning)
-cd infrastructure/CG-Pro && npm start
+This starts CG-Flash, CG-Pro, and CC-Claude in the background. To stop them:
 
-# Terminal 3 - Claude (complex reasoning)
-cd infrastructure/CC-Claude && npm start
+```bash
+./stop-proxies.sh
 ```
 
 ### Proxy Reference
@@ -167,18 +139,18 @@ ANTHROPIC_API_BASE_URL=http://localhost:2405 claude -p "echo 'Hello from Flash p
 # Check if proxy is running
 curl http://localhost:2405/health
 
-# If not, start it
-cd infrastructure/CG-Flash && npm start
+# If not, start all proxies
+./start-proxies.sh
 ```
 
 ### Port Already in Use
 
 ```bash
-# Find and kill existing process
-lsof -ti:2405 | xargs kill -9
+# Stop all proxies cleanly
+./stop-proxies.sh
 
-# Or change port in .env
-# KS_PROXY_PORT=2409
+# Then restart
+./start-proxies.sh
 ```
 
 ### Invalid Google API Key
@@ -248,4 +220,4 @@ your-project/
 
 ---
 
-*Version: 2.0.0 | Updated: 2026-01-02*
+*Version: 2.1.0 | Updated: 2026-01-02*

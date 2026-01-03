@@ -8,6 +8,37 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-01-02 - GitHub Release Ready
+
+### Added
+- README.md - Repository entry point with quick start
+- LICENSE - MIT license (HyerAI)
+- setup.sh - One-command installation (npm install + env setup)
+- start-proxies.sh - Start all proxies in background with health checks
+- stop-proxies.sh - Clean proxy shutdown
+- .claude/examples/ - Filled-out example files:
+  - NORTHSTAR-example.md - Customer Support Chatbot example
+  - ROADMAP-example.yaml - 3-phase project roadmap example
+  - execution-plan-example.yaml - 10-task phase plan example
+- WORKFLOW_GUIDE.md - Complete workflow documentation
+- Resource safety: Background task cleanup documentation in CLAUDE.md
+- Session triage resource cleanup in session-triage.md
+
+### Changed
+- CLAUDE.md - Reset to clean template with [PROJECT_NAME] placeholder
+- context.yaml - Reset to clean template state
+- NORTHSTAR.md - Cleaned workflow diagram syntax
+- GET_STARTED.md - Updated to reference setup.sh and start-proxies.sh scripts
+- .gitignore - Added /tmp/h-claude/ and .claude/plans/
+
+### Fixed
+- CLAUDE.md T+16 merge: Changed `block: false` to `block: true` to prevent zombie processes
+- WORKFLOW_GUIDE.md: Fixed `/think-tank --roadmap "Project Name"` to `/think-tank --roadmap`
+
+---
+
+## [1.1.0] - 2026-01-02
+
 ### Added
 - execution-plan.yaml schema for think-tank plan generation
 - Plan status tracking in context.yaml (draft → review → approved → in_progress → complete)
@@ -26,10 +57,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 - /hc-plan command (merged into /think-tank)
 - .claude/PM/plans/ folder (plans now in think-tank/{topic}/)
-
-### Fixed
-
-### Removed
 
 ---
 

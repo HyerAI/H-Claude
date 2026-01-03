@@ -5,13 +5,13 @@
 # See: .claude/PM/SSoT/ROADMAP.yaml for development phases
 
 meta:
-  last_modified: '2026-01-02T00:00:00Z'
+  last_modified: null  # Updated automatically
 
 # PROJECT INFO - Customize for your project
 project:
-  name: 'H-Claude Template'
-  description: 'AI agent orchestration template for Claude Code projects'
-  type: 'template'  # template | application | library
+  name: '[PROJECT_NAME]'
+  description: '[PROJECT_DESCRIPTION]'
+  type: 'application'  # template | application | library
 
 # Reference to development roadmap (the HOW)
 # active_phases read directly from ROADMAP.yaml - no duplication
@@ -20,17 +20,11 @@ roadmap:
 
 # THE BRAIN (What are we thinking about right now?)
 focus:
-  current_objective: 'Roadmap hierarchy implementation'
+  current_objective: null
   active_decisions: []
 
 # THE LOG (Rolling history - last 10 actions only)
-recent_actions:
-  - '[2026-01-02] Implemented ROADMAP.yaml hierarchy system'
-  - '[2026-01-02] Updated think-tank.md with --roadmap and --phase flags'
-  - '[2026-01-02] Updated CLAUDE.md with Product Owner workflow'
-  - '[2026-01-02] Created ROADMAP.yaml template in SSoT'
-  - '[2026-01-02] Completed Session Start Protocol implementation'
-  - '[2026-01-02] Completed hc_init execution plan (37 tasks)'
+recent_actions: []
 
 # THE QUEUE
 tasks:
@@ -50,11 +44,7 @@ backlog: []
 
 # THINK-TANK SESSIONS (phase sessions, side-quests)
 # Roadmap sessions don't need tracking here - ROADMAP.yaml is the state
-think_tank:
-  - topic: hc_init
-    path: .claude/PM/think-tank/hc_init_20260102/
-    status: decided  # Plan executed successfully
-    type: legacy  # This was before roadmap system
+think_tank: []
 
 # GIT COMMIT CONTROL (git-engineer watches this)
 git:

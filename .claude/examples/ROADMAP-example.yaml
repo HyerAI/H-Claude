@@ -1,0 +1,70 @@
+# .claude/PM/SSoT/ROADMAP.yaml
+# STATE document - Development story: HOW we build it, in what order
+# Paired with: NORTHSTAR.md (the WHAT - user story, features, requirements)
+#
+# This is an EXAMPLE of a filled-out roadmap for a Customer Support Chatbot project
+
+meta:
+  created: '2026-01-02'
+  last_updated: '2026-01-02'
+  status: active  # draft | active | complete | paused
+
+# Reference to user story (the WHAT)
+northstar: .claude/PM/SSoT/NORTHSTAR.md
+
+# Currently active phases (can be multiple if no blocking dependencies)
+active_phases:
+  - PHASE-002
+
+# Ordered phases - execution sequence determined by dependencies
+phases:
+  - id: PHASE-001
+    title: 'Foundation & Infrastructure'
+    status: complete
+    description: 'Set up project structure, API integrations, and core chat infrastructure'
+    dependencies: []  # No dependencies - can start immediately
+    plan_path: .claude/PM/think-tank/phase_001_foundation/execution-plan.yaml
+    tech_debt: []
+
+  - id: PHASE-002
+    title: 'Core Chatbot Features'
+    status: active
+    description: 'Implement intent detection, FAQ handling, and basic conversation flow'
+    dependencies:
+      - PHASE-001
+    plan_path: .claude/PM/think-tank/phase_002_core/execution-plan.yaml
+    tech_debt:
+      - item: 'Refactor prompt templates to use config file'
+        severity: low
+        added: '2026-01-02'
+
+  - id: PHASE-003
+    title: 'Zendesk Integration & Escalation'
+    status: planned
+    description: 'Connect to Zendesk API, implement human handoff, sync conversation history'
+    dependencies:
+      - PHASE-002
+    plan_path: null  # Will be populated when phase think-tank runs
+    tech_debt: []
+
+# Side-quests: Ad-hoc think-tanks not tied to main phases
+side_quests:
+  - id: SQ-001
+    title: 'Embedding Model Comparison'
+    status: complete
+    path: .claude/PM/think-tank/embedding_research_20260102/
+    relates_to: PHASE-002  # Findings used in Phase 2 implementation
+    outcome: 'Selected OpenAI text-embedding-3-small for cost/performance balance'
+
+# Archived phases: Removed phases kept for history
+archived_phases: []
+
+# Changelog: Track scope changes for visibility
+changelog:
+  - date: '2026-01-02'
+    action: created
+    description: 'Initial roadmap created from NORTHSTAR analysis'
+  - date: '2026-01-02'
+    action: phase_complete
+    phase_id: PHASE-001
+    description: 'Foundation complete - API integrations working'

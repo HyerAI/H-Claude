@@ -1,6 +1,10 @@
-# H-Claude Project Template
+# [PROJECT_NAME]
 
-AI agent orchestration template for Claude Code projects.
+<!--
+  Replace [PROJECT_NAME] with your project name.
+  This file is your Claude agent's primary instructions for this project.
+  Customize the sections below but keep the workflow documentation intact.
+-->
 
 ---
 
@@ -202,8 +206,8 @@ meta:
   last_modified: '2026-01-02T13:30:00Z'
 
 project:
-  name: 'My Project'
-  description: 'What this project does'
+  name: '[PROJECT_NAME]'
+  description: '[PROJECT_DESCRIPTION]'
 
 # Reference to development roadmap
 # active_phases read directly from ROADMAP.yaml - no duplication
@@ -413,9 +417,9 @@ Agent runs in background - Main Claude continues immediately.
 Respond based on context.yaml (NOT waiting for triage):
 
 ```
-Good morning! Last session we completed the hc_init execution plan.
+Good morning! Last session we [recent action from context.yaml].
 
-Current focus: Foundation phase - EP skeleton with DriftGuard.
+Current focus: [focus.current_objective from context.yaml].
 
 What would you like to work on today?
 ```
@@ -454,14 +458,14 @@ Combine BOTH sources for informed response:
 
 Result:
 ```
-Foundation phase is complete. MVP phase (PHASE-002) is now unblocked.
+[Previous phase] is complete. [Next phase] is now unblocked.
 
 The phase execution-plan includes:
-1. User authentication
-2. Core API endpoints
-3. Basic UI components
+1. [Task from plan]
+2. [Task from plan]
+3. [Task from plan]
 
-Ready to start with /think-tank "MVP" --phase=PHASE-002?
+Ready to start with /think-tank "[Phase Name]" --phase=PHASE-XXX?
 ```
 
 ### SESSION BRIEF Output Format
