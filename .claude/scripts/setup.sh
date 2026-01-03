@@ -49,12 +49,13 @@ done
 
 echo ""
 
-# Make scripts executable
-chmod +x ./hc-init ./start-proxies.sh ./stop-proxies.sh 2>/dev/null || true
+# Get script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Run validation
-echo "Running validation..."
-./hc-init --fix
+# Make scripts executable
+chmod +x "$SCRIPT_DIR/start-proxies.sh" "$SCRIPT_DIR/stop-proxies.sh" 2>/dev/null || true
+chmod +x "$PROJECT_ROOT/hc-init" 2>/dev/null || true
 
 echo ""
 echo "=== Setup Complete ==="
@@ -62,6 +63,6 @@ echo ""
 echo "Next steps:"
 echo "  1. Edit infrastructure/CG-Flash/.env - add GOOGLE_AI_API_KEY"
 echo "  2. Edit infrastructure/CG-Pro/.env - add GOOGLE_AI_API_KEY"
-echo "  3. Run: ./start-proxies.sh"
+echo "  3. Run: .claude/scripts/start-proxies.sh"
 echo "  4. Run: claude"
 echo ""

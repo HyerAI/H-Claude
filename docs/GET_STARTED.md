@@ -46,7 +46,7 @@ If you prefer everything in one project folder:
 ```bash
 git clone https://github.com/HyerAI/H-Claude.git my-project
 cd my-project
-./setup.sh
+.claude/scripts/setup.sh
 ```
 
 ---
@@ -89,14 +89,14 @@ Get your Google AI API key at: https://aistudio.google.com/apikey
 ### Template Clone
 
 ```bash
-./start-proxies.sh
+.claude/scripts/start-proxies.sh
 ```
 
 To stop proxies:
 
 ```bash
-~/.claude/bin/stop-proxies.sh   # Global
-./stop-proxies.sh               # Template clone
+~/.claude/bin/stop-proxies.sh          # Global
+.claude/scripts/stop-proxies.sh        # Template clone
 ```
 
 ---

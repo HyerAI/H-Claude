@@ -71,8 +71,8 @@ ROADMAP.yaml (HOW)      →  Development phases, execution order
 
 | Doc | Purpose |
 |-----|---------|
-| [GET_STARTED.md](GET_STARTED.md) | Full installation guide |
-| [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) | How to use the workflow |
+| [GET_STARTED.md](docs/GET_STARTED.md) | Full installation guide |
+| [WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) | How to use the workflow |
 | [CLAUDE.md](CLAUDE.md) | Project context for Claude |
 
 ## Examples
@@ -90,4 +90,4 @@ See `.claude/examples/` for filled-out examples:
 
 ## License
 
-MIT - [HyerAI](https://github.com/HyerAI)
+[MIT](docs/LICENSE) - [HyerAI](https://github.com/HyerAI)

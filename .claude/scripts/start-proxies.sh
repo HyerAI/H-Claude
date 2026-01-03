@@ -5,6 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LOG_DIR="/tmp/h-claude"
 
 mkdir -p "$LOG_DIR"
@@ -21,7 +22,7 @@ check_port() {
 if check_port 2405; then
     echo "CG-Flash (2405): Already running"
 else
-    cd "$SCRIPT_DIR/infrastructure/CG-Flash"
+    cd "$PROJECT_ROOT/infrastructure/CG-Flash"
     nohup npm start > "$LOG_DIR/cg-flash.log" 2>&1 &
     echo "CG-Flash (2405): Started (PID: $!)"
 fi
@@ -30,7 +31,7 @@ fi
 if check_port 2406; then
     echo "CG-Pro (2406): Already running"
 else
-    cd "$SCRIPT_DIR/infrastructure/CG-Pro"
+    cd "$PROJECT_ROOT/infrastructure/CG-Pro"
     nohup npm start > "$LOG_DIR/cg-pro.log" 2>&1 &
     echo "CG-Pro (2406): Started (PID: $!)"
 fi
@@ -39,12 +40,12 @@ fi
 if check_port 2408; then
     echo "CC-Claude (2408): Already running"
 else
-    cd "$SCRIPT_DIR/infrastructure/CC-Claude"
+    cd "$PROJECT_ROOT/infrastructure/CC-Claude"
     nohup npm start > "$LOG_DIR/cc-claude.log" 2>&1 &
     echo "CC-Claude (2408): Started (PID: $!)"
 fi
 
-cd "$SCRIPT_DIR"
+cd "$PROJECT_ROOT"
 
 echo ""
 echo "Waiting for proxies to initialize..."
@@ -72,5 +73,5 @@ check_health 2408 "CC-Claude"
 
 echo ""
 echo "Logs: $LOG_DIR/"
-echo "Stop: ./stop-proxies.sh"
+echo "Stop: .claude/scripts/stop-proxies.sh"
 echo ""
