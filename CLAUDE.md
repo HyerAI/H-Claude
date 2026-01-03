@@ -34,6 +34,11 @@ These MUST stay aligned. NORTHSTAR = destination; ROADMAP = route.
     ├── GIT/              # Protocols
     ├── BACKLOG.yaml      # Deferred work
     └── CHANGELOG.md      # Change history
+
+infrastructure/               # LLM Proxy servers (global: ~/.claude/infrastructure/)
+├── CG-Flash/                 # Gemini Flash (port 2405)
+├── CG-Pro/                   # Gemini Pro (port 2406)
+└── CC-Claude/                # Claude pass-through (port 2408)
 ```
 
 ### Commands
@@ -84,10 +89,10 @@ Phase complete         →  ROADMAP updated → next phase unlocked
 
 ### Start (T+0)
 
-1. **Read** `.claude/context.yaml` and `ROADMAP.yaml`
-2. **Spawn** session-triage agent in background
+1. **Read** `context.yaml` and `ROADMAP.yaml`
+2. **Spawn** session-triage agent in background → outputs SESSION BRIEF
 3. **Greet** user based on context (don't wait for triage)
-4. **Merge** triage output when user responds
+4. **Merge** triage SESSION BRIEF when user responds
 
 ```
 Greet: "Last session we [recent_action]. Current focus: [objective]. What's next?"
@@ -97,7 +102,7 @@ Greet: "Last session we [recent_action]. Current focus: [objective]. What's next
 
 - Update `context.yaml` after significant work
 - Log actions in `recent_actions` (keep last 10)
-- Document decisions as ADRs
+- Document decisions as ADRs (template: `PM/SSoT/ADRs/`)
 - Unsorted tasks → `context.yaml` backlog
 - Tech debt → relevant phase in `ROADMAP.yaml`
 
