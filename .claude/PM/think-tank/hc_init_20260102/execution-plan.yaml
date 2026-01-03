@@ -1,0 +1,474 @@
+# execution-plan.yaml - H-Claude Init System
+
+topic: hc_init
+created: 2026-01-02
+last_updated: 2026-01-02
+status: complete
+
+decision:
+  path: "Hybrid: Shell script + Claude Code hook"
+  version: 1
+  confidence: HIGH
+
+phases:
+  - id: 0
+    name: "Session Start Triage (Flash Agent)"
+    status: pending
+    tasks:
+      - id: "0.1"
+        description: "Create session-triage.md command/skill"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: []
+        success_criteria: "Command defined with Flash agent prompt"
+        status: pending
+        notes: |
+          Core principle: Report only, never modify
+          Agent presents; HD decides
+          Target: <5 seconds, ~40 lines output
+
+      - id: "0.2"
+        description: "Implement context.yaml reader section"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.1"]
+        success_criteria: "Extracts active task, recent actions, blockers"
+        status: pending
+        notes: "Fast YAML parse, extract only needed fields"
+
+      - id: "0.3"
+        description: "Implement backlog scanner"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.1"]
+        success_criteria: "Pulls top 3 priorities from BACKLOG.yaml"
+        status: pending
+        notes: "Sort by priority field if exists"
+
+      - id: "0.4"
+        description: "Implement think-tank workspace scanner"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.1"]
+        success_criteria: "For linked items, pull conclusion only from STATE.yaml"
+        status: pending
+        notes: |
+          Only scan workspaces linked to top priorities
+          Extract: status, last decision, open questions count
+          Do NOT read full deliberation
+
+      - id: "0.5"
+        description: "Implement git status check"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.1"]
+        success_criteria: "Shows uncommitted files count/list"
+        status: pending
+        notes: "Run: git status --porcelain | wc -l"
+
+      - id: "0.6"
+        description: "Implement staleness detection"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.2"]
+        success_criteria: "Warns if context.yaml >7 days old"
+        status: pending
+        notes: "Check meta.last_modified timestamp"
+
+      - id: "0.7"
+        description: "Implement drift alert detection"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.2", "0.4"]
+        success_criteria: "Flags if active task doesn't match recent actions"
+        status: pending
+        notes: "Simple heuristic: active task keyword in recent_actions?"
+
+      - id: "0.8"
+        description: "Implement recommended action generator"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.2", "0.3", "0.4", "0.5"]
+        success_criteria: "Always outputs ONE concrete next step"
+        status: pending
+        notes: |
+          Priority logic:
+          1. Uncommitted work → "Commit or stash changes"
+          2. Blocker exists → "Resolve blocker: [X]"
+          3. Active task stale → "Update or close stale task"
+          4. Pending decision → "Review decision: [X]"
+          5. Otherwise → "Continue: [active task]"
+
+      - id: "0.9"
+        description: "Create output template with visual hierarchy"
+        files: [".claude/commands/session-triage.md"]
+        dependencies: ["0.8"]
+        success_criteria: "Scannable ~40 line format"
+        status: pending
+        notes: |
+          Format:
+          ═══ SESSION BRIEF ═══
+          LAST SESSION: [date] - [summary]
+          UNCOMMITTED: [none | count]
+
+          ACTIVE TASK: [name]
+            Status: [status]
+
+          TOP 3 PRIORITIES:
+            1. [item] → [workspace]
+            2. [item]
+            3. [item]
+
+          DECISIONS PENDING: [count]
+            → [most urgent]
+
+          DRIFT ALERTS: [none | warnings]
+
+          RECOMMENDED ACTION: [next step]
+          ═══════════════════════
+
+      - id: "0.10"
+        description: "Integrate with session-start hook"
+        files: [".claude/hooks/session-start.sh"]
+        dependencies: ["0.9", "4.4"]
+        success_criteria: "Hook triggers triage after basic health checks pass"
+        status: pending
+        notes: |
+          Flow:
+          1. Hook checks proxies (existing)
+          2. If OK, spawn Flash agent for triage
+          3. Output triage to stderr
+          4. Never block session
+
+  - id: 1
+    name: "Foundation - Shell Script Structure"
+    status: pending
+    tasks:
+      - id: "1.1"
+        description: "Create hc-init shell script skeleton with argument parsing"
+        files: ["hc-init"]
+        dependencies: []
+        success_criteria: "Script runs, shows help with --help flag"
+        status: pending
+        notes: "Support flags: --check, --fix, --start-proxies, --verbose"
+
+      - id: "1.2"
+        description: "Add color output and logging functions"
+        files: ["hc-init"]
+        dependencies: ["1.1"]
+        success_criteria: "Colored output: green=OK, yellow=WARN, red=ERROR"
+        status: pending
+        notes: "Use tput or ANSI codes, graceful fallback if no color support"
+
+      - id: "1.3"
+        description: "Add utility functions (check_command, check_file, check_port)"
+        files: ["hc-init"]
+        dependencies: ["1.2"]
+        success_criteria: "Helper functions work standalone"
+        status: pending
+        notes: ""
+
+  - id: 2
+    name: "Core Checks Implementation"
+    status: pending
+    tasks:
+      - id: "2.1"
+        description: "Implement folder structure validation"
+        files: ["hc-init"]
+        dependencies: ["1.3"]
+        success_criteria: "Checks all required folders exist, optionally creates missing"
+        status: pending
+        notes: |
+          Required folders:
+          - .claude/
+          - .claude/PM/think-tank/
+          - .claude/PM/hc-plan-execute/
+          - .claude/PM/hc-glass/
+          - .claude/PM/red-team/
+          - .claude/PM/TEMP/
+          - .claude/PM/SSoT/ADRs/
+          - infrastructure/CG-Flash/
+          - infrastructure/CG-Pro/
+          - infrastructure/CC-Claude/
+
+      - id: "2.2"
+        description: "Implement config file validation"
+        files: ["hc-init"]
+        dependencies: ["1.3"]
+        success_criteria: "Checks .env files exist, warns if API keys are placeholder"
+        status: pending
+        notes: |
+          Check for:
+          - infrastructure/CG-Flash/.env (GOOGLE_AI_API_KEY)
+          - infrastructure/CG-Pro/.env (GOOGLE_AI_API_KEY)
+          - infrastructure/CC-Claude/.env (optional ANTHROPIC_API_KEY)
+          Warn if key looks like placeholder (contains 'your-' or 'xxx')
+
+      - id: "2.3"
+        description: "Implement proxy health checks"
+        files: ["hc-init"]
+        dependencies: ["1.3"]
+        success_criteria: "Curl health endpoints, report status"
+        status: pending
+        notes: |
+          Endpoints:
+          - http://localhost:2405/health (CG-Flash)
+          - http://localhost:2406/health (CG-Pro)
+          - http://localhost:2408/health (CC-Claude)
+          Timeout: 2 seconds
+
+      - id: "2.4"
+        description: "Implement Claude CLI check"
+        files: ["hc-init"]
+        dependencies: ["1.3"]
+        success_criteria: "Verify claude command exists and responds"
+        status: pending
+        notes: "Run 'claude --version' or similar non-destructive command"
+
+      - id: "2.5"
+        description: "Implement context.yaml validation"
+        files: ["hc-init"]
+        dependencies: ["1.3"]
+        success_criteria: "Check file exists, valid YAML syntax"
+        status: pending
+        notes: "Use python3 -c or yq if available, fallback to basic check"
+
+  - id: 3
+    name: "Fix/Setup Actions"
+    status: pending
+    tasks:
+      - id: "3.1"
+        description: "Implement --fix flag to create missing folders"
+        files: ["hc-init"]
+        dependencies: ["2.1"]
+        success_criteria: "Creates missing folders with .gitkeep files"
+        status: pending
+        notes: "Only create if --fix flag passed, otherwise just report"
+
+      - id: "3.2"
+        description: "Implement --fix flag to create template .env files"
+        files: ["hc-init"]
+        dependencies: ["2.2"]
+        success_criteria: "Copies .env.example to .env if missing"
+        status: pending
+        notes: "Never overwrite existing .env files"
+
+      - id: "3.3"
+        description: "Implement --start-proxies flag"
+        files: ["hc-init"]
+        dependencies: ["2.3"]
+        success_criteria: "Starts proxies in background if not running"
+        status: pending
+        notes: |
+          Use: cd infrastructure/CG-Flash && npm start &
+          Consider using nohup or screen/tmux
+          Log PIDs for later management
+
+  - id: 4
+    name: "Claude Code Hook (CRITICAL - See HOOK_SAFETY_ANALYSIS.md)"
+    status: pending
+    tasks:
+      - id: "4.1"
+        description: "Create hook script skeleton with safety wrapper"
+        files: [".claude/hooks/session-start.sh"]
+        dependencies: []
+        success_criteria: "Script has trap, timeout, background exec, always exits 0"
+        status: pending
+        notes: |
+          CRITICAL SAFETY REQUIREMENTS:
+          - trap 'exit 0' ERR (never fail)
+          - Run checks in background (&)
+          - Don't wait for background process
+          - Total execution <2 seconds
+          - Output to stderr only
+
+      - id: "4.2"
+        description: "Implement context.yaml existence check"
+        files: [".claude/hooks/session-start.sh"]
+        dependencies: ["4.1"]
+        success_criteria: "Fast file existence check, no file reading"
+        status: pending
+        notes: "Use [[ -f file ]] only, do not parse YAML in hook"
+
+      - id: "4.3"
+        description: "Implement proxy health ping with timeout"
+        files: [".claude/hooks/session-start.sh"]
+        dependencies: ["4.1"]
+        success_criteria: "Curl with 1s timeout, check any one proxy"
+        status: pending
+        notes: |
+          Use: timeout 1 curl -s localhost:2405/health
+          Check 2405 OR 2406 OR 2408 (any one is fine)
+          Do NOT block if all fail
+
+      - id: "4.4"
+        description: "Test hook in isolation before integration"
+        files: []
+        dependencies: ["4.2", "4.3"]
+        success_criteria: "Hook completes in <2s, never returns non-zero"
+        status: pending
+        notes: |
+          Test cases:
+          - All proxies up → no output
+          - All proxies down → warning, exit 0
+          - context.yaml missing → warning, exit 0
+          - Hook script error → still exit 0
+
+      - id: "4.5"
+        description: "Configure hook in settings.json (non-blocking)"
+        files: [".claude/settings.json"]
+        dependencies: ["4.4"]
+        success_criteria: "Hook configured with blocking: false, timeout: 2000"
+        status: pending
+        notes: |
+          Settings:
+          {
+            "hooks": {
+              "session-start": {
+                "command": ".claude/hooks/session-start.sh",
+                "timeout": 2000,
+                "blocking": false
+              }
+            }
+          }
+
+      - id: "4.6"
+        description: "Create hook disable/rollback instructions"
+        files: [".claude/hooks/README.md"]
+        dependencies: ["4.5"]
+        success_criteria: "Clear instructions to disable if issues occur"
+        status: pending
+        notes: "Include: rm command, settings.json edit, symptoms of hook issues"
+
+  - id: 5
+    name: "MAIN Think-Tank & Hierarchical Structure"
+    status: pending
+    tasks:
+      - id: "5.1"
+        description: "Add --main flag to think-tank command"
+        files: [".claude/commands/think-tank.md"]
+        dependencies: []
+        success_criteria: "Flag triggers project vision mode"
+        status: pending
+        notes: |
+          MAIN mode differences:
+          - Focus on long-horizon vision
+          - Output: action-items.yaml (not execution-plan.yaml)
+          - Cap at 3-7 action items
+          - Include dependency tracking
+
+      - id: "5.2"
+        description: "Create action-items.yaml schema"
+        files: [".claude/templates/think-tank/ACTION_ITEMS_SCHEMA.md"]
+        dependencies: ["5.1"]
+        success_criteria: "Structured schema with id, title, context, constraints, depends_on, status"
+        status: pending
+        notes: |
+          Schema:
+          action_items:
+            - id: AI-001
+              title: "Implement auth"
+              context: "From MAIN discussion"
+              constraints: ["Must support X"]
+              depends_on: []
+              status: pending
+              sub_session_path: null
+
+      - id: "5.3"
+        description: "Add --parent flag to think-tank for sub-sessions"
+        files: [".claude/commands/think-tank.md"]
+        dependencies: ["5.2"]
+        success_criteria: "Sub-sessions reference parent and action item"
+        status: pending
+        notes: |
+          Usage: /think-tank "Auth system" --parent=project_vision --action-item=AI-001
+          Adds to STATE.yaml:
+            parent:
+              type: main_think_tank
+              path: .../project_vision_20260102/
+              action_item_id: AI-001
+
+      - id: "5.4"
+        description: "Add lifecycle states to context.yaml tracking"
+        files: [".claude/context.yaml", ".claude/templates/think-tank/STATE_SCHEMA.md"]
+        dependencies: ["5.3"]
+        success_criteria: "Sessions track: active | paused | completed | archived"
+        status: pending
+        notes: "Also add 'type: main | sub' field"
+
+      - id: "5.5"
+        description: "Add escalation protocol to think-tank"
+        files: [".claude/commands/think-tank.md"]
+        dependencies: ["5.3"]
+        success_criteria: "Sub-sessions can flag issues for MAIN review"
+        status: pending
+        notes: |
+          Escalation triggers:
+          - Scope expansion needed
+          - Conflict with another action item
+          - Infeasibility detected
+          Adds to STATE.yaml: escalation: { reason, status }
+
+      - id: "5.6"
+        description: "Add archive protocol"
+        files: [".claude/commands/think-tank.md"]
+        dependencies: ["5.4"]
+        success_criteria: "Completed sessions move to archive folder"
+        status: pending
+        notes: |
+          When all action items complete:
+          - Move to .claude/PM/think-tank/archive/
+          - Update context.yaml: status: archived
+
+  - id: 6
+    name: "Documentation & Polish"
+    status: pending
+    tasks:
+      - id: "6.1"
+        description: "Add comprehensive help output to hc-init"
+        files: ["hc-init"]
+        dependencies: ["3.3"]
+        success_criteria: "Clear usage examples and flag descriptions"
+        status: pending
+        notes: ""
+
+      - id: "6.2"
+        description: "Update GET_STARTED.md with full workflow"
+        files: ["GET_STARTED.md"]
+        dependencies: ["6.1", "5.6"]
+        success_criteria: "Documentation shows complete init → vision → plan → execute flow"
+        status: pending
+        notes: |
+          New flow:
+          1. ./hc-init --scaffold
+          2. /think-tank --main "Project Vision"
+          3. /think-tank "AI-001" --parent=main
+          4. /hc-plan-execute
+          5. Repeat for each action item
+
+      - id: "6.3"
+        description: "Add status summary output to hc-init"
+        files: ["hc-init"]
+        dependencies: ["2.5"]
+        success_criteria: "Pretty summary table at end of check"
+        status: pending
+        notes: |
+          Example output:
+          ┌─────────────────────────────────────┐
+          │ H-Claude Environment Status         │
+          ├─────────────────────────────────────┤
+          │ Folders      ✓ OK                   │
+          │ Configs      ⚠ Missing CG-Pro .env  │
+          │ CG-Flash     ✓ Running (2405)       │
+          │ CG-Pro       ✗ Not running          │
+          │ CC-Claude    ✓ Running (2408)       │
+          │ Claude CLI   ✓ Available            │
+          └─────────────────────────────────────┘
+
+      - id: "6.4"
+        description: "Update NORTHSTAR.md with hierarchical workflow"
+        files: [".claude/PM/SSoT/NORTHSTAR.md"]
+        dependencies: ["5.6"]
+        success_criteria: "Shows MAIN → sub → execute pattern"
+        status: pending
+        notes: ""
+
+execution:
+  started: null
+  completed: null
+  session_path: ""
+  completion_report: null
+
+reviews: []

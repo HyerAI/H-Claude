@@ -1,0 +1,587 @@
+#!/usr/bin/env bash
+#
+# hc-init - H-Claude Project Initialization & Health Check
+#
+# Usage: hc-init [OPTIONS]
+#
+# Options:
+#   --check         Run health checks only (default)
+#   --fix           Attempt to fix issues found
+#   --start-proxies Start proxy servers if not running
+#   --verbose       Show detailed output
+#   --help          Show this help message
+#
+
+set -euo pipefail
+
+# =============================================================================
+# CONSTANTS
+# =============================================================================
+
+readonly VERSION="1.0.0"
+readonly SCRIPT_NAME="hc-init"
+
+# Required folders
+readonly REQUIRED_FOLDERS=(
+    ".claude"
+    ".claude/PM/think-tank"
+    ".claude/PM/hc-plan-execute"
+    ".claude/PM/hc-glass"
+    ".claude/PM/red-team"
+    ".claude/PM/TEMP"
+    ".claude/PM/SSoT/ADRs"
+    "infrastructure/CG-Flash"
+    "infrastructure/CG-Pro"
+    "infrastructure/CC-Claude"
+)
+
+# Proxy endpoints
+declare -A PROXY_ENDPOINTS=(
+    ["CG-Flash"]="http://localhost:2405/health"
+    ["CG-Pro"]="http://localhost:2406/health"
+    ["CC-Claude"]="http://localhost:2408/health"
+)
+
+# =============================================================================
+# COLOR OUTPUT
+# =============================================================================
+
+# Check if terminal supports colors
+if [[ -t 1 ]] && command -v tput &>/dev/null && [[ $(tput colors 2>/dev/null || echo 0) -ge 8 ]]; then
+    COLOR_OK=$(tput setaf 2)      # Green
+    COLOR_WARN=$(tput setaf 3)    # Yellow
+    COLOR_ERROR=$(tput setaf 1)   # Red
+    COLOR_INFO=$(tput setaf 6)    # Cyan
+    COLOR_RESET=$(tput sgr0)
+else
+    # Fallback: no colors
+    COLOR_OK=""
+    COLOR_WARN=""
+    COLOR_ERROR=""
+    COLOR_INFO=""
+    COLOR_RESET=""
+fi
+
+# =============================================================================
+# LOGGING FUNCTIONS
+# =============================================================================
+
+log_ok() {
+    echo "${COLOR_OK}✓${COLOR_RESET} $*"
+}
+
+log_warn() {
+    echo "${COLOR_WARN}⚠${COLOR_RESET} $*"
+}
+
+log_error() {
+    echo "${COLOR_ERROR}✗${COLOR_RESET} $*" >&2
+}
+
+log_info() {
+    echo "${COLOR_INFO}ℹ${COLOR_RESET} $*"
+}
+
+log_verbose() {
+    if [[ "${VERBOSE:-false}" == "true" ]]; then
+        echo "  $*"
+    fi
+}
+
+# =============================================================================
+# UTILITY FUNCTIONS
+# =============================================================================
+
+# Check if a command exists
+# Usage: check_command cmd
+# Returns: 0 if exists, 1 if not
+check_command() {
+    local cmd="$1"
+    if command -v "$cmd" &>/dev/null; then
+        log_verbose "Command '$cmd' found"
+        return 0
+    else
+        log_verbose "Command '$cmd' not found"
+        return 1
+    fi
+}
+
+# Check if a file exists
+# Usage: check_file path
+# Returns: 0 if exists, 1 if not
+check_file() {
+    local path="$1"
+    if [[ -f "$path" ]]; then
+        log_verbose "File '$path' exists"
+        return 0
+    else
+        log_verbose "File '$path' not found"
+        return 1
+    fi
+}
+
+# Check if a directory exists
+# Usage: check_dir path
+# Returns: 0 if exists, 1 if not
+check_dir() {
+    local path="$1"
+    if [[ -d "$path" ]]; then
+        log_verbose "Directory '$path' exists"
+        return 0
+    else
+        log_verbose "Directory '$path' not found"
+        return 1
+    fi
+}
+
+# Check if a port is listening
+# Usage: check_port port
+# Returns: 0 if listening, 1 if not
+check_port() {
+    local port="$1"
+    if command -v ss &>/dev/null; then
+        ss -tuln 2>/dev/null | grep -q ":${port} " && return 0
+    elif command -v netstat &>/dev/null; then
+        netstat -tuln 2>/dev/null | grep -q ":${port} " && return 0
+    elif command -v lsof &>/dev/null; then
+        lsof -i ":${port}" &>/dev/null && return 0
+    fi
+    return 1
+}
+
+# Check if a URL endpoint is healthy (HTTP 200)
+# Usage: check_endpoint url
+# Returns: 0 if healthy, 1 if not
+check_endpoint() {
+    local url="$1"
+    local timeout="${2:-5}"
+
+    if command -v curl &>/dev/null; then
+        curl -sf --max-time "$timeout" "$url" &>/dev/null && return 0
+    elif command -v wget &>/dev/null; then
+        wget -q --timeout="$timeout" -O /dev/null "$url" &>/dev/null && return 0
+    fi
+    return 1
+}
+
+# =============================================================================
+# HELP
+# =============================================================================
+
+show_help() {
+    cat << EOF
+${SCRIPT_NAME} v${VERSION} - H-Claude Project Initialization & Health Check
+
+Usage: ${SCRIPT_NAME} [OPTIONS]
+
+Options:
+  --check         Run health checks only (default)
+  --fix           Attempt to fix issues found
+  --start-proxies Start proxy servers if not running
+  --verbose       Show detailed output
+  --help          Show this help message
+
+Examples:
+  ${SCRIPT_NAME}                    # Run health checks
+  ${SCRIPT_NAME} --fix              # Check and fix issues
+  ${SCRIPT_NAME} --start-proxies    # Start proxy servers
+  ${SCRIPT_NAME} --verbose --check  # Verbose health check
+
+Required Folders:
+$(printf '  %s\n' "${REQUIRED_FOLDERS[@]}")
+
+Proxy Endpoints:
+  CG-Flash:   ${PROXY_ENDPOINTS[CG-Flash]}
+  CG-Pro:     ${PROXY_ENDPOINTS[CG-Pro]}
+  CC-Claude:  ${PROXY_ENDPOINTS[CC-Claude]}
+EOF
+}
+
+# =============================================================================
+# ARGUMENT PARSING
+# =============================================================================
+
+# Defaults
+MODE="check"
+VERBOSE="false"
+START_PROXIES="false"
+FIX_ISSUES="false"
+
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --check)
+                MODE="check"
+                shift
+                ;;
+            --fix)
+                FIX_ISSUES="true"
+                MODE="check"
+                shift
+                ;;
+            --start-proxies)
+                START_PROXIES="true"
+                shift
+                ;;
+            --verbose|-v)
+                VERBOSE="true"
+                shift
+                ;;
+            --help|-h)
+                show_help
+                exit 0
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+}
+
+# =============================================================================
+# CHECK FUNCTIONS (Phase 2 will expand these)
+# =============================================================================
+
+check_folders() {
+    local missing=0
+    log_info "Checking required folders..."
+
+    for folder in "${REQUIRED_FOLDERS[@]}"; do
+        if check_dir "$folder"; then
+            log_ok "$folder"
+        else
+            log_warn "Missing: $folder"
+            ((missing++))
+
+            if [[ "$FIX_ISSUES" == "true" ]]; then
+                mkdir -p "$folder"
+                log_ok "Created: $folder"
+                ((missing--))
+            fi
+        fi
+    done
+
+    return $missing
+}
+
+check_proxies() {
+    local unhealthy=0
+    log_info "Checking proxy endpoints..."
+
+    for name in "${!PROXY_ENDPOINTS[@]}"; do
+        local url="${PROXY_ENDPOINTS[$name]}"
+        if check_endpoint "$url" 2; then  # 2 second timeout
+            log_ok "$name ($url)"
+        else
+            log_warn "$name not responding ($url)"
+            ((unhealthy++))
+        fi
+    done
+
+    return $unhealthy
+}
+
+check_dependencies() {
+    local missing=0
+    log_info "Checking dependencies..."
+
+    local deps=("git" "curl")
+    for dep in "${deps[@]}"; do
+        if check_command "$dep"; then
+            log_ok "$dep"
+        else
+            log_error "Missing: $dep"
+            ((missing++))
+        fi
+    done
+
+    return $missing
+}
+
+check_configs() {
+    local issues=0
+    log_info "Checking config files..."
+
+    # Infrastructure .env files to check
+    local config_dirs=("infrastructure/CG-Flash" "infrastructure/CG-Pro")
+    local optional_dirs=("infrastructure/CC-Claude")
+
+    # Check required config dirs
+    for dir in "${config_dirs[@]}"; do
+        local env_file="$dir/.env"
+        local example_file="$dir/.env.example"
+
+        if check_file "$env_file"; then
+            # Check for placeholder API keys
+            if grep -qE '(your-|xxx|^[A-Z_]+=$)' "$env_file" 2>/dev/null; then
+                log_warn "$env_file contains placeholder values"
+                ((issues++))
+            else
+                log_ok "$env_file"
+            fi
+        else
+            log_warn "Missing: $env_file"
+            ((issues++))
+
+            if [[ "$FIX_ISSUES" == "true" ]]; then
+                if check_file "$example_file"; then
+                    cp "$example_file" "$env_file"
+                    log_ok "Created $env_file from .env.example"
+                    log_warn "Edit $env_file to add your API key"
+                else
+                    log_verbose "No .env.example found to copy"
+                fi
+            fi
+        fi
+    done
+
+    # Check optional config dirs
+    for dir in "${optional_dirs[@]}"; do
+        local env_file="$dir/.env"
+        local example_file="$dir/.env.example"
+
+        if check_file "$env_file"; then
+            if grep -qE '(your-|xxx|^[A-Z_]+=$)' "$env_file" 2>/dev/null; then
+                log_warn "$env_file contains placeholder values (optional)"
+            else
+                log_ok "$env_file (optional)"
+            fi
+        else
+            log_verbose "Optional: $env_file not found"
+            if [[ "$FIX_ISSUES" == "true" ]] && check_file "$example_file"; then
+                cp "$example_file" "$env_file"
+                log_ok "Created $env_file from .env.example (optional)"
+            fi
+        fi
+    done
+
+    return $issues
+}
+
+check_claude_cli() {
+    local issues=0
+    log_info "Checking Claude CLI..."
+
+    if check_command "claude"; then
+        local version
+        version=$(claude --version 2>/dev/null || echo "unknown")
+        log_ok "Claude CLI ($version)"
+    else
+        log_warn "Claude CLI not found (install: npm install -g @anthropic-ai/claude-code)"
+        ((issues++))
+    fi
+
+    return $issues
+}
+
+check_context_yaml() {
+    local issues=0
+    log_info "Checking context.yaml..."
+
+    local context_file=".claude/context.yaml"
+
+    if check_file "$context_file"; then
+        # Check if file is not empty
+        if [[ ! -s "$context_file" ]]; then
+            log_error "$context_file is empty"
+            ((issues++))
+            return $issues
+        fi
+
+        # Try YAML syntax validation with Python if available
+        if check_command "python3"; then
+            if python3 -c "import yaml; yaml.safe_load(open('$context_file'))" 2>/dev/null; then
+                log_ok "$context_file (valid YAML)"
+            else
+                log_error "$context_file has invalid YAML syntax"
+                ((issues++))
+            fi
+        else
+            # Fallback: just check file exists and is not empty
+            log_ok "$context_file (exists, YAML validation skipped)"
+        fi
+    else
+        log_warn "Missing: $context_file"
+        ((issues++))
+        log_info "Run /think-tank or create manually"
+    fi
+
+    return $issues
+}
+
+# =============================================================================
+# STATUS SUMMARY TABLE
+# =============================================================================
+
+# Stores status results for summary table
+declare -A STATUS_RESULTS
+
+print_status_table() {
+    local box_width=41
+
+    echo ""
+    echo "┌─────────────────────────────────────────┐"
+    echo "│ H-Claude Environment Status             │"
+    echo "├─────────────────────────────────────────┤"
+
+    # Folders status
+    local folders_status="${STATUS_RESULTS[folders]:-unknown}"
+    local folders_icon folders_text
+    case "$folders_status" in
+        ok)      folders_icon="${COLOR_OK}✓${COLOR_RESET}"; folders_text="OK" ;;
+        warn)    folders_icon="${COLOR_WARN}⚠${COLOR_RESET}"; folders_text="Missing (--fix)" ;;
+        *)       folders_icon="${COLOR_ERROR}✗${COLOR_RESET}"; folders_text="Error" ;;
+    esac
+    printf "│ Folders      %b %-24s│\n" "$folders_icon" "$folders_text"
+
+    # Configs status
+    local configs_status="${STATUS_RESULTS[configs]:-unknown}"
+    local configs_icon configs_text
+    case "$configs_status" in
+        ok)      configs_icon="${COLOR_OK}✓${COLOR_RESET}"; configs_text="OK" ;;
+        warn)    configs_icon="${COLOR_WARN}⚠${COLOR_RESET}"; configs_text="${STATUS_RESULTS[configs_note]:-Missing .env}" ;;
+        *)       configs_icon="${COLOR_ERROR}✗${COLOR_RESET}"; configs_text="Error" ;;
+    esac
+    printf "│ Configs      %b %-24s│\n" "$configs_icon" "$configs_text"
+
+    # CG-Flash status
+    local flash_status="${STATUS_RESULTS[CG-Flash]:-unknown}"
+    local flash_icon flash_text
+    case "$flash_status" in
+        ok)      flash_icon="${COLOR_OK}✓${COLOR_RESET}"; flash_text="Running (2405)" ;;
+        *)       flash_icon="${COLOR_ERROR}✗${COLOR_RESET}"; flash_text="Not running" ;;
+    esac
+    printf "│ CG-Flash     %b %-24s│\n" "$flash_icon" "$flash_text"
+
+    # CG-Pro status
+    local pro_status="${STATUS_RESULTS[CG-Pro]:-unknown}"
+    local pro_icon pro_text
+    case "$pro_status" in
+        ok)      pro_icon="${COLOR_OK}✓${COLOR_RESET}"; pro_text="Running (2406)" ;;
+        *)       pro_icon="${COLOR_ERROR}✗${COLOR_RESET}"; pro_text="Not running" ;;
+    esac
+    printf "│ CG-Pro       %b %-24s│\n" "$pro_icon" "$pro_text"
+
+    # CC-Claude status
+    local claude_status="${STATUS_RESULTS[CC-Claude]:-unknown}"
+    local claude_icon claude_text
+    case "$claude_status" in
+        ok)      claude_icon="${COLOR_OK}✓${COLOR_RESET}"; claude_text="Running (2408)" ;;
+        *)       claude_icon="${COLOR_ERROR}✗${COLOR_RESET}"; claude_text="Not running" ;;
+    esac
+    printf "│ CC-Claude    %b %-24s│\n" "$claude_icon" "$claude_text"
+
+    # Claude CLI status
+    local cli_status="${STATUS_RESULTS[claude_cli]:-unknown}"
+    local cli_icon cli_text
+    case "$cli_status" in
+        ok)      cli_icon="${COLOR_OK}✓${COLOR_RESET}"; cli_text="Available" ;;
+        *)       cli_icon="${COLOR_WARN}⚠${COLOR_RESET}"; cli_text="Not installed" ;;
+    esac
+    printf "│ Claude CLI   %b %-24s│\n" "$cli_icon" "$cli_text"
+
+    echo "└─────────────────────────────────────────┘"
+}
+
+# =============================================================================
+# MAIN
+# =============================================================================
+
+main() {
+    parse_args "$@"
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " ${SCRIPT_NAME} v${VERSION}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    local total_issues=0
+    local check_result=0
+
+    # Check dependencies (git, curl)
+    check_dependencies || ((total_issues+=$?))
+    echo ""
+
+    # Check Claude CLI
+    if check_claude_cli; then
+        STATUS_RESULTS[claude_cli]="ok"
+    else
+        STATUS_RESULTS[claude_cli]="warn"
+        ((total_issues+=$?))
+    fi
+    echo ""
+
+    # Check folders
+    check_result=0
+    check_folders || check_result=$?
+    if [[ $check_result -eq 0 ]]; then
+        STATUS_RESULTS[folders]="ok"
+    else
+        STATUS_RESULTS[folders]="warn"
+        ((total_issues+=check_result))
+    fi
+    echo ""
+
+    # Check config files (.env)
+    check_result=0
+    check_configs || check_result=$?
+    if [[ $check_result -eq 0 ]]; then
+        STATUS_RESULTS[configs]="ok"
+    else
+        STATUS_RESULTS[configs]="warn"
+        # Try to identify which config is problematic
+        if [[ ! -f "infrastructure/CG-Flash/.env" ]]; then
+            STATUS_RESULTS[configs_note]="Missing CG-Flash .env"
+        elif [[ ! -f "infrastructure/CG-Pro/.env" ]]; then
+            STATUS_RESULTS[configs_note]="Missing CG-Pro .env"
+        else
+            STATUS_RESULTS[configs_note]="Placeholder values"
+        fi
+        ((total_issues+=check_result))
+    fi
+    echo ""
+
+    # Check context.yaml
+    check_context_yaml || ((total_issues+=$?))
+    echo ""
+
+    # Check proxies and store results
+    log_info "Checking proxy endpoints..."
+    for name in "${!PROXY_ENDPOINTS[@]}"; do
+        local url="${PROXY_ENDPOINTS[$name]}"
+        if check_endpoint "$url" 2; then
+            log_ok "$name ($url)"
+            STATUS_RESULTS[$name]="ok"
+        else
+            log_warn "$name not responding ($url)"
+            STATUS_RESULTS[$name]="error"
+            ((total_issues++))
+        fi
+    done
+    echo ""
+
+    # Print status summary table
+    print_status_table
+    echo ""
+
+    # Summary
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    if [[ $total_issues -eq 0 ]]; then
+        log_ok "All checks passed!"
+    else
+        log_warn "Found $total_issues issue(s)"
+        if [[ "$FIX_ISSUES" != "true" ]]; then
+            log_info "Run with --fix to attempt automatic fixes"
+        fi
+    fi
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    return $total_issues
+}
+
+# Run main if script is executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

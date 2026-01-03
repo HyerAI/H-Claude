@@ -133,9 +133,141 @@ ls -la .claude/PM/
 
 ---
 
-## 4. Start Working
+## 4. Run Health Check
 
-### Session Start Protocol
+Before starting work, verify your environment:
+
+```bash
+# Check everything is set up
+./hc-init
+
+# Fix issues automatically (creates missing folders, copies .env.example)
+./hc-init --fix
+
+# Start proxy servers if not running
+./hc-init --start-proxies
+```
+
+---
+
+## 5. The Complete Workflow
+
+H-Claude uses a **hierarchical workflow** where big objectives break down into action items, each executed independently.
+
+### Workflow Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ./hc-init --fix                                            │
+│    └── Creates folders, validates environment               │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  /think-tank --main "Project Vision"                        │
+│    └── MAIN session: Council discusses long-horizon goals   │
+│    └── Outputs: action-items.yaml (3-7 items)               │
+│    └── Artifacts: .claude/PM/think-tank/{session}/          │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  For each action item (respect dependencies):               │
+│                                                             │
+│    /think-tank "AI-001" --parent=main                       │
+│      └── Sub-session researches specific item               │
+│      └── Council decides approach                           │
+│      └── Outputs: execution-plan.yaml                       │
+│                              ↓                              │
+│    /hc-plan-execute                                         │
+│      └── Workers implement plan                             │
+│      └── QA verifies each phase                             │
+│      └── SWEEP & VERIFY catches missed work                 │
+│                              ↓                              │
+│    /hc-glass (optional)                                     │
+│      └── Code review, security audit                        │
+│      └── Find bugs and conflicts                            │
+│                              ↓                              │
+│    Mark action item complete in MAIN session                │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  When all items complete:                                   │
+│    └── Archive MAIN session                                 │
+│    └── Update context.yaml                                  │
+│    └── Commit changes                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Session Hierarchy
+
+```
+MAIN Think-Tank (Project Vision)
+├── Action Item 1 → Sub Think-Tank → execution-plan.yaml → Execute
+├── Action Item 2 → Sub Think-Tank → execution-plan.yaml → Execute
+├── Action Item 3 → Sub Think-Tank → execution-plan.yaml → Execute
+│   ↓
+│   Issues found? → /red-team → Fix → Re-execute
+│
+└── All items complete → Archive MAIN
+```
+
+### Step-by-Step
+
+**Step 1: Start MAIN Think-Tank**
+```bash
+/think-tank --main "Authentication System Design"
+```
+- Council of experts discusses the objective
+- You make key decisions when prompted
+- Outputs `action-items.yaml` with 3-7 discrete work items
+- Each item has dependencies and acceptance criteria
+
+**Step 2: Execute Each Action Item**
+```bash
+# For action item AI-001 (respecting dependency order)
+/think-tank "AI-001" --parent=main
+```
+- Creates a sub-session linked to MAIN
+- Council researches and plans the specific item
+- Outputs `execution-plan.yaml` with implementation steps
+
+**Step 3: Implement the Plan**
+```bash
+/hc-plan-execute
+```
+- Workers implement the approved plan
+- QA verifies each phase
+- SWEEP & VERIFY protocol catches 15% missed work
+
+**Step 4: Quality Check (Optional)**
+```bash
+/hc-glass
+```
+- Comprehensive code review
+- Security and architecture audit
+- Identifies bugs, conflicts, incomplete work
+
+**Step 5: Fix Issues**
+```bash
+# If bugs found, deep dive
+/red-team "Token refresh failing after 24h"
+```
+- Root cause analysis
+- Findings feed back into fixes
+
+**Step 6: Mark Complete**
+- Update action item status in MAIN session
+- Continue to next action item (respecting dependencies)
+
+**Step 7: Archive**
+- When all action items complete, archive MAIN session
+- Update context.yaml with outcomes
+- Commit changes
+
+---
+
+## 6. Session Protocols
+
+### Session Start
 
 1. **Open project in Claude Code**
    ```bash
@@ -145,42 +277,9 @@ ls -la .claude/PM/
 
 2. **Claude reads context.yaml** automatically and resumes from last state
 
-3. **Git agent launches** and watches for commit triggers
+3. **Run health check** if needed: `./hc-init`
 
-### Using Commands
-
-```bash
-# Research, decide, and plan (the brain)
-/think-tank
-
-# Execute an approved plan
-/hc-plan-execute
-
-# Code/system review
-/hc-glass
-
-# Deep dive into issue/bug
-/red-team
-```
-
-### Spawning Sub-Agents
-
-Use proxies to spawn sub-agents for parallel work:
-
-```bash
-# Fast worker (Gemini Flash)
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "task description"
-
-# Reasoning agent (Gemini Pro)
-ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "task description"
-
-# Complex reasoning (Claude)
-ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "task description"
-```
-
----
-
-## 5. Session End Protocol
+### Session End
 
 1. **Update context.yaml** with current state
 2. **Update CHANGELOG.md** with changes
@@ -190,40 +289,36 @@ ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissio
      status: ready
      note: 'Description of changes to commit'
    ```
-4. **Git agent commits** including context.yaml
+4. **Commit** (Claude handles this when asked)
 
 ---
 
-## Workflow Example
+## 7. Spawning Sub-Agents
 
-```
-1. /think-tank "Authentication system design"
-   → Council investigates options
-   → You DECIDE on a path
-   → Think-tank generates execution-plan.yaml
-   → Artifacts saved to .claude/PM/think-tank/auth_system_{date}/
+Use proxies to spawn sub-agents for parallel work:
 
-2. /hc-plan-execute TOPIC: auth_system
-   → Workers implement the approved plan
-   → QA verifies each phase
-   → Sweeper hunts for gaps
+```bash
+# Fast worker (Gemini Flash) - writing code, simple tasks
+ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "task"
 
-3. /hc-glass
-   → Review implementation for issues
-   → Security audit
+# Reasoning agent (Gemini Pro) - QA, planning, analysis
+ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "task"
 
-4. If bugs found: /red-team "Investigate token refresh bug"
-   → Deep dive analysis
-   → Findings feed back to /hc-plan-execute for fixes
+# Complex reasoning (Claude) - difficult problems
+ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "task"
 ```
 
-### Key Files
+---
+
+## Key Files
 
 | File | Location | Purpose |
 |------|----------|---------|
-| `STATE.yaml` | think-tank/{topic}/ | Session state, decisions |
-| `execution-plan.yaml` | think-tank/{topic}/ | Implementation plan |
+| `action-items.yaml` | think-tank/{session}/ | MAIN session work items |
+| `execution-plan.yaml` | think-tank/{session}/ | Implementation plan |
+| `STATE.yaml` | think-tank/{session}/ | Session state, decisions |
 | `context.yaml` | .claude/ | Project-wide status tracking |
+| `BACKLOG.yaml` | .claude/PM/ | Deferred work items |
 
 ---
 

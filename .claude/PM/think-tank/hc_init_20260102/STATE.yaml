@@ -1,0 +1,49 @@
+# STATE.yaml - Topic Workspace State
+
+topic: hc_init
+created: 2026-01-02
+last_active: 2026-01-02
+status: active
+
+current_session:
+  number: 1
+  step: 7  # Plan generation complete
+  started: 2026-01-02T00:00:00Z
+  trigger: initial
+
+sessions:
+  - number: 1
+    date: 2026-01-02
+    trigger: initial
+    summary: "Initial planning for H-Claude init system"
+    outcome: pending
+    rounds: 0
+
+decisions:
+  - version: 1
+    date: 2026-01-02
+    session: 1
+    recommendation: "Hybrid: Shell script (hc-init) + Claude Code hook"
+    confidence: HIGH
+    rationale: "Shell script for setup flexibility, hook for ongoing checks. Hook requires careful safety design."
+
+learnings: []
+
+open_questions:
+  - question: "What hook type does Claude Code support? (PreToolUse, Notification, etc.)"
+    raised_in: 1
+    answered: false
+    answer: null
+  - question: "Does settings.json support blocking: false for hooks?"
+    raised_in: 1
+    answered: false
+    answer: null
+
+cast:
+  domain_expert:
+    title: "DevOps Engineer"
+    focus: "Script reliability, process management, cross-platform compatibility"
+  pragmatist:
+    title: "Developer Experience Lead"
+    focus: "Ease of use, clear errors, fast setup"
+  last_updated: 2026-01-02

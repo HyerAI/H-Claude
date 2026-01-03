@@ -1,0 +1,310 @@
+# Execution Plan: Workflow Hierarchy Fixes
+# Generated: 2026-01-02
+# Source: 6-Agent Consensus Validation
+# Verdict: NEEDS_FIXES (6/6 agents, HIGH confidence)
+
+meta:
+  title: "Workflow Hierarchy Gap Fixes"
+  created: "2026-01-02"
+  status: approved
+  confidence: high
+  source: "6-agent validation consensus"
+
+# Phase 1: P0 Critical Fixes (Blocks Workflow)
+phases:
+  - id: PHASE-1
+    title: "Critical: Phase Completion Protocol"
+    description: "Add ROADMAP.yaml update step to hc-plan-execute"
+    priority: P0
+    dependencies: []
+    tasks:
+      - id: TASK-1.1
+        title: "Add Phase 6: ROADMAP SYNC to hc-plan-execute.md"
+        description: |
+          After COMPLETION_REPORT.md generation, add new phase:
+          ## Phase 6: ROADMAP SYNC
+          On successful completion (all phases PASS):
+          1. Read ROADMAP.yaml
+          2. Find phase by plan_path matching current execution
+          3. Update phase.status → 'complete'
+          4. Scan dependencies: unlock any phases where all deps are complete
+          5. Update active_phases[] array
+          6. Write ROADMAP.yaml
+          7. Log: [ROADMAP] Phase PHASE-XXX marked complete. N phases unlocked.
+        files:
+          - .claude/commands/hc-plan-execute.md
+        success_criteria:
+          - Phase 6 section added after Phase 5
+          - ROADMAP.yaml update protocol documented
+          - Dependency unlock logic included
+
+      - id: TASK-1.2
+        title: "Add failure handling for ROADMAP sync"
+        description: |
+          If execution fails (SWEEP finds critical gaps or QA fails):
+          1. Do NOT update ROADMAP.yaml status
+          2. Log: [ROADMAP] Phase PHASE-XXX execution incomplete. Status unchanged.
+          3. Offer rollback option in COMPLETION_REPORT.md
+        files:
+          - .claude/commands/hc-plan-execute.md
+        success_criteria:
+          - Failure case documented
+          - Rollback option mentioned
+
+  - id: PHASE-2
+    title: "Critical: Checkpoint Integration"
+    description: "Wire git-engineer checkpoint into execution flow"
+    priority: P0
+    dependencies: []
+    tasks:
+      - id: TASK-2.1
+        title: "Add Phase 0: CHECKPOINT to hc-plan-execute.md"
+        description: |
+          Before Phase 1 (PARSE), add:
+          ## Phase 0: PRE-EXECUTION CHECKPOINT
+          BEFORE any execution begins:
+          1. Check git status - if dirty, prompt to commit first
+          2. Spawn git-engineer with operation: checkpoint
+             Prompt: "Create checkpoint pre-execution for ${PLAN_SLUG}"
+          3. Store ROLLBACK_HASH in EXECUTION_STATE.md
+          4. Log: [CHECKPOINT] Created at ${COMMIT_HASH}. Rollback: git reset --hard ${COMMIT_HASH}
+
+          Example spawn:
+          ```bash
+          ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+          You are git-engineer. Create a checkpoint.
+          OPERATION: checkpoint
+          DETAILS: pre-execution for ${PLAN_SLUG}
+          WORKSPACE: $(pwd)
+          "
+          ```
+        files:
+          - .claude/commands/hc-plan-execute.md
+        success_criteria:
+          - Phase 0 section added before Phase 1
+          - git-engineer spawn command included
+          - ROLLBACK_HASH storage documented
+
+      - id: TASK-2.2
+        title: "Add rollback trigger on execution failure"
+        description: |
+          In Phase 5 or Phase 6, if execution fails:
+          1. Present COMPLETION_REPORT with failures
+          2. Offer options: RETRY_FAILED | ROLLBACK | MANUAL
+          3. If ROLLBACK selected:
+             - Spawn git-engineer: rollback ${ROLLBACK_HASH}
+             - Log: [ROLLBACK] Restored to checkpoint ${CHECKPOINT_ID}
+        files:
+          - .claude/commands/hc-plan-execute.md
+        success_criteria:
+          - Rollback option documented
+          - git-engineer rollback spawn included
+
+  - id: PHASE-3
+    title: "Important: Terminology Alignment"
+    description: "Fix conflicts between documents"
+    priority: P1
+    dependencies: [PHASE-1, PHASE-2]
+    tasks:
+      - id: TASK-3.1
+        title: "Update lifecycle.type in STATE_SCHEMA.md"
+        description: |
+          Change lifecycle.type values from:
+            main | sub | standard
+          To:
+            roadmap | phase | side_quest | legacy
+
+          Add note: "legacy type for pre-V2.0.0 sessions"
+        files:
+          - .claude/templates/think-tank/STATE_SCHEMA.md
+        success_criteria:
+          - lifecycle.type updated to new values
+          - Migration note added
+
+      - id: TASK-3.2
+        title: "Standardize command name references"
+        description: |
+          Search all files for "/execute-plan" and decide:
+          - Option A: Rename command to execute-plan.md (simpler)
+          - Option B: Update all refs to /hc-plan-execute
+
+          DECISION: Option B (hc- prefix consistent with hc-glass)
+
+          Files to update:
+          - CLAUDE.md: Update command reference
+          - NORTHSTAR.md: Update workflow diagram
+          - Any other files referencing /execute-plan
+        files:
+          - CLAUDE.md
+          - .claude/PM/SSoT/NORTHSTAR.md
+        success_criteria:
+          - All /execute-plan refs changed to /hc-plan-execute
+          - No orphan references remain
+
+      - id: TASK-3.3
+        title: "Remove active_phases duplication"
+        description: |
+          context.yaml currently has:
+            roadmap:
+              active_phases: []  # Read from ROADMAP.yaml
+
+          This is duplicate. ROADMAP.yaml is SSoT.
+
+          Change context.yaml to:
+            roadmap:
+              path: .claude/PM/SSoT/ROADMAP.yaml
+              # active_phases read directly from ROADMAP.yaml - no duplication
+
+          Remove the active_phases field from context.yaml schema.
+        files:
+          - .claude/context.yaml
+          - CLAUDE.md (if schema documented there)
+        success_criteria:
+          - active_phases removed from context.yaml
+          - ROADMAP.yaml remains single source
+
+  - id: PHASE-4
+    title: "Important: Validation Gates"
+    description: "Add validation before roadmap/phase operations"
+    priority: P1
+    dependencies: [PHASE-3]
+    tasks:
+      - id: TASK-4.1
+        title: "Add NORTHSTAR validation to think-tank --roadmap"
+        description: |
+          In think-tank.md ROADMAP SESSION PROTOCOL, add Step 0:
+
+          ## Step 0: NORTHSTAR Validation
+          Before creating roadmap:
+          1. Read NORTHSTAR.md
+          2. Check sections are NOT placeholder text:
+             - Purpose must not contain "What does this project do"
+             - Vision must not contain "What will this project become"
+             - Goals must have at least one non-template goal
+          3. If placeholders found:
+             - ABORT with message: "Please fill out NORTHSTAR.md first"
+             - Show which sections need content
+        files:
+          - .claude/commands/think-tank.md
+        success_criteria:
+          - Step 0 validation added
+          - Placeholder detection logic documented
+          - Abort message specified
+
+      - id: TASK-4.2
+        title: "Add phase existence validation"
+        description: |
+          In think-tank.md PHASE SESSION PROTOCOL, enhance Step 1:
+
+          ## Step 1: Validate Phase
+          1. Read ROADMAP.yaml
+          2. Check phases[] for matching phase_id
+          3. If phase NOT found:
+             - ABORT with error: "Phase PHASE-XXX not found in ROADMAP.yaml"
+             - Show available phases
+          4. If phase found but status is 'complete':
+             - WARN: "Phase PHASE-XXX already complete. Create new phase?"
+        files:
+          - .claude/commands/think-tank.md
+        success_criteria:
+          - Phase existence check added
+          - Error message with available phases
+          - Complete phase warning added
+
+  - id: PHASE-5
+    title: "Nice to Have: Edge Case Documentation"
+    description: "Document handling for edge cases"
+    priority: P2
+    dependencies: [PHASE-4]
+    tasks:
+      - id: TASK-5.1
+        title: "Add Edge Cases section to hc-plan-execute.md"
+        description: |
+          Add new section after Output Artifacts:
+
+          ## Edge Cases
+
+          ### Parallel Phase Execution
+          If multiple phases have no blocking dependencies:
+          - Execute sequentially by default
+          - Future: Add --parallel flag for concurrent execution
+
+          ### Execution Failure Recovery
+          If execution fails mid-phase:
+          1. COMPLETION_REPORT shows partial status
+          2. Offer: RETRY_FAILED | ROLLBACK | MANUAL
+          3. RETRY_FAILED: Re-run failed tasks only
+          4. ROLLBACK: Restore to checkpoint
+          5. MANUAL: User fixes issues, runs /hc-plan-execute again
+
+          ### Session Crash Recovery
+          If session crashes during execution:
+          1. EXECUTION_STATE.md shows last known state
+          2. Resume: /hc-plan-execute --resume ${SESSION_SLUG}
+          3. System reads state, continues from last checkpoint
+
+          ### Hotfix During Execution
+          If urgent fix needed while executing:
+          1. Complete current task
+          2. Create hotfix commit (outside execution)
+          3. Resume execution (state preserved)
+        files:
+          - .claude/commands/hc-plan-execute.md
+        success_criteria:
+          - Edge Cases section added
+          - 4 scenarios documented
+          - Recovery paths clear
+
+      - id: TASK-5.2
+        title: "Add side-quest promotion protocol to think-tank.md"
+        description: |
+          In SIDE-QUEST PROTOCOL section, add:
+
+          ### Promoting Side-Quest to Phase
+          If side-quest research leads to actionable work:
+          1. Update STATE.yaml: relates_to_phase: PHASE-XXX
+          2. Create backlog item in context.yaml
+          3. OR add new phase to ROADMAP.yaml:
+             - /think-tank --roadmap --add-phase "New Phase Title"
+             - Links to side-quest findings
+        files:
+          - .claude/commands/think-tank.md
+        success_criteria:
+          - Promotion protocol documented
+          - Backlog integration mentioned
+          - --add-phase flag documented
+
+  - id: PHASE-6
+    title: "Cleanup: Template Path Fix"
+    description: "Fix template path reference in think-tank.md"
+    priority: P2
+    dependencies: []
+    tasks:
+      - id: TASK-6.1
+        title: "Verify and fix template path in think-tank.md header"
+        description: |
+          think-tank.md header says:
+            templates: .claude/templates/template-prompts/think-tank/
+
+          Verify actual location:
+            ls .claude/templates/
+
+          If path is wrong, update header to correct path.
+          If templates folder structure is wrong, create correct structure.
+        files:
+          - .claude/commands/think-tank.md
+        success_criteria:
+          - Template path verified
+          - Path corrected if needed
+          - Templates accessible
+
+success_metrics:
+  - All P0 tasks completed and verified
+  - All P1 tasks completed
+  - No orphan references to old terminology
+  - Workflow can execute end-to-end without manual intervention
+
+validation:
+  - Run 6-agent validation again after fixes
+  - Target verdict: WORKFLOW_VALID
+  - All critical gaps should be resolved

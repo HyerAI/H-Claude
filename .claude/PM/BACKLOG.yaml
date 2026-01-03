@@ -1,13 +1,37 @@
 # .claude/PM/BACKLOG.yaml
-# Work we defer for later - prevents losing track
+# Prioritized work tracking with dependency validation
 #
 # RULES:
-#   - Add item when deferring work with clear context
-#   - Remove when done or moved to context.yaml active
-#   - Link to relevant files so future-you has context
+#   - P1 items should have blocked_by: null (ready to work)
+#   - Session-triage validates dependencies at session start
+#   - Move items up/down as blockers clear
+#   - Include enough context for future-you
+#
+# STRUCTURE:
+#   P1 = Critical (ready now, no blockers)
+#   P2 = Important (has dependencies)
+#   P3 = Nice to have
+#   P4 = Someday/Maybe
 
 meta:
-  last_updated: ''
-  description: 'Deferred work items'
+  last_updated: '2026-01-02'
+  description: 'Prioritized backlog with dependency tracking'
 
-items: []
+# P1 = Critical (ready to work)
+P1: []
+
+# P2 = Important (has dependencies)
+P2: []
+
+# P3 = Nice to have
+P3: []
+
+# P4 = Someday/Maybe
+P4: []
+
+# Example entry:
+#   - id: BACK-001
+#     title: 'Write atomic_write.py'
+#     context: 'Crash-safe file writes'
+#     blocked_by: null  # Ready now (null = no blocker)
+#     added: '2026-01-02'

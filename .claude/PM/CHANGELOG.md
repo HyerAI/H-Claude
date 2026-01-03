@@ -12,10 +12,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - execution-plan.yaml schema for think-tank plan generation
 - Plan status tracking in context.yaml (draft → review → approved → in_progress → complete)
 - STEP 7: Plan Generation in think-tank command
+- STEP 6.5: ADR Creation in think-tank command - decisions now recorded as ADRs
 - TOPIC parameter for hc-plan-execute to auto-locate plans
 
 ### Changed
 - think-tank now outputs execution-plan.yaml after DECIDE
+- think-tank now invokes `/adr-writer` skill after DECIDE (STEP 6.5)
+- adr-writer skill updated with think-tank integration docs
 - hc-plan-execute reads from think-tank subject folders
 - NORTHSTAR workflow diagram updated (removed hc-plan step)
 - GET_STARTED.md updated with new workflow

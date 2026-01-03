@@ -2,7 +2,8 @@
 name: adr-writer
 description: ADR creation, versioning, and cross-reference management
 category: documentation
-used_by: [architecture-roles]
+used_by: [think-tank, architecture-roles]
+invoked_by: /think-tank (STEP 6.5 - mandatory after DECIDE)
 ---
 
 # ADR Writer Skill
@@ -10,6 +11,29 @@ used_by: [architecture-roles]
 ## Purpose
 
 Maintain Architecture Decision Records with proper versioning and cross-reference tracking. **Version existing ADRs instead of creating new ones for changes.**
+
+---
+
+## Think-Tank Integration
+
+This skill is **automatically invoked** by `/think-tank` at STEP 6.5 after a decision is made.
+
+**Input from think-tank:**
+- `${SESSION_PATH}/00_BRIEFING.md` - Problem context
+- `${SESSION_PATH}/04_DECISION_MAP.md` - Decision details
+- `${SESSION_PATH}/STATE.yaml` - Decision metadata
+
+**Output:**
+- ADR file in `.claude/PM/SSoT/ADRs/[CSXX]-[slug].md`
+- Updated cross-references in related ADRs
+- ADR reference added to STATE.yaml
+
+**Flow:**
+```
+think-tank DECIDE → STEP 6.5 → adr-writer → ADR created → STEP 7 PLAN
+```
+
+---
 
 ## Core Principle: Version, Don't Proliferate
 
