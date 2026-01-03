@@ -1,5 +1,5 @@
 ---
-version: V2.2.0
+version: V2.3.0
 status: current
 timestamp: 2026-01-03
 tags: [command, decision-support, multi-agent, council, planning, adr, roadmap, phases]
@@ -91,6 +91,56 @@ CONTEXT:
 | Agents fight to win | Agents collaborate to map options |
 | Output: Winner | Output: Decision Map with trade-offs |
 | Fixed adversarial roles | Dynamic personas by domain |
+
+---
+
+## Diffusion Development Philosophy
+
+**"We do not guess the future. We simulate it, lock the foundation, and render the reality one phase at a time."**
+
+### Triangulated Context
+
+Every agent action is constrained by three temporal anchors:
+
+| Anchor | Represents | Source |
+|--------|------------|--------|
+| **Past (Bedrock)** | The immutable codebase reality | Actual code analysis |
+| **Present (Plan)** | The specific instruction being executed | Phase Roadmap / Task Plan |
+| **Future (Vision)** | The NORTHSTAR goal we're building toward | NORTHSTAR.md |
+
+Agents don't "create" in a vacuum—they **solve the differential** between known states.
+
+### Progressive Resolution (The Diffusion Stack)
+
+Ideas "denoise" from vision to reality through increasing resolution:
+
+```
+1. NORTHSTAR (NS)      → The Future (User Vision)
+2. ROADMAP (RM)        → The Sketch (High-level Strategy)
+3. Phase Roadmap       → The Structure (Anchored in Codebase)
+4. Task Plan           → The Blueprint (Specific Deliverables)
+5. Sub-Task Ticket     → The Instruction (Triangulated Context)
+6. Code                → The Immutable Past (The Bedrock)
+```
+
+### Validation Gates
+
+Each resolution level has a validation gate:
+
+| Step | Gate | What It Checks |
+|------|------|----------------|
+| Step 6 | Simulation Check | Phase Roadmap aligns with NS AND respects codebase |
+| Step 7 | Scope & Physics Check | Task Plan traces to Phase Roadmap, no bloat |
+| Step 8 | Resolution Check | Tickets are deterministic, bedrock context provided |
+
+### Lookahead Loop (Dual-Track Execution)
+
+| Track A: Reality | Track B: Horizon |
+|------------------|------------------|
+| Building the Plan (high-resolution) | Validating against Vision (low-resolution) |
+| WR builds, QA tests | VA checks NS alignment |
+
+**Rule:** If Today's Code blocks Tomorrow's Vision, change Today's Code.
 
 ---
 
@@ -477,7 +527,49 @@ Before planning the phase:
 3. Read NORTHSTAR.md for alignment
 4. Create phase workspace: `${PHASE_TITLE}_${YYYYMMDD}/`
 5. Council plans the phase in detail
-6. Output execution-plan.yaml
+
+### Step 6: Phase Definition (Progressive Resolution)
+
+Spawn agent with `generator_phase_roadmap.md`:
+- Reads NS + ROADMAP for the "Future" constraint
+- Analyzes codebase for "Past/Bedrock" constraint
+- Generates `phase_roadmap.yaml` using PHASE_ROADMAP_SCHEMA.md
+
+**Validation:** Spawn `validator_simulation.md`:
+- Vision Alignment: Does phase trace to NS goals?
+- Reality Alignment: Is bedrock_analysis accurate?
+- PASS → proceed | FAIL → fix issues and re-validate
+
+### Step 7: Task Planning (Progressive Resolution)
+
+Spawn agent with `generator_task_plan.md`:
+- Reads Phase Roadmap for scope
+- Breaks down into specific deliverables
+- Every task has `trace_req` to Phase Roadmap
+
+**Validation:** Spawn `validator_physics.md`:
+- Traceability: Every task traces to Phase Roadmap?
+- No Bloat: No orphan tasks?
+- Architecture Fit: Tasks logically structured?
+- PASS → proceed | FAIL → remove bloat and re-validate
+
+### Step 8: Ticket Creation (Progressive Resolution)
+
+Spawn agent with `generator_tickets.md`:
+- Reads Task Plan
+- Creates Sub-Task Tickets with triangulated_context:
+  - `goal`: The specific outcome
+  - `bedrock[]`: Files/code worker must read
+  - `instruction`: The action to take
+
+**Validation:** Spawn `validator_resolution.md`:
+- Determinism: Can worker execute without guessing?
+- Context Complete: Is bedrock sufficient?
+- Scope Appropriate: Small enough for single worker?
+- PASS → proceed | FAIL → split tickets and re-validate
+
+### Step 9: Link to ROADMAP
+
 7. **Link back to ROADMAP:** Update phase's `plan_path`
 
 **Output:** `execution-plan.yaml` + ROADMAP.yaml updated
@@ -754,6 +846,26 @@ All prompts in: `.claude/templates/template-prompts/think-tank/`
 | `generator_spec.md` | Pro | Technical feasibility spec |
 | `generator_execution_plan.md` | Pro | Test-driven execution plan |
 | `generator_action_items.md` | Pro | Extract action items (roadmap) |
+| `generator_phase_roadmap.md` | Flash | Generate Phase Roadmap with bedrock analysis |
+| `generator_task_plan.md` | Flash | Generate Task Plan with trace_req |
+| `generator_tickets.md` | Flash | Generate tickets with triangulated context |
+
+### Diffusion Validation Gates
+
+| Template | Model | Purpose |
+|----------|-------|---------|
+| `validator_simulation.md` | Flash | Step 6 gate - Phase Roadmap vs NS + Codebase |
+| `validator_physics.md` | Flash | Step 7 gate - Task Plan traceability, no bloat |
+| `validator_resolution.md` | Flash | Step 8 gate - Ticket determinism check |
+| `validator_lookahead.md` | Flash | Step 9 - Horizon check after each ticket |
+
+### Document Schemas
+
+| Schema | Purpose |
+|--------|---------|
+| `PHASE_ROADMAP_SCHEMA.md` | Phase Roadmap structure with bedrock_analysis |
+| `TASK_PLAN_SCHEMA.md` | Task Plan with trace_req, physics_check |
+| `TICKET_SCHEMA.md` | Ticket with triangulated_context |
 
 ### Legacy (Deprecated)
 
@@ -784,4 +896,4 @@ CONTEXT:
 
 ---
 
-**Version:** V2.2.0 | Fact-based research, SPEC feasibility gate, test-driven execution plans
+**Version:** V2.3.0 | Diffusion Development Philosophy, Progressive Resolution (Steps 6-8), Validation Gates

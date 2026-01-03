@@ -1,7 +1,7 @@
 ---
-version: V2.6.0
+version: V2.7.0
 status: current
-timestamp: 2026-01-02
+timestamp: 2026-01-03
 tags: [command, execution, orchestration, plan, oraca, think-tank]
 description: "SWEEP & VERIFY plan execution protocol with Oraca Phase Orchestrators"
 templates: .claude/templates/template-prompts/hc-execute/
@@ -144,6 +144,19 @@ last_action:
   timestamp: '2026-01-02T14:36:00Z'
   action: 'Task 2.1 completed'
   next: 'Task 2.2'
+
+# Ticket-level tracking (Diffusion Development)
+tickets:
+  current_ticket: 'TICKET-2.1.3'
+  completed: ['TICKET-1.1.1', 'TICKET-1.1.2', 'TICKET-2.1.1', 'TICKET-2.1.2']
+  failed: []
+
+# Lookahead status (Track B)
+lookahead:
+  last_check: '2026-01-02T14:35:00Z'
+  status: PASS  # PASS | WARN | FAIL
+  warnings: []
+  blocks: []
 ```
 
 ---
@@ -241,10 +254,46 @@ For each phase, spawn Oraca[X] using template `oraca_phase.md`:
 | RELEVANT_INTERFACES | Required interfaces |
 
 Oraca spawns:
-- Workers using `worker_task.md`
+- Workers using `worker_task.md` (with triangulated context)
 - Phase QA using `qa_phase.md`
 
 **Wait for each Oraca before proceeding.**
+
+### Triangulated Context for Workers
+
+Workers receive context via the ticket's `triangulated_context`:
+
+```yaml
+triangulated_context:
+  goal: "The specific outcome from NS/Phase"
+  bedrock:
+    - "path/to/file1.md"  # Worker MUST read before executing
+    - "path/to/file2.ts"
+  instruction: "The specific action to take"
+```
+
+Workers read bedrock files first, then execute instruction to achieve goal.
+
+### Lookahead Loop (Dual-Track Execution)
+
+After each ticket completion, run `validator_lookahead.md`:
+
+| Track A: Reality | Track B: Horizon |
+|------------------|------------------|
+| WR builds code | VA checks NS alignment |
+| QA tests output | VA checks future blocking |
+
+**Process:**
+1. Worker completes ticket → writes evidence
+2. QA validates ticket requirements (Track A)
+3. Spawn `validator_lookahead.md` (Track B):
+   - Does this code block future NS features?
+   - Does this create conflicting technical debt?
+4. **PASS** → proceed to next ticket
+5. **WARN** → document, proceed with caution
+6. **FAIL** → pause, escalate to Orchestrator
+
+**Lookahead Template:** `.claude/templates/template-prompts/think-tank/validator_lookahead.md`
 
 ---
 
@@ -386,10 +435,18 @@ All prompts in: `.claude/templates/template-prompts/hc-execute/`
 |----------|-------|---------|
 | `orchestrator.md` | Opus | Main coordination |
 | `oraca_phase.md` | Flash | Phase orchestration |
-| `worker_task.md` | Flash | Task execution |
+| `worker_task.md` | Flash | Task execution (with triangulated context) |
 | `qa_phase.md` | Pro | Phase QA review |
 | `synthesizer_qa.md` | Pro | Cross-phase analysis |
 | `sweeper.md` | Pro | 15% gap hunting |
+
+### Diffusion Validation (Lookahead Loop)
+
+| Template | Model | Purpose |
+|----------|-------|---------|
+| `validator_lookahead.md` | Flash | Track B horizon check after each ticket |
+
+**Location:** `.claude/templates/template-prompts/think-tank/validator_lookahead.md`
 
 ---
 
@@ -429,4 +486,4 @@ Trust but Verify.
 
 ---
 
-**Version:** V2.6.0 | Extracted prompts to templates (~60% token reduction)
+**Version:** V2.7.0 | Lookahead Loop, Triangulated Context for Workers, Ticket-level Tracking
