@@ -69,16 +69,23 @@ When reviewing work, validate against:
 ## Core Workflow
 
 ```
-/think-tank      → Deep investigation, council discussion
-       ↓
-/hc-plan         → Detailed implementation planning
-       ↓
-/hc-plan-execute → Execute with worker agents
+/think-tank      → Research, decisions, AND planning
+       ↓              (outputs execution-plan.yaml)
+/hc-plan-execute → Execute plan with worker agents
        ↓
 /hc-glass        → Code review, find issues
        ↓
 /red-team        → Deep dive on specific bugs/issues
 ```
+
+### Command Roles
+
+| Command | Purpose |
+|---------|---------|
+| `/think-tank` | The Brain - research, decide, plan |
+| `/hc-plan-execute` | The Hands - execute approved plans |
+| `/hc-glass` | The Eyes - scan for issues |
+| `/red-team` | The Auditor - deep quality review |
 
 ---
 

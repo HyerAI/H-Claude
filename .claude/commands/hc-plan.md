@@ -1,12 +1,30 @@
 ---
-version: V2.4.0
-status: current
-timestamp: 2025-12-30
-tags: [command, planning, multi-agent, dialectic]
-description: "Dialectic Planning with Integrated Research - understand, research, expand, challenge, validate"
+version: V2.5.0
+status: deprecated
+timestamp: 2026-01-02
+tags: [command, planning, multi-agent, dialectic, deprecated]
+description: "DEPRECATED - Use /think-tank instead. Planning is now integrated into think-tank workflow."
 ---
 
-# /hc-plan - Dialectic Planning
+# /hc-plan - DEPRECATED
+
+> **DEPRECATION NOTICE (V2.5.0 - 2026-01-02)**
+>
+> This command has been merged into `/think-tank`. The think-tank now provides:
+> - Research and decision-making (existing)
+> - **Plan generation** (new STEP 7)
+>
+> **Migration path:**
+> ```
+> OLD: /hc-plan → APPROVED_PLAN.md → /hc-plan-execute
+> NEW: /think-tank → DECIDE → execution-plan.yaml → /hc-plan-execute
+> ```
+>
+> Use `/think-tank` for all new planning. This file is preserved for reference only.
+
+---
+
+# Original Documentation (Reference Only)
 
 **Philosophy:** Better Data = Better Thinking
 

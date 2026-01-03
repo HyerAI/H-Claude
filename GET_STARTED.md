@@ -128,7 +128,7 @@ ls -la .claude/
 # Should see: context.yaml, settings.json, agents/, commands/, PM/, skills/, templates/
 
 ls -la .claude/PM/
-# Should see: SSoT/, think-tank/, brainstorm/, TEMP/, BACKLOG.yaml, CHANGELOG.md
+# Should see: SSoT/, think-tank/, hc-plan-execute/, hc-glass/, red-team/, TEMP/, BACKLOG.yaml, CHANGELOG.md
 ```
 
 ---
@@ -150,13 +150,10 @@ ls -la .claude/PM/
 ### Using Commands
 
 ```bash
-# Deep investigation of a topic
+# Research, decide, and plan (the brain)
 /think-tank
 
-# Plan implementation
-/hc-plan
-
-# Execute a plan
+# Execute an approved plan
 /hc-plan-execute
 
 # Code/system review
@@ -201,25 +198,32 @@ ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissio
 
 ```
 1. /think-tank "Authentication system design"
-   → Council investigates, produces recommendations
-   → Artifacts saved to .claude/PM/think-tank/
+   → Council investigates options
+   → You DECIDE on a path
+   → Think-tank generates execution-plan.yaml
+   → Artifacts saved to .claude/PM/think-tank/auth_system_{date}/
 
-2. /hc-plan "Implement JWT authentication based on think-tank output"
-   → Creates detailed implementation plan
-   → Identifies risks and dependencies
+2. /hc-plan-execute TOPIC: auth_system
+   → Workers implement the approved plan
+   → QA verifies each phase
+   → Sweeper hunts for gaps
 
-3. /hc-plan-execute
-   → Workers implement the plan
-   → User approves before changes applied
-
-4. /hc-glass
+3. /hc-glass
    → Review implementation for issues
    → Security audit
 
-5. If bugs found: /red-team "Investigate token refresh bug"
+4. If bugs found: /red-team "Investigate token refresh bug"
    → Deep dive analysis
    → Findings feed back to /hc-plan-execute for fixes
 ```
+
+### Key Files
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `STATE.yaml` | think-tank/{topic}/ | Session state, decisions |
+| `execution-plan.yaml` | think-tank/{topic}/ | Implementation plan |
+| `context.yaml` | .claude/ | Project-wide status tracking |
 
 ---
 

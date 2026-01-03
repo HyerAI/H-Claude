@@ -1,8 +1,8 @@
 ---
-version: V1.2.0
+version: V1.3.0
 status: current
-timestamp: 2026-01-01
-tags: [command, decision-support, multi-agent, council, brainstorming, consensus]
+timestamp: 2026-01-02
+tags: [command, decision-support, multi-agent, council, brainstorming, consensus, planning]
 description: "Council-based decision support - Dynamic experts collaborate to map options and help you think"
 ---
 
@@ -1000,7 +1000,7 @@ Present the Decision Map summary to the user:
       confidence: HIGH
   ```
 - Create 05_LEARNINGS.md template for capturing implementation learnings
-- Report: "Decision captured. As you implement, run `/think-tank [topic]` again if you discover new considerations."
+- **Proceed to STEP 7: PLAN GENERATION**
 
 **If REDIRECT/WHAT IF/EXPAND:**
 - Log in current session file
@@ -1043,6 +1043,82 @@ When user invokes `/think-tank` with a topic that has existing workspace:
 
 ---
 
+### STEP 7: PLAN GENERATION
+
+When user selects DECIDE, generate an execution plan for `/hc-plan-execute`:
+
+1. **Ask for plan scope:**
+   > Ready to create an execution plan. What level of detail?
+   > - **FULL** - Break down all implementation phases and tasks
+   > - **OUTLINE** - High-level phases only, I'll detail later
+   > - **SKIP** - No plan needed, I'll implement manually
+
+2. **If FULL or OUTLINE, spawn Pro agent to generate plan:**
+
+```bash
+ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "
+# Execution Plan Generator
+
+## Your Mission
+Create an implementation plan based on the decided path.
+
+## Context Files (read in order)
+1. ${SESSION_PATH}/00_BRIEFING.md - Original problem and constraints
+2. ${SESSION_PATH}/04_DECISION_MAP.md - The decision made
+3. ${SESSION_PATH}/02_KNOWLEDGE_BASE/BRIEFING_PACK.md - Research findings
+
+## Decision Made
+Path: ${DECIDED_PATH}
+Confidence: ${CONFIDENCE}
+
+## Plan Level
+${PLAN_LEVEL}  # FULL or OUTLINE
+
+## Your Output
+Write to: ${SESSION_PATH}/execution-plan.yaml
+
+Use the schema from .claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md
+
+Key requirements:
+1. Break into logical phases (Foundation → Core → Integration → Polish)
+2. Each task has clear success criteria
+3. Dependencies are explicit
+4. Files to modify are listed
+5. Set status: draft
+
+If OUTLINE: Create phases with placeholder tasks (can be detailed later)
+If FULL: Create complete task breakdown
+"
+```
+
+3. **Update context.yaml with plan tracking:**
+
+```yaml
+think_tank:
+  - topic: ${TOPIC_SLUG}
+    path: ${SESSION_PATH}/
+    status: decided
+    plan_status: draft
+    plan_path: ${SESSION_PATH}/execution-plan.yaml
+```
+
+4. **Present plan for review:**
+   > Execution plan generated at: ${SESSION_PATH}/execution-plan.yaml
+   >
+   > **Phases:** [N phases, M tasks total]
+   >
+   > Review the plan. When ready:
+   > - **APPROVE** - Mark as approved, ready for `/hc-plan-execute`
+   > - **EDIT** - Make changes to the plan
+   > - **DETAIL** - Break down a specific phase further
+
+5. **If APPROVE:**
+   - Update execution-plan.yaml: `status: approved`
+   - Update context.yaml: `plan_status: approved`
+   - Report: "Plan approved. Run `/hc-plan-execute` to begin execution."
+
+---
+
 ## The Council Mantra
 
 ```
@@ -1061,10 +1137,10 @@ Better options = better decisions.
 
 | Use This | Use Instead |
 |----------|-------------|
-| Decision with trade-offs | `/hc-plan` - for planning HOW to implement |
-| Exploring options | Direct implementation - for obvious/simple tasks |
+| Decision with trade-offs | Direct implementation - for obvious/simple tasks |
+| Exploring options | Bug fix - when the problem is clear |
 | Need expert perspectives | `/red-team` - for deep investigation of issues |
-| Uncertain about approach | Bug fix - when the problem is clear |
+| Planning implementation | `/hc-plan-execute` - after think-tank generates plan |
 
 ---
 
@@ -1108,9 +1184,15 @@ CONTEXT:
 
 ---
 
-**Version:** V1.2.0
+**Version:** V1.3.0
 **Created:** 2026-01-01
 **Status:** Ready for use
+
+## V1.3.0 Changelog
+- Added STEP 7: Plan Generation - think-tank now outputs execution-plan.yaml after DECIDE
+- Integrated with context.yaml plan_status tracking
+- Think-tank becomes single brain for research, decisions, AND planning
+- Deprecated /hc-plan in favor of integrated plan generation
 
 ## V1.2.0 Changelog
 - Added STEP 5.5: Consensus Validation with 4 independent validators (2 Pro + 2 Opus)

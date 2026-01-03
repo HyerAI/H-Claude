@@ -31,6 +31,15 @@ tasks:
 blockers: []
 
 # THINK-TANK SESSIONS (ongoing deep dives - remove when done)
+# Each entry tracks a topic workspace and its execution plan status
+#
+# Example:
+#   - topic: auth_system
+#     path: .claude/PM/think-tank/auth_system_20260102/
+#     status: decided           # active | paused | decided | archived
+#     plan_status: in_progress  # draft | review | approved | in_progress | complete | null
+#     plan_path: .claude/PM/think-tank/auth_system_20260102/execution-plan.yaml
+#
 think_tank: []
 
 # GIT COMMIT CONTROL (git-engineer watches this)

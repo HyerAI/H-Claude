@@ -9,8 +9,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- execution-plan.yaml schema for think-tank plan generation
+- Plan status tracking in context.yaml (draft → review → approved → in_progress → complete)
+- STEP 7: Plan Generation in think-tank command
+- TOPIC parameter for hc-plan-execute to auto-locate plans
 
 ### Changed
+- think-tank now outputs execution-plan.yaml after DECIDE
+- hc-plan-execute reads from think-tank subject folders
+- NORTHSTAR workflow diagram updated (removed hc-plan step)
+- GET_STARTED.md updated with new workflow
+
+### Deprecated
+- /hc-plan command (merged into /think-tank)
+- .claude/PM/plans/ folder (plans now in think-tank/{topic}/)
 
 ### Fixed
 
