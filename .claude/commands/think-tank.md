@@ -123,7 +123,7 @@ INTAKE → CASTING → RESEARCH → COUNCIL → DECISION MAP → VALIDATION → 
 04B_VALIDATION/              # Validator feedback by round
 05_LEARNINGS.md              # Implementation learnings
 STATE.yaml                   # Session tracking
-action-items.yaml            # MAIN sessions only
+action-items.yaml            # Roadmap sessions only
 execution-plan.yaml          # After DECIDE
 ```
 
@@ -634,10 +634,10 @@ When user provides new info that changes scope:
 
 | Trigger | Action |
 |---------|--------|
-| SCOPE_EXPANSION | Flag for MAIN review |
+| SCOPE_EXPANSION | Flag for roadmap review |
 | CONFLICT | Escalate to user |
 | INFEASIBILITY | Pause and escalate |
-| DEPENDENCY_ISSUE | Escalate to MAIN |
+| DEPENDENCY_ISSUE | Escalate to roadmap |
 
 Log in STATE.yaml `escalations[]`, pause session, notify user.
 
@@ -645,7 +645,7 @@ Log in STATE.yaml `escalations[]`, pause session, notify user.
 
 ## ARCHIVE PROTOCOL
 
-**Triggers:** MAIN complete | SUB complete | Manual `--archive` | Stale 30+ days
+**Triggers:** Roadmap complete | Phase complete | Manual `--archive` | Stale 30+ days
 
 **Process:**
 1. Validate completeness
@@ -693,7 +693,7 @@ All prompts in: `.claude/templates/template-prompts/think-tank/`
 | `synthesizer_consensus.md` | Flash | Aggregate feedback |
 | `correction_directive.md` | Pro | Fix consensus issues |
 | `generator_execution_plan.md` | Pro | Create execution plan |
-| `generator_action_items.md` | Pro | Extract action items (MAIN) |
+| `generator_action_items.md` | Pro | Extract action items (roadmap) |
 | `generator_adr.md` | Flash | Create/update ADR |
 
 ---
@@ -716,4 +716,4 @@ CONTEXT:
 
 ---
 
-**Version:** V2.0.0 | Roadmap hierarchy: --roadmap replaces --main, --phase replaces --parent
+**Version:** V2.1.0 | Roadmap hierarchy: --roadmap replaces --main, --phase replaces --parent

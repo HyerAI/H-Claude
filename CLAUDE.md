@@ -14,6 +14,65 @@ Guide user through: **SSoT → Roadmap → Phases → Execution**
 These MUST stay aligned. NORTHSTAR = destination; ROADMAP = route.
 
 ---
+## Core Principles
+
+| Principle | Rule |
+|-----------|------|
+| **KISS** | Prioritize simplicity over cleverness |
+| **YAGNI** | Build only what's needed now |
+| **DRY** | Abstract common logic, avoid duplication |
+| **SoC** | Group related logic, separate unrelated |
+| **SSoT** | One authoritative source per concept |
+
+---
+
+## Proxy Rules
+
+- **Task tool doesn't work for custom agents** - use Bash+proxy
+- **Flash for code writing** - fast, cheap
+- **Pro for reasoning/QA** - thorough analysis
+- **Always spawn in project WORKSPACE** - avoid path issues
+
+---
+
+## Changelog
+
+Update `.claude/PM/CHANGELOG.md` after every commit.
+
+Format: [Keep a Changelog](https://keepachangelog.com/)
+Target: <20 words per entry
+
+Categories: Added | Changed | Fixed | Removed
+
+---
+
+## Resource Safety
+
+1. **Pre-flight checks** - `df -h /` before Docker/builds (>80% = STOP)
+2. **Never fire-and-forget** - retrieve all background task outputs
+3. **Cleanup is mandatory** - `docker system prune`, remove unused files
+
+---
+
+## Decision Briefs
+
+When stuck, surface to user:
+
+| Field | Content |
+|-------|---------|
+| **Decision** | What needs deciding |
+| **Options** | A: [consequence] / B: [consequence] |
+| **My Lean** | Choice + reason |
+
+---
+
+## Rules
+
+- Fix issues, don't create workarounds
+- Don't assume - ask for clarification
+- Don't add work that wasn't asked
+
+---
 
 ## SESSION START (Do This First)
 
