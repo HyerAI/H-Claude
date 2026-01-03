@@ -179,13 +179,37 @@ triage_task = Task(
 
 ### After User Responds (T+15)
 ```python
-# Main Claude retrieves triage output
+# Main Claude retrieves triage output - BLOCKING to ensure cleanup
 triage_result = TaskOutput(
   task_id: triage_task.id,
-  block: false  # Don't wait if not ready
+  block: true  # MUST block to ensure proper cleanup
 )
 # Merge with user intent for informed response
 ```
+
+### CRITICAL: Resource Cleanup
+
+**ALWAYS retrieve TaskOutput with `block: true` after background tasks complete.**
+
+Why:
+- Background agents spawn as subprocesses
+- Unretrieved tasks may become zombie processes
+- Zombies consume system resources indefinitely
+
+Pattern:
+```python
+# 1. Spawn in background
+task = Task(run_in_background: true, ...)
+
+# 2. Do other work while agent runs
+# ...
+
+# 3. ALWAYS retrieve with block: true when done
+result = TaskOutput(task_id: task.id, block: true)
+# This ensures subprocess cleanup
+```
+
+**Never fire-and-forget background tasks.** Always retrieve their output.
 
 ---
 

@@ -439,12 +439,14 @@ While user reads greeting and types response, triage agent:
 
 User types their goal. During this time, triage likely completes.
 
-### T+16: Merge & Recommend
+### T+16: Merge & Recommend (WITH CLEANUP)
 
-Retrieve triage output:
+Retrieve triage output - **MUST block to ensure cleanup**:
 ```
-TaskOutput(task_id: "triage_task_id", block: false)
+TaskOutput(task_id: "triage_task_id", block: true)
 ```
+
+**CRITICAL:** Always use `block: true` when retrieving background task output. This ensures the subprocess terminates properly and prevents zombie processes.
 
 Combine BOTH sources for informed response:
 - User intent: "Let's start building the MVP"
@@ -511,6 +513,49 @@ RECOMMENDED ACTION
 3. **Better timing** - Triage completes while user types
 4. **Merged context** - Final recommendation uses both sources
 5. **Drift prevention** - Issues caught BEFORE work starts
+
+---
+
+## Resource Safety: Background Task Cleanup
+
+**CRITICAL RULE: Never fire-and-forget background tasks.**
+
+Background tasks spawn as subprocesses. If you don't retrieve their output with `block: true`, they become zombies consuming system resources.
+
+### Required Pattern
+
+```python
+# 1. Spawn background task
+task = Task(
+  subagent_type: "...",
+  run_in_background: true,
+  prompt: "..."
+)
+# Returns task_id immediately
+
+# 2. Do other work while agent runs
+# ...user interaction, reading files, etc...
+
+# 3. ALWAYS retrieve with block: true
+result = TaskOutput(task_id: task.id, block: true)  # ← CLEANUP HAPPENS HERE
+```
+
+### Anti-Pattern (NEVER DO THIS)
+
+```python
+# WRONG: Spawns agent and never retrieves output
+Task(run_in_background: true, ...)
+# ...forgets about it → ZOMBIE PROCESS
+```
+
+### Why This Matters
+
+- Zombie processes accumulate across sessions
+- Each zombie holds memory, file handles, context
+- System degrades over time (OOM, disk exhaustion)
+- Violates HeyDude's Resource Safety constraints (see ~/.claude/CLAUDE.md)
+
+**Rule:** Every `run_in_background: true` MUST have a matching `TaskOutput(block: true)`.
 
 ---
 

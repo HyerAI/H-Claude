@@ -10,6 +10,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Added
 - **WORKFLOW_GUIDE.md** - Complete workflow documentation (NORTHSTAR → ROADMAP → phases → execution)
+- **Resource Safety: Background Task Cleanup** - Critical section in CLAUDE.md preventing zombie processes
 - **ROADMAP.yaml** - New SSoT document for development phases at `.claude/PM/SSoT/ROADMAP.yaml`
 - **Pre-Execution Checkpoint Protocol** - git-engineer can now create rollback points before major executions
 - **Rollback Protocol** - git-engineer can restore to checkpoints if execution fails
