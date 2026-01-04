@@ -185,14 +185,24 @@ See `WORKFLOW_GUIDE.md` for complete workflow documentation.
 Monitor your project via the local wiki:
 
 ```bash
-cd .claude/PM/PM-View
-mkdocs serve --dev-addr 127.0.0.1:8003
+.claude/PM/PM-View/start-wiki.sh
 ```
 
 Open http://127.0.0.1:8003 to see:
 - Command flowcharts (think-tank, hc-execute, hc-glass, red-team)
 - Session history and artifacts
 - ADRs and SSoT documents
+
+**Stop the wiki:**
+```bash
+.claude/PM/PM-View/stop-wiki.sh
+```
+
+**Multiple projects:** Edit `.claude/PM/PM-View/.env` to use different ports:
+```bash
+PM_VIEW_HOST=127.0.0.1
+PM_VIEW_PORT=8004  # Change per project
+```
 
 **First-time setup:**
 ```bash
