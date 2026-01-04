@@ -12,6 +12,33 @@ infrastructure/*/.env
 # Plan files (user-specific)
 .claude/plans/
 
+# ===========================================
+# SESSION ARTIFACTS (project-specific state)
+# These are generated when running commands
+# ===========================================
+
+# Think-tank session workspaces
+.claude/PM/think-tank/*/
+
+# Execution session workspaces
+.claude/PM/hc-execute/*/
+
+# Red-team audit sessions
+.claude/PM/red-team/*/
+
+# hc-glass review sessions
+.claude/PM/hc-glass/*/
+
+# Temp files
+.claude/PM/TEMP/
+
+# Project-specific changelog (use CHANGELOG.md.example as template)
+.claude/PM/CHANGELOG.md
+
+# Project-specific context (use context.yaml.example as template)
+.claude/context.yaml
+
+# ===========================================
 # Node
 node_modules/
 

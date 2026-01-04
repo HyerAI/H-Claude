@@ -83,9 +83,9 @@ These MUST stay aligned. NORTHSTAR is the destination; ROADMAP is the route.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  User fills out NORTHSTAR.md                                │
+│  User approve NORTHSTAR.md                                │
 │    └── Vision, goals, features, requirements                │
-│    └── This is the USER story - what they want built       │
+│    └── This is the USER Vision - what they want built       │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐

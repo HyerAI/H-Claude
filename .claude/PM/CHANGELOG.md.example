@@ -1,0 +1,27 @@
+# Changelog
+
+All notable changes to [PROJECT_NAME] will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [Unreleased]
+
+### Added
+- Initial project setup with H-Claude workflow
+
+<!--
+Template Instructions:
+1. Copy this file to .claude/PM/CHANGELOG.md
+2. Replace [PROJECT_NAME] with your project name
+3. Update entries after each commit or session
+
+Categories:
+- Added: New features
+- Changed: Updates to existing functionality
+- Fixed: Bug fixes
+- Removed: Deleted features
+- Deprecated: Soon-to-be removed features
+- Security: Vulnerability fixes
+
+Keep entries <20 words. Focus on WHAT, not how/why.
+-->

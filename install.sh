@@ -180,13 +180,21 @@ install_workflow_templates() {
 
     local src="$TEMP_DIR/h-claude/.claude"
 
-    # Copy all workflow files (commands, agents, skills, templates)
+    # Copy workflow files (commands, agents, skills, templates)
     cp -r "$src/commands" "$TEMPLATE_DIR/" 2>/dev/null || true
     cp -r "$src/agents" "$TEMPLATE_DIR/" 2>/dev/null || true
     cp -r "$src/skills" "$TEMPLATE_DIR/" 2>/dev/null || true
     cp -r "$src/templates" "$TEMPLATE_DIR/" 2>/dev/null || true
-    cp -r "$src/PM" "$TEMPLATE_DIR/" 2>/dev/null || true
-    cp "$src/context.yaml" "$TEMPLATE_DIR/" 2>/dev/null || true
+
+    # Copy PM structure (SSoT only, not session artifacts)
+    mkdir -p "$TEMPLATE_DIR/PM/SSoT/ADRs"
+    mkdir -p "$TEMPLATE_DIR/PM/GIT"
+    cp -r "$src/PM/SSoT/"* "$TEMPLATE_DIR/PM/SSoT/" 2>/dev/null || true
+    cp -r "$src/PM/GIT/"* "$TEMPLATE_DIR/PM/GIT/" 2>/dev/null || true
+
+    # Copy .example files as templates
+    cp "$src/context.yaml.example" "$TEMPLATE_DIR/context.yaml" 2>/dev/null || true
+    cp "$src/PM/CHANGELOG.md.example" "$TEMPLATE_DIR/PM/CHANGELOG.md" 2>/dev/null || true
 
     # Copy root files
     cp "$TEMP_DIR/h-claude/CLAUDE.md" "$TEMPLATE_DIR/" 2>/dev/null || true
