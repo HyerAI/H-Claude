@@ -1,5 +1,5 @@
 ---
-version: V2.4.0
+version: V2.5.0
 status: current
 timestamp: 2026-01-04
 tags: [command, decision-support, multi-agent, council, planning, adr, roadmap, phases]
@@ -222,8 +222,12 @@ learnings: []
 open_questions: []
 # For sub sessions:
 parent: {topic: null, path: null, action_item_id: null}
-# For escalations:
-escalations: []
+# Observability (ADR-003)
+cost_tracking:
+  agent_spawns: 0           # Total agents spawned
+  estimated_tokens: 0       # Rough token estimate
+  session_duration_min: 0   # Wall clock time
+incident_log: []            # [{date, type, description, resolution}]
 ```
 
 ---
@@ -242,16 +246,17 @@ If confidence is MEDIUM, ask user approval.
 
 **Philosophy:** Collect structured facts, not prose analysis. Validate before Council consumes.
 
-#### 3.1 Fact Collection (4 Flash Scouts in Parallel)
+#### 3.1 Fact Collection (3 Flash Scouts in Parallel)
 
-Spawn 4 Flash scouts with `scout_facts.md`:
+Spawn 3 Flash scouts with `scout_facts.md`:
 
 | Scout | Focus Area |
 |-------|------------|
-| 1 | Commands & orchestration |
-| 2 | Agents & delegation |
-| 3 | Templates & prompts |
-| 4 | State & PM workflows |
+| 1 | Commands, agents & orchestration patterns |
+| 2 | Templates, prompts & prompt engineering |
+| 3 | State management, PM workflows & session artifacts |
+
+**Rationale:** 3 scouts provide sufficient coverage with focused domains. 4 scouts had diminishing returns (see ADR-003).
 
 **Output:** `facts_scout_N.yaml` (structured facts with sources)
 
@@ -316,12 +321,18 @@ Spawn agents sequentially for each round:
 | Domain Expert | `council_domain_expert.md` | `SESSION_PATH`, `EXPERT_TITLE`, `EXPERT_FOCUS`, `EXPERT_PERSPECTIVE` |
 | Pragmatist | `council_pragmatist.md` | `SESSION_PATH`, `PRAGMATIST_TITLE`, `PRAGMATIST_FOCUS`, `PRAGMATIST_PERSPECTIVE` |
 
+**Transcript Capture (MANDATORY):**
+Every council exchange MUST be written to `03_SESSIONS/session_NNN.md`:
+- Include agent name, timestamp, full response
+- Format: Markdown with clear section headers
+- **Rationale:** Empty transcripts = lost institutional knowledge (see ADR-003)
+
 **After each round:**
-- Append to `03_SESSIONS/session_NNN.md`
+- Append to `03_SESSIONS/session_NNN.md` (required, not optional)
 - Every 3-4 exchanges: update `SUMMARY_LATEST.md` (max 2000 tokens)
 
 **Handle signals:**
-- `RESEARCH_REQUEST:` → spawn 4 Flash scouts (see STEP 3 for modes)
+- `RESEARCH_REQUEST:` → spawn 3 Flash scouts (see STEP 3)
 - `USER_QUESTION:` → log to STATE.yaml
 
 **Research budget:** Up to 3 research rounds per council round. Agents should use this tool proactively.
@@ -408,6 +419,27 @@ Variables: `SESSION_PATH`, `DECIDED_PATH`
 **Requires:** `05_SPEC.md` must exist and verdict must be FEASIBLE or FEASIBLE_WITH_RISKS.
 
 Ask plan scope: FULL | OUTLINE | SKIP
+
+#### Validation Integration (ADR-003)
+
+Step 7 has TWO validation layers that work together:
+
+| Layer | Agent | Purpose | Bypass |
+|-------|-------|---------|--------|
+| **Gauntlet** | Writer + Critic + Arbiter | Adversarial stress-testing | `--no-gauntlet` |
+| **Diffusion** | validator_physics.md | Traceability + bloat check | None (mandatory) |
+
+**Execution Order:**
+1. Draft plan generated
+2. Gauntlet Loop runs (if not bypassed) - tests plan executability
+3. Diffusion validator runs - checks traceability to Phase Roadmap
+4. Both must pass before plan is approved
+
+**Why both layers:**
+- Gauntlet catches: execution failures, resource gaps, dependency breaks
+- Diffusion catches: scope creep, orphan tasks, architecture drift
+
+**Important:** All validation layers are MANDATORY. Trust but Verify.
 
 #### The Gauntlet Protocol
 
@@ -796,19 +828,6 @@ When user provides new info that changes scope:
 
 ---
 
-## ESCALATION PROTOCOL
-
-| Trigger | Action |
-|---------|--------|
-| SCOPE_EXPANSION | Flag for roadmap review |
-| CONFLICT | Escalate to user |
-| INFEASIBILITY | Pause and escalate |
-| DEPENDENCY_ISSUE | Escalate to roadmap |
-
-Log in STATE.yaml `escalations[]`, pause session, notify user.
-
----
-
 ## ARCHIVE PROTOCOL
 
 **Triggers:** Roadmap complete | Phase complete | Manual `--archive` | Stale 30+ days
@@ -938,4 +957,4 @@ CONTEXT:
 
 ---
 
-**Version:** V2.4.0 | Gauntlet Loop for Step 7 (ADR-002), --no-gauntlet flag
+**Version:** V2.5.0 | Self-review improvements (ADR-003): 3 scouts, mandatory transcripts, observability, validation integration clarity
