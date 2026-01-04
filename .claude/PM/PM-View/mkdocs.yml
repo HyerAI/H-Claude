@@ -1,0 +1,64 @@
+site_name: H-Claude PM Wiki
+site_description: Project Management Observatory
+docs_dir: ..
+site_dir: _site
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: CHANGELOG.md
+  - Backlog: BACKLOG.yaml
+  - SSoT:
+    - NORTHSTAR: SSoT/NORTHSTAR.md
+    - ROADMAP: SSoT/ROADMAP.yaml
+    - Agent Roles: SSoT/AGENT_ROLES.md
+    - ADRs:
+      - ADR-001 Diffusion: SSoT/ADRs/ADR-001-diffusion-development-framework.md
+      - ADR-002 Gauntlet: SSoT/ADRs/ADR-002-gauntlet-loop-integration.md
+      - ADR-003 Think-Tank: SSoT/ADRs/ADR-003-think-tank-improvements.md
+      - ADR-004 hc-execute: SSoT/ADRs/ADR-004-hc-execute-improvements.md
+  - Git:
+    - Protocols: GIT/PROTOCOLS.md
+  - Think Tank: think-tank/
+  - Executions: hc-execute/
+  - Reviews: hc-glass/
+
+exclude_docs: |
+  PM-View/
+  TEMP/
