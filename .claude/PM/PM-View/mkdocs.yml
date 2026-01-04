@@ -1,64 +1,85 @@
 site_name: H-Claude PM Wiki
-site_description: Project Management Observatory
+site_description: AI-orchestrated project management for agentic coding
 docs_dir: ..
 site_dir: _site
 
 theme:
   name: material
+  logo: PM-View/assets/logo.png
+  favicon: PM-View/assets/logo.png
   palette:
     - scheme: slate
-      primary: deep purple
-      accent: amber
+      primary: custom
+      accent: custom
       toggle:
-        icon: material/brightness-4
+        icon: material/weather-night
         name: Switch to light mode
     - scheme: default
-      primary: deep purple
-      accent: amber
+      primary: custom
+      accent: custom
       toggle:
-        icon: material/brightness-7
+        icon: material/weather-sunny
         name: Switch to dark mode
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.instant
     - navigation.tracking
     - navigation.sections
     - navigation.indexes
     - navigation.top
+    - navigation.path
     - search.suggest
     - search.highlight
+    - search.share
     - content.code.copy
+    - content.code.annotate
+    - toc.follow
+
+extra_css:
+  - PM-View/stylesheets/custom.css?v=5
+
+extra_javascript:
+  - PM-View/js/refresh.js?v=5
 
 plugins:
   - search
+  - awesome-pages
 
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - tables
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
   - toc:
       permalink: true
 
-nav:
-  - Home: CHANGELOG.md
-  - Backlog: BACKLOG.yaml
-  - SSoT:
-    - NORTHSTAR: SSoT/NORTHSTAR.md
-    - ROADMAP: SSoT/ROADMAP.yaml
-    - Agent Roles: SSoT/AGENT_ROLES.md
-    - ADRs:
-      - ADR-001 Diffusion: SSoT/ADRs/ADR-001-diffusion-development-framework.md
-      - ADR-002 Gauntlet: SSoT/ADRs/ADR-002-gauntlet-loop-integration.md
-      - ADR-003 Think-Tank: SSoT/ADRs/ADR-003-think-tank-improvements.md
-      - ADR-004 hc-execute: SSoT/ADRs/ADR-004-hc-execute-improvements.md
-  - Git:
-    - Protocols: GIT/PROTOCOLS.md
-  - Think Tank: think-tank/
-  - Executions: hc-execute/
-  - Reviews: hc-glass/
+# Let awesome-pages auto-discover navigation from .pages files
+# No manual nav needed
 
 exclude_docs: |
-  PM-View/
   TEMP/
+  *.yaml
+  *.yml
+  PM-View/mkdocs.yml
+  PM-View/_site/
+  PM-View/README.md
