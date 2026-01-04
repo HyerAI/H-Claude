@@ -6,22 +6,37 @@ You are the orchestrator for plan execution. Your adversarial prior: 20% of work
 
 ## CRITICAL: Sub-Agent Spawn Rules
 
-**NEVER use fire-and-forget spawning.** Every sub-agent must be spawned SYNCHRONOUSLY:
+**NEVER use fire-and-forget spawning.** Every sub-agent must be spawned SYNCHRONOUSLY with TIMEOUT:
 
 ```bash
-# CORRECT: Synchronous spawn - wait for completion
-AGENT_OUTPUT=$(ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "PROMPT" 2>&1)
+# CORRECT: Synchronous spawn with timeout - wait for completion
+# Oraca timeout: 20 minutes (1200s)
+AGENT_OUTPUT=$(timeout --foreground --signal=TERM --kill-after=30 1200 \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "PROMPT"' 2>&1)
 AGENT_EXIT=$?
 
 # Log IMMEDIATELY after sub-agent returns
 if [ $AGENT_EXIT -eq 0 ]; then
     echo "[PHASE] Oraca[X] returned. Status: COMPLETE."
+elif [ $AGENT_EXIT -eq 124 ]; then
+    echo "[TIMEOUT] Oraca[X] killed after 20 min"
 else
     echo "[ERROR] Oraca[X] failed with exit code $AGENT_EXIT"
 fi
 ```
 
-**Anti-Pattern (DO NOT USE):** `claude -p "..." &` - Fire and forget
+**Sub-Agent Timeout Values:**
+| Agent Type | Timeout | Kill Grace |
+|------------|---------|------------|
+| Oraca (Flash) | 20 min (1200s) | 30s |
+| Worker (Flash) | 10 min (600s) | 30s |
+| Phase QA (Pro) | 15 min (900s) | 30s |
+| QA Synthesis (Pro) | 15 min (900s) | 30s |
+| Sweeper (Pro) | 15 min (900s) | 30s |
+
+**Anti-Patterns (DO NOT USE):**
+- `claude -p "..." &` - Fire and forget
+- Spawns without timeout wrapper
 
 ## Session Parameters
 - PLAN_PATH: {{PLAN_PATH}}

@@ -1,5 +1,5 @@
 ---
-version: V1.2.0
+version: V1.3.0
 status: stable
 timestamp: 2025-12-30
 tags: [reference, orchestration, multi-agent, patterns, context-management, resilience]
@@ -284,17 +284,42 @@ Task B expects: exactly those keys
 
 ## Pattern 8: The Circuit Breaker (Resilience)
 
-**Problem:** Agents can get stuck in "Hallucination Loops" (e.g., trying to fix a file that doesn't exist, failing, and trying again forever).
+**Problem:** Agents can get stuck in "Hallucination Loops" (e.g., trying to fix a file that doesn't exist, failing, and trying again forever). Background tasks can run indefinitely without detection.
 
-**Solution:** Hard-coded stop limits on ALL iterative loops.
+**Solution:** Hard-coded stop limits on ALL iterative loops AND mandatory timeout wrappers.
 
-**The Three Guards:**
+**The Four Guards:**
 
 | Guard | Trigger | Action |
 |-------|---------|--------|
+| **Timeout Wrapper** | Agent exceeds time limit | SIGTERM → SIGKILL after grace period |
 | **3-Strike Rule** | Same task fails QA 3 times | Mark BLOCKED → Escalate to Human |
 | **Token Ceiling** | Session exceeds X tokens without `[PHASE]` transition | ABORT session |
 | **Duplicate Guard** | Worker proposes identical edit to previous rejection | HARD STOP |
+
+**Timeout Implementation (BUG-001 Fix):**
+
+```bash
+# HD → Orchestrator spawn (60-90 min default)
+timeout --foreground --signal=TERM --kill-after=60 ${TIMEOUT:-3600} \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+EXIT_CODE=$?
+if [ $EXIT_CODE -eq 124 ]; then
+  echo "[CRITICAL] Orchestrator killed after timeout"
+fi
+
+# Orchestrator → Sub-agent spawn (10-20 min default)
+AGENT_OUTPUT=$(timeout --foreground --signal=TERM --kill-after=30 1200 \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "PROMPT"' 2>&1)
+```
+
+**Timeout Values:**
+| Context | Default |
+|---------|---------|
+| HD → Opus Orchestrator | 60-90 min |
+| Opus → Pro Commander | 20 min |
+| Opus → Flash Worker | 10 min |
+| Opus → Pro QA/Synth | 15 min |
 
 **Implementation:**
 ```python
@@ -532,6 +557,6 @@ I synthesize before I conclude.
 
 ---
 
-**Last Updated:** 2025-12-30
-**Version:** V1.2.0
+**Last Updated:** 2026-01-04
+**Version:** V1.3.0 | Added timeout wrapper to Pattern 8 (BUG-001)
 **Author:** HeyDude

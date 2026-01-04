@@ -1,5 +1,5 @@
 ---
-version: V2.9.0
+version: V2.10.0
 status: current
 timestamp: 2026-01-04
 tags: [command, execution, orchestration, plan, oraca, think-tank]
@@ -214,9 +214,39 @@ ANTHROPIC_API_BASE_URL=http://localhost:240X claude --dangerously-skip-permissio
 
 ---
 
+## Timeout Configuration
+
+Background orchestrators MUST use timeout wrapper to prevent zombie processes.
+
+```bash
+# Default: 60 minutes for execution workflow
+TIMEOUT=${TIMEOUT:-3600}
+
+# Spawn pattern with timeout
+timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+
+# Check exit code
+EXIT_CODE=$?
+if [ $EXIT_CODE -eq 124 ]; then
+  echo "[CRITICAL] Orchestrator killed after timeout ($TIMEOUT seconds)"
+  echo "status: TIMEOUT_KILLED" > "${SESSION_PATH}/TIMEOUT_INTERRUPTED.md"
+fi
+```
+
+**Timeout Values:**
+| Context | Default | Override |
+|---------|---------|----------|
+| Full orchestrator | 60 min | `--timeout=N` |
+| Oraca (phase) | 20 min | (inside orchestrator) |
+| Flash Worker | 10 min | (inside orchestrator) |
+| Pro QA/Synth | 15 min | (inside orchestrator) |
+
+---
+
 ## Orchestrator Protocol
 
-Spawn background Opus orchestrator using template `orchestrator.md`:
+Spawn background Opus orchestrator using template `orchestrator.md` with timeout wrapper:
 
 | Variable | Value |
 |----------|-------|
@@ -557,4 +587,4 @@ Trust but Verify.
 
 ---
 
-**Version:** V2.9.0 | Observability + Triangulated Context (ADR-004)
+**Version:** V2.10.0 | Added timeout wrapper for zombie prevention (BUG-001)

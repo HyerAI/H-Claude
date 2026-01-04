@@ -1,5 +1,5 @@
 ---
-version: V2.5.0
+version: V2.6.0
 status: current
 timestamp: 2026-01-04
 tags: [command, decision-support, multi-agent, council, planning, adr, roadmap, phases]
@@ -193,6 +193,35 @@ execution-plan.yaml          # After DECIDE (test-driven)
 # Flash (2405) | Pro (2406) | Opus (2408)
 ANTHROPIC_API_BASE_URL=http://localhost:240X claude --dangerously-skip-permissions -p "PROMPT"
 ```
+
+---
+
+## Timeout Configuration
+
+Background orchestrators MUST use timeout wrapper to prevent zombie processes.
+
+```bash
+# Default: 45 minutes for research/planning workflow
+TIMEOUT=${TIMEOUT:-2700}
+
+# Spawn pattern with timeout
+timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+
+# Check exit code
+EXIT_CODE=$?
+if [ $EXIT_CODE -eq 124 ]; then
+  echo "[CRITICAL] Orchestrator killed after timeout ($TIMEOUT seconds)"
+  echo "status: TIMEOUT_KILLED" > "${SESSION_PATH}/TIMEOUT_INTERRUPTED.md"
+fi
+```
+
+**Timeout Values:**
+| Context | Default | Override |
+|---------|---------|----------|
+| Full orchestrator | 45 min | `--timeout=N` |
+| Flash Scout | 10 min | (inside orchestrator) |
+| Pro Generator/Challenger | 15 min | (inside orchestrator) |
 
 ---
 
@@ -957,4 +986,4 @@ CONTEXT:
 
 ---
 
-**Version:** V2.5.0 | Self-review improvements (ADR-003): 3 scouts, mandatory transcripts, observability, validation integration clarity
+**Version:** V2.6.0 | Added timeout wrapper for zombie prevention (BUG-001)

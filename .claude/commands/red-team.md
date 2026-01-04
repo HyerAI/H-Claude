@@ -1,5 +1,5 @@
 ---
-version: V2.3.0
+version: V2.4.0
 status: current
 timestamp: 2026-01-02
 tags: [command, validation, quality-assurance, audit]
@@ -98,9 +98,38 @@ ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissio
 
 ---
 
+## Timeout Configuration
+
+Background orchestrators MUST use timeout wrapper to prevent zombie processes.
+
+```bash
+# Default: 60 minutes for audit workflow
+TIMEOUT=${TIMEOUT:-3600}
+
+# Spawn pattern with timeout
+timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+
+# Check exit code
+EXIT_CODE=$?
+if [ $EXIT_CODE -eq 124 ]; then
+  echo "[CRITICAL] Orchestrator killed after timeout ($TIMEOUT seconds)"
+  echo "status: TIMEOUT_KILLED" > "${SESSION_PATH}/TIMEOUT_INTERRUPTED.md"
+fi
+```
+
+**Timeout Values:**
+| Context | Default | Override |
+|---------|---------|----------|
+| Full orchestrator | 60 min | `--timeout=N` |
+| Sector Commander | 20 min | (inside orchestrator) |
+| Flash Specialist | 10 min | (inside orchestrator) |
+
+---
+
 ## Orchestrator Protocol
 
-Spawn background Opus orchestrator using template `orchestrator.md`:
+Spawn background Opus orchestrator using template `orchestrator.md` with timeout wrapper:
 
 | Variable | Value |
 |----------|-------|
@@ -254,4 +283,4 @@ Trust but Verify.
 
 ---
 
-**Version:** V2.3.0 | Extracted prompts to templates (~60% token reduction)
+**Version:** V2.4.0 | Added timeout wrapper for zombie prevention (BUG-001)
