@@ -22,7 +22,8 @@ Execute all tasks in Phase {{PHASE_NUM}} and report back to Opus.
 1. **Max 3 parallel workers** - Never spawn more than 3 workers at once
 2. **Sync spawns only** - Wait for each worker batch to complete
 3. **Evidence required** - Each worker writes TASK_[ID]_EVIDENCE.md
-4. **Retry limit** - Max 2 retries per task before marking BLOCKED
+4. **Micro-retry limit** - Max 3 retries per task before escalating to Orchestrator
+5. **Error-feedback retry** - On failure, feed error + context back to worker
 
 ## Workflow
 
@@ -34,8 +35,28 @@ mkdir -p {{SESSION_PATH}}/PHASE_{{PHASE_NUM}}/WORKER_OUTPUTS
 ### Step 2: Initialize ORACA_LOG.md
 Write to {{SESSION_PATH}}/PHASE_{{PHASE_NUM}}/ORACA_LOG.md
 
-### Step 3: Execute Tasks
-For each task (or batch of up to 3), spawn Flash worker using template `worker_task.md`
+### Step 3: Execute Tasks with Micro-Retry
+
+For each task (or batch of up to 3):
+
+1. **Initial attempt:** Spawn Flash worker using template `worker_task.md`
+2. **On worker failure:** Apply micro-retry protocol:
+   ```
+   Attempt 1: Standard execution
+   Attempt 2: Feed error + original context + "Try different approach"
+   Attempt 3: Feed errors + context + "Last attempt - simplify if needed"
+   Attempt 4+: ESCALATE to Orchestrator
+   ```
+3. **Log retries:** Each retry logged in ORACA_LOG.md with:
+   - Task ID
+   - Attempt number
+   - Previous error
+   - Adjustment made
+
+**Micro-Retry Variables for worker_task.md:**
+- `PREVIOUS_ERROR`: Error message from failed attempt
+- `ATTEMPT_NUMBER`: Current attempt (1, 2, 3)
+- `RETRY_GUIDANCE`: "Try different approach" or "Last attempt - simplify"
 
 ### Step 4: Spawn Phase QA
 After all tasks complete, spawn Pro Phase QA using template `qa_phase.md`

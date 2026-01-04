@@ -1,10 +1,18 @@
 # Generator: Execution Plan
-# Variables: {{SESSION_PATH}}, {{DECIDED_PATH}}, {{CONFIDENCE}}, {{PLAN_LEVEL}}
-# Model: Pro (2406)
+# Variables: {{SESSION_PATH}}, {{DECIDED_PATH}}, {{CONFIDENCE}}, {{PLAN_LEVEL}}, {{CRITIQUE_INPUT}}
+# Model: Pro (2406) for draft, Opus (2408) for Gauntlet Writer role
 
 ## Your Mission
 
 Create a test-driven, traceable execution plan based on the decided path and validated spec.
+
+## Gauntlet Context (if in iteration)
+
+If `{{CRITIQUE_INPUT}}` is provided, you are in **Writer mode**:
+- Review each critique issue
+- Respond with ACCEPTED (integrate fix) or REJECTED (cite evidence)
+- Update the plan with ACCEPTED changes
+- See `gauntlet_writer.md` for response protocol
 
 ## Context Files (read in order)
 

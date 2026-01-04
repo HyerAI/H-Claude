@@ -168,6 +168,26 @@ ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissio
 ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "task"
 ```
 
+### Agent Roles (Quick Reference)
+
+| Role | Model | Responsibility |
+|------|-------|----------------|
+| **ORCA** | Opus | Orchestration, strategy |
+| **RCH** | Flash | Research, fact-gathering |
+| **ARC** | Pro | Architecture, planning |
+| **WR** | Flash | Task execution |
+| **QA** | Pro | Quality verification |
+| **VA** | Flash | NORTHSTAR alignment |
+
+**Gauntlet Roles** (ADR-002):
+| Role | Model | Responsibility |
+|------|-------|----------------|
+| **Writer** | Opus | Defend artifact with evidence |
+| **Critic** | Pro | Simulate execution, find breaks |
+| **Arbiter** | Flash | Rule on contested issues |
+
+Full reference: `.claude/PM/SSoT/AGENT_ROLES.md`
+
 ---
 
 ## Development Workflow

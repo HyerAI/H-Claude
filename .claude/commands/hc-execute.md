@@ -1,7 +1,7 @@
 ---
-version: V2.7.0
+version: V2.8.0
 status: current
-timestamp: 2026-01-03
+timestamp: 2026-01-04
 tags: [command, execution, orchestration, plan, oraca, think-tank]
 description: "SWEEP & VERIFY plan execution protocol with Oraca Phase Orchestrators"
 templates: .claude/templates/template-prompts/hc-execute/
@@ -69,9 +69,29 @@ Spawn OPUS Orchestrator (BACKGROUND)
 1. Receive phase spec from Opus
 2. Spawn Flash workers (max 3 parallel)
 3. Collect worker evidence
-4. Handle retries (up to 2 per task)
+4. Handle micro-retries (up to 3 per task) with error-feedback
 5. Spawn Pro Phase QA
 6. Report: `COMPLETE` | `PARTIAL` | `BLOCKED`
+
+### Micro-Retry Protocol (ADR-002)
+
+When a worker fails, Oraca applies local retry before escalating:
+
+```
+Attempt 1: Standard execution
+Attempt 2: Error + context + "Try different approach"
+Attempt 3: Errors + context + "Last attempt - simplify"
+Attempt 4+: ESCALATE to Orchestrator
+```
+
+**Key principle:** Worker retries at Oraca level (cheap, fast) before escalating to Orchestrator (expensive, context-heavy).
+
+**Variables passed on retry:**
+- `PREVIOUS_ERROR`: Error message from failed attempt
+- `ATTEMPT_NUMBER`: Current attempt (1, 2, 3)
+- `RETRY_GUIDANCE`: Specific guidance for retry approach
+
+**Logged in:** `ORACA_LOG.md` with attempt number, error, and adjustment made
 
 **Boundaries:**
 - Cannot spawn other Oraca (no recursion)
@@ -486,4 +506,4 @@ Trust but Verify.
 
 ---
 
-**Version:** V2.7.0 | Lookahead Loop, Triangulated Context for Workers, Ticket-level Tracking
+**Version:** V2.8.0 | Micro-Retry Protocol (ADR-002), Error-feedback at Oraca level

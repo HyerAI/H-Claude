@@ -1,7 +1,7 @@
 ---
-version: V2.3.0
+version: V2.4.0
 status: current
-timestamp: 2026-01-03
+timestamp: 2026-01-04
 tags: [command, decision-support, multi-agent, council, planning, adr, roadmap, phases]
 description: "Council-based decision support - Dynamic experts collaborate to map options and help you think"
 templates: .claude/templates/template-prompts/think-tank/
@@ -62,6 +62,7 @@ Side-Quests (recorded in ROADMAP.yaml side_quests)
 | `--what-if` | Explore hypothetical |
 | `--skip-validation` | Accept map without validation |
 | `--override` | Force approval despite issues |
+| `--no-gauntlet` | Skip Gauntlet adversarial loop in Step 7 (for simple plans) |
 
 ---
 
@@ -402,21 +403,54 @@ Variables: `SESSION_PATH`, `DECIDED_PATH`
 
 ---
 
-### STEP 7: PLAN GENERATION
+### STEP 7: PLAN GENERATION (with Gauntlet Loop)
 
 **Requires:** `05_SPEC.md` must exist and verdict must be FEASIBLE or FEASIBLE_WITH_RISKS.
 
 Ask plan scope: FULL | OUTLINE | SKIP
 
-Spawn Pro with `generator_execution_plan.md`:
+#### The Gauntlet Protocol
 
+Plans are stress-tested through adversarial iteration before approval.
+
+```
+Draft (Flash) → Critic (Pro) → Writer (Opus) → [repeat 3-5x] → APPROVED
+```
+
+**Step 7.1: Draft Generation**
+Spawn Flash with `generator_execution_plan.md`:
 Variables: `SESSION_PATH`, `DECIDED_PATH`, `CONFIDENCE`, `PLAN_LEVEL`
+
+**Step 7.2: The Gauntlet Loop (max 5 iterations)**
+
+For each iteration:
+1. **Critic** (Pro) - Spawn with `gauntlet_critic.md`:
+   - Simulates execution: dependencies, resources, critical path
+   - Returns `BLOCKING_ISSUES` or `APPROVED`
+   - Variables: `SESSION_PATH`, `ARTIFACT_PATH`, `ITERATION`, `PREVIOUS_RESPONSES`
+
+2. **Writer** (Opus) - Spawn with `gauntlet_writer.md`:
+   - Responds to each issue: `ACCEPTED` (integrate fix) or `REJECTED` (cite evidence)
+   - Variables: `SESSION_PATH`, `ARTIFACT_PATH`, `CRITIQUE_INPUT`, `ITERATION`
+
+3. **Exit Conditions:**
+   - Critic returns `APPROVED` → done
+   - All issues `ACCEPTED` → done
+   - Contested (REJECTED with evidence) → Flash Arbiter
+
+**Step 7.3: Contested Resolution (if needed)**
+Spawn Flash with `gauntlet_arbiter.md`:
+- Rules on contested issues: `WRITER_WINS`, `CRITIC_WINS`, `ESCALATE_USER`
+- Variables: `SESSION_PATH`, `CONTESTED_ISSUES`, `WRITER_EVIDENCE`, `CRITIC_EVIDENCE`
+
+**Bypass:** Use `--no-gauntlet` flag to skip adversarial loop (for simple plans).
 
 **Output:** `execution-plan.yaml` with:
 - `trace_req` - Every task links to NORTHSTAR requirement
 - `definition_of_done` - Explicit success criteria per task
 - `target_context` - Files/components affected
 - `risks` - Carried forward from SPEC.md
+- `gauntlet_rounds` - Number of iterations (if Gauntlet used)
 
 Ready for `/hc-execute`
 
@@ -850,6 +884,14 @@ All prompts in: `.claude/templates/template-prompts/think-tank/`
 | `generator_task_plan.md` | Flash | Generate Task Plan with trace_req |
 | `generator_tickets.md` | Flash | Generate tickets with triangulated context |
 
+### Gauntlet Loop (Adversarial Plan Refinement)
+
+| Template | Model | Purpose |
+|----------|-------|---------|
+| `gauntlet_writer.md` | Opus | Principled Architect - owns artifact, defends with evidence |
+| `gauntlet_critic.md` | Pro | High-Stakes Auditor - simulates execution, finds breaks |
+| `gauntlet_arbiter.md` | Flash | Fast tiebreaker for contested issues |
+
 ### Diffusion Validation Gates
 
 | Template | Model | Purpose |
@@ -896,4 +938,4 @@ CONTEXT:
 
 ---
 
-**Version:** V2.3.0 | Diffusion Development Philosophy, Progressive Resolution (Steps 6-8), Validation Gates
+**Version:** V2.4.0 | Gauntlet Loop for Step 7 (ADR-002), --no-gauntlet flag
