@@ -14,6 +14,52 @@ You are the orchestrator for Operation: DEEP DIVE. Your adversarial prior: **15%
 - FOCUS: {{FOCUS}}
 - WORKSPACE: {{WORKSPACE}}
 
+---
+
+## Resource Management: Concurrency Control
+
+**MAX_CONCURRENT_AGENTS: 8** (for hc-glass only)
+
+### Why This Matters
+- Each agent consumes CPU, memory, and API quota
+- Uncontrolled spawning can crash user's machine
+- Orchestrator manages concurrency - sector templates don't need to know
+
+### Orchestrator Responsibility
+
+The orchestrator tracks and limits concurrent agents. Sector commanders spawn as instructed.
+
+```bash
+ACTIVE_AGENTS=0
+MAX_AGENTS=8
+
+wait_for_slot() {
+  while [ $ACTIVE_AGENTS -ge $MAX_AGENTS ]; do
+    log_event "[THROTTLE] At capacity ($ACTIVE_AGENTS/$MAX_AGENTS). Waiting..."
+    sleep 5
+  done
+}
+
+spawn_agent() {
+  wait_for_slot
+  ACTIVE_AGENTS=$((ACTIVE_AGENTS + 1))
+  log_event "[SPAWN] Active: $ACTIVE_AGENTS/$MAX_AGENTS"
+  # ... run agent ...
+  ACTIVE_AGENTS=$((ACTIVE_AGENTS - 1))
+  log_event "[COMPLETE] Active: $ACTIVE_AGENTS/$MAX_AGENTS"
+}
+```
+
+### Execution Strategy
+
+| Phase | Max Concurrent |
+|-------|----------------|
+| Phase 1 (6 Sector Commanders) | 6 |
+| Phase 1.5 (Deletion Verifiers) | 3 per item |
+| Phase 2-4 | 1 each |
+
+Total never exceeds 8.
+
 ## CRITICAL: Sub-Agent Spawn Rules
 
 **NEVER use fire-and-forget spawning.** Every sub-agent must be spawned SYNCHRONOUSLY:
@@ -74,7 +120,98 @@ Variables for each:
 - SESSION_PATH: Session folder path
 - TARGET: Target codebase path
 
-Wait for ALL Commanders to complete before Phase 2.
+Wait for ALL Commanders to complete before Phase 1.5.
+
+---
+
+## PHASE 1.5: Deletion Verification Gate
+
+**CRITICAL: Agents NEVER delete. Only MOVE to quarantine folder.**
+
+Quarantine folder: `.claude/PM/TEMP/DELETION_FOLDER/`
+User is the ONLY one who can permanently delete from that folder.
+
+### When to Run
+- IF Sector 4 (Janitors) SECTOR_4_SYNTHESIS.md contains deletion recommendations
+- Check for: "Safe to Delete", "DEAD_TEMPLATE", "DEPRECATED_FOLDER", "DELETE", "remove"
+
+### Process
+
+For EACH item recommended for deletion:
+
+1. **Extract deletion items** from SECTOR_4_JANITORS/SECTOR_4_SYNTHESIS.md
+   - Parse table for items with severity HIGH or MEDIUM
+   - Extract: ITEM_PATH, ITEM_TYPE, DELETION_REASON
+
+2. **Spawn 3 Flash Verifiers IN PARALLEL** using template `deletion_verifier.md`:
+
+   ```bash
+   # Verifier 1
+   ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+   $(cat .claude/templates/template-prompts/hc-glass/deletion_verifier.md)
+
+   VERIFIER_ID: 1
+   ITEM_PATH: [path]
+   ITEM_TYPE: [file|folder]
+   DELETION_REASON: [reason from Sector 4]
+   SESSION_PATH: [session path]
+   WORKSPACE: [workspace]
+   "
+
+   # Verifier 2 (same, VERIFIER_ID: 2)
+   # Verifier 3 (same, VERIFIER_ID: 3)
+   ```
+
+3. **Wait for all 3 verifiers** to complete
+
+4. **Run Consensus Gate** using template `deletion_consensus.md`:
+
+   ```bash
+   ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+   $(cat .claude/templates/template-prompts/hc-glass/deletion_consensus.md)
+
+   SESSION_PATH: [session path]
+   ITEM_PATH: [path]
+   "
+   ```
+
+5. **Log results** to ORCHESTRATOR_LOG.md:
+   ```
+   [DELETION_GATE] Item: /path/to/item
+   [DELETION_GATE] Verifier 1: SAFE_TO_QUARANTINE
+   [DELETION_GATE] Verifier 2: SAFE_TO_QUARANTINE
+   [DELETION_GATE] Verifier 3: UNSAFE (found reference in X)
+   [DELETION_GATE] Consensus: HOLD (2/3, not unanimous)
+   ```
+
+6. **If APPROVED (unanimous)**, MOVE item to quarantine:
+   ```bash
+   mkdir -p .claude/PM/TEMP/DELETION_FOLDER/$(dirname {{ITEM_PATH}})
+   mv {{ITEM_PATH}} .claude/PM/TEMP/DELETION_FOLDER/{{ITEM_PATH}}
+   ```
+   Log: `[DELETION_GATE] MOVED: {{ITEM_PATH}} → .claude/PM/TEMP/DELETION_FOLDER/`
+
+### Output
+
+Write summary to: {{SESSION_PATH}}/ANALYSIS/DELETION_GATE_SUMMARY.md
+
+```markdown
+# Deletion Gate Summary
+
+| Item | V1 | V2 | V3 | Consensus | Action |
+|------|----|----|----|-----------| -------|
+| /path/a | SAFE | SAFE | SAFE | APPROVED | MOVED to DELETION_FOLDER |
+| /path/b | SAFE | UNSAFE | SAFE | HOLD | Stays in place |
+```
+
+### Rules
+
+- **UNANIMOUS REQUIRED**: All 3 verifiers must say SAFE_TO_QUARANTINE
+- **Any UNSAFE = HOLD**: Item stays in place, requires human review
+- **Any INVALID = HOLD**: Item doesn't exist, skip
+- **Timeout**: If verifier doesn't respond in 2 min, treat as UNSAFE
+- **APPROVED = MOVE**: Item moved to `.claude/PM/TEMP/DELETION_FOLDER/`
+- **USER DELETES**: Only user can permanently delete from quarantine folder
 
 ---
 
@@ -108,7 +245,8 @@ Include:
 - Sector Status Table
 - The Panic List (Critical - Fix IMMEDIATELY)
 - The Lie List (Major - Documentation is Wrong)
-- The Kill List (Minor - Delete This Code)
+- The Quarantine List (Moved to DELETION_FOLDER) **ONLY items with APPROVED consensus**
+- The Hold List (Not Moved - Needs Human Review) **items with HOLD consensus**
 - The Debt List (Tech Debt - Fix When Able)
 - Cross-Sector Patterns
 - Recommendations

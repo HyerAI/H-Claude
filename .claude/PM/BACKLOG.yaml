@@ -14,7 +14,7 @@
 #   P4 = Someday/Maybe
 
 meta:
-  last_updated: '2026-01-02'
+  last_updated: '2026-01-04'
   description: 'Prioritized backlog with dependency tracking'
 
 # P1 = Critical (ready to work)
@@ -24,7 +24,20 @@ P1: []
 P2: []
 
 # P3 = Nice to have
-P3: []
+P3:
+  - id: BACK-001
+    title: 'Add --parallel flag to hc-execute'
+    context: 'Documented at hc-execute.md:403 as "Future" but never implemented. Would enable concurrent phase execution.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'Sector 4 Janitors audit'
+
+  - id: BACK-002
+    title: 'Add API cost tracking to think-tank'
+    context: 'ADR-003:81 mentions "future: add actual API cost tracking". Currently uses manual estimates.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'Sector 4 Janitors audit'
 
 # P4 = Someday/Maybe
 P4: []

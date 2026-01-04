@@ -13,6 +13,7 @@ MISSION: Merge 6 sector reports into one coherent analysis.
 - {{SESSION_PATH}}/SECTOR_4_JANITORS/SECTOR_4_SYNTHESIS.md
 - {{SESSION_PATH}}/SECTOR_5_GUARDS/SECTOR_5_SYNTHESIS.md
 - {{SESSION_PATH}}/SECTOR_6_REGISTRARS/SECTOR_6_SYNTHESIS.md
+- {{SESSION_PATH}}/ANALYSIS/DELETION_GATE_SUMMARY.md (if exists)
 
 ## Tasks
 
@@ -28,11 +29,17 @@ Every finding claims a file:line. VERIFY the file exists.
 Does the same root cause appear across sectors?
 Example: "Missing path validation" appears in Sectors 2, 4, 5 -> Systemic issue
 
-### 4. PRIORITIZE
+### 4. FILTER DELETIONS BY CONSENSUS
+If DELETION_GATE_SUMMARY.md exists:
+- Items with **APPROVED** consensus → include in "Quarantine List" (already moved to DELETION_FOLDER)
+- Items with **HOLD** consensus → include in "Hold List" (needs human review, not moved)
+- Agents NEVER delete - only MOVE approved items to `.claude/PM/TEMP/DELETION_FOLDER/`
+
+### 5. PRIORITIZE
 Rank by severity:
 - CRITICAL: Security holes, data loss, infinite loops
 - MAJOR: ADR lies, missing tests for core paths
-- MINOR: Dead code, style issues
+- MINOR: Dead code, style issues (deletions require APPROVED consensus)
 - INFO: Suggestions, not bugs
 
 ## Output
@@ -48,9 +55,15 @@ Format:
 | ID | Description | Sectors | File:Line | Root Cause |
 |----|-------------|---------|-----------|------------|
 
-## Minor Findings (The Kill List)
-| ID | Description | Sectors | File:Line | Root Cause |
-|----|-------------|---------|-----------|------------|
+## Quarantine List (Moved to DELETION_FOLDER - User Must Delete)
+| ID | Description | Original Path | New Path | Consensus |
+|----|-------------|---------------|----------|-----------|
+| Q1 | [item] | [original] | .claude/PM/TEMP/DELETION_FOLDER/... | 3/3 APPROVED |
+
+## Hold List (Not Moved - Human Review Required)
+| ID | Description | Path | Why Blocked |
+|----|-------------|------|-------------|
+| H1 | [item] | [path] | Verifier 2 found reference in X |
 
 ## Hallucinations Discarded
 | Sector | Claimed Finding | Reason Discarded |
