@@ -273,6 +273,9 @@ For each phase, spawn Oraca[X] using template `oraca_phase.md`:
 | PHASE_NUM | Phase number |
 | PHASE_TASKS | Tasks for phase |
 | RELEVANT_INTERFACES | Required interfaces |
+| GOAL | Overall objective from plan |
+| BEDROCK_FILES | Foundational context files |
+| WORKSPACE | Current working directory |
 
 Oraca spawns:
 - Workers using `worker_task.md` (with triangulated context)

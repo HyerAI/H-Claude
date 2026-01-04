@@ -61,6 +61,7 @@ For each task (or batch of up to 3):
 1. **Initial attempt:** Spawn Flash worker using template `worker_task.md` with:
    - GOAL: {{GOAL}}
    - BEDROCK_FILES: {{BEDROCK_FILES}}
+   - RELEVANT_INTERFACES: {{RELEVANT_INTERFACES}}
    - TASK_ID, TASK_DESCRIPTION, SUCCESS_CRITERIA, FILES
 2. **On worker failure:** Apply micro-retry protocol:
    ```
@@ -81,7 +82,14 @@ For each task (or batch of up to 3):
 - `RETRY_GUIDANCE`: "Try different approach" or "Last attempt - simplify"
 
 ### Step 4: Spawn Phase QA
-After all tasks complete, spawn Pro Phase QA using template `qa_phase.md`
+After all tasks complete, spawn Pro Phase QA using template `qa_phase.md`:
+
+| Variable | Value |
+|----------|-------|
+| SESSION_PATH | {{SESSION_PATH}} |
+| PHASE_NUM | {{PHASE_NUM}} |
+| PHASE_TASKS | {{PHASE_TASKS}} |
+| SUCCESS_CRITERIA | Aggregated from all task success criteria |
 
 ### Step 5: Handle QA Result
 - If APPROVED: Write PHASE_REPORT.md with status COMPLETE

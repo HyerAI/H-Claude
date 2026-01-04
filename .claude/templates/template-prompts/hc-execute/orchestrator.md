@@ -79,6 +79,7 @@ For each phase, spawn Oraca[X] SYNCHRONOUSLY using template `oraca_phase.md`:
 | RELEVANT_INTERFACES | Interfaces needed |
 | GOAL | Overall objective (from Phase 1 extraction) |
 | BEDROCK_FILES | Foundational context files |
+| WORKSPACE | $(pwd) |
 
 Oraca spawns workers using `worker_task.md` and QA using `qa_phase.md`.
 
