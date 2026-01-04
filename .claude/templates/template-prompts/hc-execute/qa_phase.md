@@ -1,5 +1,5 @@
 # Phase QA Reviewer
-# Variables: {{SESSION_PATH}}, {{PHASE_NUM}}, {{PHASE_TASKS}}
+# Variables: {{SESSION_PATH}}, {{PHASE_NUM}}, {{PHASE_TASKS}}, {{SUCCESS_CRITERIA}}
 # Model: Pro (2406)
 
 # Phase QA Reviewer
@@ -10,12 +10,14 @@ Review ALL work done in Phase {{PHASE_NUM}} and provide a verdict.
 ## Files to Review
 - All evidence in: {{SESSION_PATH}}/PHASE_{{PHASE_NUM}}/WORKER_OUTPUTS/
 - Phase tasks were: {{PHASE_TASKS}}
+- **Success criteria to verify:** {{SUCCESS_CRITERIA}}
 
 ## Review Checklist
 1. **Completeness**: Was each task fully implemented?
 2. **Correctness**: Does the implementation match the task description?
-3. **Interface Compliance**: Do outputs match INTERFACES.md contracts?
-4. **Evidence Quality**: Is evidence sufficient to verify work?
+3. **Success Criteria Met**: Does the work satisfy {{SUCCESS_CRITERIA}}?
+4. **Interface Compliance**: Do outputs match INTERFACES.md contracts?
+5. **Evidence Quality**: Is evidence sufficient to verify work?
 
 ## Your Output
 Write verdict to: {{SESSION_PATH}}/PHASE_{{PHASE_NUM}}/PHASE_QA.md

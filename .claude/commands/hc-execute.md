@@ -1,10 +1,11 @@
 ---
-version: V2.8.0
+version: V2.9.0
 status: current
 timestamp: 2026-01-04
 tags: [command, execution, orchestration, plan, oraca, think-tank]
 description: "SWEEP & VERIFY plan execution protocol with Oraca Phase Orchestrators"
 templates: .claude/templates/template-prompts/hc-execute/
+adr: ADR-004-hc-execute-improvements.md
 ---
 
 # /hc-execute - SWEEP & VERIFY Execution
@@ -447,6 +448,53 @@ If urgent fix needed while executing:
 
 ---
 
+## RETRY_FAILED Test Procedure (ADR-004)
+
+To validate the RETRY_FAILED recovery path works correctly:
+
+### Test Steps
+
+1. **Create synthetic failure:**
+   - Modify one worker task to intentionally fail (e.g., reference non-existent file)
+   - Run `/hc-execute` on a small test plan
+
+2. **Verify failure capture:**
+   - Check EXECUTION_STATE.md shows the failed task in `failed_tasks[]`
+   - Check ORACA_LOG.md shows retry attempts (3 attempts before failure)
+   - Check PHASE_REPORT.md shows status: PARTIAL or BLOCKED
+
+3. **Run RETRY_FAILED:**
+   - Invoke recovery option when presented
+   - Verify ONLY the failed task is re-spawned
+   - Verify previously successful tasks are NOT re-run
+
+4. **Verify re-sweep:**
+   - After retry completes, SWEEP runs again
+   - SWEEP_REPORT.md shows fresh audit
+
+### Expected Behavior
+
+```yaml
+# Before RETRY_FAILED
+failed_tasks: [TASK-2.3]
+completed_tasks: [TASK-1.1, TASK-1.2, TASK-2.1, TASK-2.2]
+
+# RETRY_FAILED spawns worker for TASK-2.3 only
+
+# After successful retry
+failed_tasks: []
+completed_tasks: [TASK-1.1, TASK-1.2, TASK-2.1, TASK-2.2, TASK-2.3]
+```
+
+### Success Criteria
+
+- [ ] Failed task identified correctly
+- [ ] Only failed task re-runs
+- [ ] SWEEP re-runs after retry
+- [ ] State updates correctly
+
+---
+
 ## Template Reference
 
 All prompts in: `.claude/templates/template-prompts/hc-execute/`
@@ -506,4 +554,4 @@ Trust but Verify.
 
 ---
 
-**Version:** V2.8.0 | Micro-Retry Protocol (ADR-002), Error-feedback at Oraca level
+**Version:** V2.9.0 | Observability + Triangulated Context (ADR-004)

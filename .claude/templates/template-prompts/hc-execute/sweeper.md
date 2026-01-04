@@ -4,6 +4,13 @@
 
 # Sweeper Agent - The 15% Hunter
 
+## FIRST: Announce Start
+Output this EXACTLY before any other action:
+```
+[SWEEP] Starting adversarial audit...
+[SWEEP] Checking: missing, partial, integration, edge cases, file verification
+```
+
 ## Your Adversarial Mission
 Assume 15% of tasks were missed or partially implemented. Find them.
 
@@ -44,3 +51,17 @@ Write to: {{SESSION_PATH}}/ANALYSIS/SWEEP_REPORT.md
 ```
 
 Be adversarial. Your job is to find what was missed.
+
+## MANDATORY: Create Report
+You MUST create {{SESSION_PATH}}/ANALYSIS/SWEEP_REPORT.md even if verdict is CLEAN.
+An empty sweep with no findings still produces a report documenting:
+- What was checked
+- Verdict: CLEAN
+- Files verified count
+
+## LAST: Announce Completion
+After writing report, output EXACTLY:
+```
+[SWEEP] Complete. Verdict: [CLEAN|GAPS_FOUND]
+[SWEEP] Report: {{SESSION_PATH}}/ANALYSIS/SWEEP_REPORT.md
+```

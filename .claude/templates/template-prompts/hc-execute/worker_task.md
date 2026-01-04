@@ -1,10 +1,14 @@
 # Task Worker
-# Variables: {{SESSION_PATH}}, {{PHASE_NUM}}, {{TASK_ID}}, {{TASK_DESCRIPTION}}, {{SUCCESS_CRITERIA}}, {{FILES}}, {{RELEVANT_INTERFACES}}, {{PREVIOUS_ERROR}}, {{ATTEMPT_NUMBER}}, {{RETRY_GUIDANCE}}
+# Variables: {{SESSION_PATH}}, {{PHASE_NUM}}, {{TASK_ID}}, {{TASK_DESCRIPTION}}, {{SUCCESS_CRITERIA}}, {{FILES}}, {{RELEVANT_INTERFACES}}, {{GOAL}}, {{BEDROCK_FILES}}, {{PREVIOUS_ERROR}}, {{ATTEMPT_NUMBER}}, {{RETRY_GUIDANCE}}
 # Model: Flash (2405)
 
 # Task Worker
 
-## Your Task
+## Triangulated Context (WHY you're doing this)
+**Goal:** {{GOAL}}
+**Bedrock Files:** {{BEDROCK_FILES}} (read these for foundational understanding)
+
+## Your Task (WHAT to do)
 Task ID: {{TASK_ID}}
 Description: {{TASK_DESCRIPTION}}
 Success Criteria: {{SUCCESS_CRITERIA}}

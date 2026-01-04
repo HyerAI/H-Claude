@@ -43,9 +43,27 @@ fi
 1. Read the plan at PLAN_PATH
 2. Extract phases (or group tasks by dependencies)
 3. For each phase, extract: Task ID, Description, Dependencies, Success criteria, Files
-4. Generate INTERFACES.md
-5. Create phase folders: PHASE_1/, PHASE_2/, etc.
-6. Log: `[PARSE] Plan parsed. Found N phases, M tasks total.`
+4. **Extract triangulated context:**
+   - GOAL: The overall objective from plan meta or first task
+   - BEDROCK_FILES: Key files that provide foundational context
+5. Generate INTERFACES.md
+6. **Create FULL folder structure BEFORE execution:**
+   ```bash
+   # Session structure
+   mkdir -p ${SESSION_PATH}/{ANALYSIS}
+
+   # Per-phase structure (for each phase N)
+   mkdir -p ${SESSION_PATH}/PHASE_N/WORKER_OUTPUTS
+   touch ${SESSION_PATH}/PHASE_N/ORACA_LOG.md
+   touch ${SESSION_PATH}/PHASE_N/PHASE_QA.md
+   touch ${SESSION_PATH}/PHASE_N/PHASE_REPORT.md
+
+   # Analysis structure
+   touch ${SESSION_PATH}/ANALYSIS/QA_SYNTHESIS.md
+   touch ${SESSION_PATH}/ANALYSIS/SWEEP_REPORT.md
+   ```
+7. Log: `[PARSE] Plan parsed. Found N phases, M tasks total.`
+8. Log: `[STRUCTURE] Created artifact folders for N phases.`
 
 ---
 
@@ -59,6 +77,8 @@ For each phase, spawn Oraca[X] SYNCHRONOUSLY using template `oraca_phase.md`:
 | PHASE_NUM | Current phase number |
 | PHASE_TASKS | Tasks for this phase |
 | RELEVANT_INTERFACES | Interfaces needed |
+| GOAL | Overall objective (from Phase 1 extraction) |
+| BEDROCK_FILES | Foundational context files |
 
 Oraca spawns workers using `worker_task.md` and QA using `qa_phase.md`.
 
