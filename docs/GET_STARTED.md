@@ -180,6 +180,28 @@ See `WORKFLOW_GUIDE.md` for complete workflow documentation.
 
 ---
 
+## View PM Dashboard (Optional)
+
+Monitor your project via the local wiki:
+
+```bash
+cd .claude/PM/PM-View
+mkdocs serve --dev-addr 127.0.0.1:8003
+```
+
+Open http://127.0.0.1:8003 to see:
+- Command flowcharts (think-tank, hc-execute, hc-glass, red-team)
+- Session history and artifacts
+- ADRs and SSoT documents
+
+**First-time setup:**
+```bash
+pipx install mkdocs-material --include-deps
+pipx inject mkdocs-material mkdocs-awesome-pages-plugin
+```
+
+---
+
 ## Troubleshooting
 
 ### Installer Failed
