@@ -96,6 +96,68 @@ fi
 - `claude -p "..." &` - Fire and forget
 - Spawns without timeout wrapper
 
+---
+
+## Heartbeat Protocol (Pattern 9)
+
+**Purpose:** Observability into orchestrator and sub-agent progress for debugging stalls.
+
+### Orchestrator Self-Heartbeat
+
+Write heartbeat at each phase transition:
+
+```bash
+write_orchestrator_heartbeat() {
+  cat > "${SESSION_PATH}/HEARTBEAT_ORCHESTRATOR.md" << EOF
+agent: GLASS_ORCHESTRATOR
+session: ${SESSION_SLUG}
+started: ${SESSION_START}
+last_beat: $(date -Iseconds)
+status: WORKING
+current_phase: ${CURRENT_PHASE}
+phases_complete: ${PHASES_COMPLETE}
+EOF
+}
+
+# Call at start of each phase
+write_orchestrator_heartbeat
+```
+
+### Sub-Agent Heartbeat Instructions
+
+Include in sub-agent prompts:
+
+```markdown
+## Heartbeat Protocol
+Write your heartbeat file on start and update every 2-3 minutes:
+
+\`\`\`bash
+echo "agent: ${AGENT_ID}
+started: $(date -Iseconds)
+last_beat: $(date -Iseconds)
+status: WORKING
+current_action: [what you're doing]" > ${SESSION_PATH}/HEARTBEAT_${AGENT_ID}.md
+\`\`\`
+
+Update \`last_beat\` and \`current_action\` as you progress.
+```
+
+### Stall Detection (After Sub-Agent Returns)
+
+If a sub-agent times out (exit code 124), check its heartbeat for debugging:
+
+```bash
+if [ $AGENT_EXIT -eq 124 ]; then
+  log_event "[TIMEOUT] Agent ${AGENT_ID} killed"
+  if [ -f "${SESSION_PATH}/HEARTBEAT_${AGENT_ID}.md" ]; then
+    LAST_ACTION=$(grep "current_action:" "${SESSION_PATH}/HEARTBEAT_${AGENT_ID}.md" | cut -d: -f2-)
+    log_event "[DEBUG] Last known action:${LAST_ACTION}"
+  fi
+fi
+```
+
+---
+
 ## IMPORTANT: Execute All Phases Sequentially
 
 You MUST complete ALL phases in order. Do not stop after Phase 1.

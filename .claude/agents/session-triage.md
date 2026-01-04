@@ -15,15 +15,30 @@ Runs in BACKGROUND while user types - never blocks conversation.
 
 ## When Spawned
 
-Main Claude spawns this agent at session start using **Bash tool with proxy**:
+Main Claude spawns this agent at session start using **Bash tool with proxy**.
+
+### Step 0: Cleanup Previous Triage (MANDATORY)
+
+**Before spawning a new triage agent, kill any orphans from crashed sessions:**
+
+```bash
+# Kill any orphan session-triage processes from previous sessions
+pkill -f "Session-Triage agent" 2>/dev/null || true
+```
+
+This prevents zombie accumulation from crashed sessions.
+
+### Step 1: Spawn with Timeout
 
 ```bash
 # Use Bash tool with run_in_background: true
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+# Timeout: 60s (triage should complete in 5-8s, 60s is generous safety margin)
+timeout --foreground --signal=TERM --kill-after=10 60 \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
 You are the Session-Triage agent. Generate a SESSION BRIEF.
 WORKSPACE: $(pwd)
 [... triage prompt ...]
-"
+"'
 ```
 
 **Note:** Task tool's `subagent_type` parameter only recognizes hardcoded values (general-purpose, Explore, Plan, etc.). Custom agents must use the Bash+proxy approach.
@@ -169,25 +184,35 @@ WORKSPACE: [project root]
 
 ## Integration with Main Claude
 
-### At Session Start (T+0.2)
+### Session Start Protocol
+
+**Step 1: Cleanup orphans (T+0)**
 ```bash
-# Main Claude spawns triage in background using Bash tool
-# Set run_in_background: true in Bash tool call
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+# Kill any orphan triage from crashed sessions
+pkill -f "Session-Triage agent" 2>/dev/null || true
+```
+
+**Step 2: Spawn with timeout (T+0.2)**
+```bash
+# Use Bash tool with run_in_background: true
+# 60s timeout (generous margin for 5-8s expected runtime)
+timeout --foreground --signal=TERM --kill-after=10 60 \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
 You are the Session-Triage agent. Generate a SESSION BRIEF.
 WORKSPACE: $(pwd)
 Read: .claude/context.yaml, .claude/PM/SSoT/ROADMAP.yaml
 Output: SESSION BRIEF with Last Session, Roadmap Status, Phase Progress, Drift Alerts, Recommended Action.
-"
+"'
 # Returns shell_id immediately
 ```
 
-### After User Responds (T+15)
+**Step 3: Retrieve output (T+15 or after user responds)**
 ```python
-# Main Claude retrieves triage output - BLOCKING to ensure cleanup
+# MUST block to ensure cleanup
 triage_result = TaskOutput(
   task_id: shell_id,
-  block: true  # MUST block to ensure proper cleanup
+  block: true,
+  timeout: 30000  # 30s max wait
 )
 # Merge with user intent for informed response
 ```
@@ -201,16 +226,27 @@ Why:
 - Unretrieved tasks may become zombie processes
 - Zombies consume system resources indefinitely
 
+**The Three Safety Layers:**
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| **1. Orphan cleanup** | `pkill` at session start | Kill zombies from crashed sessions |
+| **2. Timeout wrapper** | `timeout 60` on spawn | Prevent indefinite runs |
+| **3. TaskOutput retrieval** | `block: true` | Ensure subprocess cleanup |
+
 Pattern:
 ```python
-# 1. Spawn in background
-task = Task(run_in_background: true, ...)
+# 1. Cleanup orphans first
+Bash("pkill -f 'Session-Triage agent' 2>/dev/null || true")
 
-# 2. Do other work while agent runs
+# 2. Spawn in background with timeout
+task = Bash(run_in_background: true, command: "timeout 60 bash -c '...'")
+
+# 3. Do other work while agent runs
 # ...
 
-# 3. ALWAYS retrieve with block: true when done
-result = TaskOutput(task_id: task.id, block: true)
+# 4. ALWAYS retrieve with block: true when done
+result = TaskOutput(task_id: task.id, block: true, timeout: 30000)
 # This ensures subprocess cleanup
 ```
 
@@ -271,5 +307,6 @@ RECOMMENDED ACTION
 
 ---
 
-**Version:** V2.0.0
-**Updated:** 2026-01-02
+**Version:** V2.1.0
+**Updated:** 2026-01-04
+**Changes:** Added orphan cleanup, timeout wrapper, three safety layers (BUG-001)

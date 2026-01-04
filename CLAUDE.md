@@ -78,19 +78,26 @@ When stuck, surface to user:
 
 **On EVERY new session, IMMEDIATELY:**
 
-### Step 1: Read State
+### Step 1: Cleanup Orphans
+```bash
+# Kill any orphan triage from crashed sessions
+pkill -f "Session-Triage agent" 2>/dev/null || true
+```
+
+### Step 2: Read State
 ```
 Read .claude/context.yaml
 Read .claude/PM/SSoT/ROADMAP.yaml
 ```
 
-### Step 2: Spawn Triage (Background)
+### Step 3: Spawn Triage (Background with Timeout)
 
 Use **Bash tool with proxy** (NOT Task tool - custom subagent_types don't work):
 
 ```bash
-# Run in background - don't wait
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+# Run in background with 60s timeout
+timeout --foreground --signal=TERM --kill-after=10 60 \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
 You are the Session-Triage agent. Generate a SESSION BRIEF.
 
 WORKSPACE: $(pwd)
@@ -103,18 +110,18 @@ Read these files:
 Output a SESSION BRIEF with: Last Session, Roadmap Status, Phase Progress, Drift Alerts, Recommended Action.
 
 Be fast (<8 seconds). Read-only. Missing data shows N/A.
-"
+"'
 ```
 
 Use Bash tool's `run_in_background: true` parameter.
 
-### Step 3: Greet User (Don't Wait)
+### Step 4: Greet User (Don't Wait)
 ```
 "Last session we [recent_action from context.yaml]. Current focus: [objective]. What's next?"
 ```
 
-### Step 4: Merge Triage Output
-When user responds, retrieve triage output with `TaskOutput(block: true)` and combine with user intent.
+### Step 5: Retrieve Triage Output (MANDATORY)
+When user responds, retrieve triage output with `TaskOutput(block: true, timeout: 30000)` and combine with user intent. **Never skip this step - it ensures cleanup.**
 
 ---
 
