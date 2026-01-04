@@ -201,7 +201,7 @@ Phase 0: CHECKPOINT        →  Git commit for rollback
 Phase 1: PARSE & CONTRACT  →  Extract tasks, create INTERFACES.md
 Phase 2: EXECUTE           →  Oraca[X] spawns workers, Phase QA
 Phase 3: QA SYNTHESIS      →  Cross-phase analysis
-Phase 4: SWEEP             →  Hunt the 15% that was missed
+Phase 4: SWEEP             →  Hunt the 20% that was missed
 Phase 5: VALIDATION        →  Tests, linting, final report
 Phase 6: ROADMAP SYNC      →  Mark phase complete, unlock next
 ```

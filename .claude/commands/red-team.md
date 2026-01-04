@@ -9,7 +9,7 @@ templates: .claude/templates/template-prompts/red-team/
 
 # /red-team - Quality Seals Audit
 
-**Philosophy:** Trust but Verify. Assume 15% of documentation doesn't match reality.
+**Philosophy:** Trust but Verify. Assume 20% of work and documentation doesn't match reality.
 
 **Purpose:** Execute a multi-layer audit of any codebase, comparing SSoT documentation against actual implementation to find gaps, contradictions, and zombie artifacts.
 

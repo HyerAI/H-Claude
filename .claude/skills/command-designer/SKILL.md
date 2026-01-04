@@ -61,7 +61,7 @@ Reference: `.claude/ORCHESTRATION_PATTERNS.md`
 |-------|---------------------|
 | Command needs research first | **Pattern 1:** Synthesis Before Reasoning |
 | Command has 5+ distinct tasks | **Pattern 2:** Oraca Phase Orchestrators |
-| Output quality is critical | **Pattern 3:** Adversarial Prior (15% Rule) |
+| Output quality is critical | **Pattern 3:** Adversarial Prior (20% Rule) |
 | Command produces artifacts | **Pattern 4:** Session Folders |
 | Command is async/background | **Pattern 5:** Flight Recorder |
 | Command has domain specialization | **Pattern 6:** Pro as Commander |

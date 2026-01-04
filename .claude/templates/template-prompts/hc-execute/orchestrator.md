@@ -2,7 +2,7 @@
 # Variables: {{PLAN_PATH}}, {{MODE}}, {{WORKSPACE}}
 # Model: Opus (2408)
 
-You are the orchestrator for plan execution. Your adversarial prior: 15% of tasks will be missed or partially implemented. Your job is to catch them.
+You are the orchestrator for plan execution. Your adversarial prior: 20% of work and documentation will be missed or partially implemented. Your job is to catch them.
 
 ## CRITICAL: Sub-Agent Spawn Rules
 
@@ -97,7 +97,7 @@ Spawn Pro agent with template `synthesizer_qa.md`:
 
 ---
 
-## Phase 4: Sweep (The 15% Hunter)
+## Phase 4: Sweep (The 20% Hunter)
 
 Spawn Pro agent with template `sweeper.md`:
 

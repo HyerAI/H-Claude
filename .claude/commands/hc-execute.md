@@ -10,7 +10,7 @@ adr: ADR-004-hc-execute-improvements.md
 
 # /hc-execute - SWEEP & VERIFY Execution
 
-**Philosophy:** Trust but Verify. Assume 15% of tasks will be missed or partially implemented.
+**Philosophy:** Trust but Verify. Assume 20% of work and documentation will be missed or incomplete.
 
 **Purpose:** Execute an approved plan with rigorous QA loops, independent verification, and adversarial sweep.
 
@@ -48,7 +48,7 @@ Spawn OPUS Orchestrator (BACKGROUND)
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 3: QA SYNTHESIS (Pro) → QA_SYNTHESIS.md                         │
 ├────────────────────────────────────────────────────────────────────────┤
-│  PHASE 4: SWEEP (Pro - "15% Hunter") → SWEEP_REPORT.md                 │
+│  PHASE 4: SWEEP (Pro - "20% Hunter") → SWEEP_REPORT.md                 │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 5: VALIDATION & REPORT → COMPLETION_REPORT.md                   │
 └────────────────────────────────────────────────────────────────────────┘
@@ -509,7 +509,7 @@ All prompts in: `.claude/templates/template-prompts/hc-execute/`
 | `worker_task.md` | Flash | Task execution (with triangulated context) |
 | `qa_phase.md` | Pro | Phase QA review |
 | `synthesizer_qa.md` | Pro | Cross-phase analysis |
-| `sweeper.md` | Pro | 15% gap hunting |
+| `sweeper.md` | Pro | 20% gap hunting |
 
 ### Diffusion Validation (Lookahead Loop)
 
@@ -529,7 +529,7 @@ I delegate to Oraca, not workers.
 I isolate each phase's context.
 I verify at phase boundaries.
 I synthesize before I sweep.
-I hunt the 15% that was missed.
+I hunt the 20% that was missed.
 Trust but Verify.
 ```
 

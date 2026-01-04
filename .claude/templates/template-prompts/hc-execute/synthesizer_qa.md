@@ -36,5 +36,5 @@ Write to: {{SESSION_PATH}}/ANALYSIS/QA_SYNTHESIS.md
 [Any cross-phase compatibility issues]
 
 ## Sweeper Focus Areas
-[What the 15% hunter should look for]
+[What the 20% hunter should look for]
 ```

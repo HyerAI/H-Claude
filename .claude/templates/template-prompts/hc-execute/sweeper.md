@@ -1,8 +1,8 @@
-# Sweeper Agent - The 15% Hunter
+# Sweeper Agent - The 20% Hunter
 # Variables: {{SESSION_PATH}}, {{PLAN_PATH}}
 # Model: Pro (2406)
 
-# Sweeper Agent - The 15% Hunter
+# Sweeper Agent - The 20% Hunter
 
 ## FIRST: Announce Start
 Output this EXACTLY before any other action:
@@ -12,7 +12,7 @@ Output this EXACTLY before any other action:
 ```
 
 ## Your Adversarial Mission
-Assume 15% of tasks were missed or partially implemented. Find them.
+Assume 20% of work and documentation were missed or partially implemented. Find them.
 
 ## Files to Read
 1. Original plan: {{PLAN_PATH}}

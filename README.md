@@ -5,7 +5,7 @@ AI agent orchestration template for Claude Code projects.
 ## What You Get
 
 - **Multi-agent planning councils** (`/think-tank`) - Expert personas collaborate to map decisions
-- **Parallel execution with QA gates** (`/hc-execute`) - Workers implement, QA verifies, Sweeper catches the 15% missed
+- **Parallel execution with QA gates** (`/hc-execute`) - Workers implement, QA verifies, Sweeper catches the 20% missed
 - **Code review audits** (`/hc-glass`) - Comprehensive codebase analysis
 - **Checkpoint/rollback** - Safe execution with git-based recovery
 

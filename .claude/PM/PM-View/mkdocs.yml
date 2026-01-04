@@ -40,16 +40,19 @@ theme:
     - toc.follow
 
 extra_css:
-  - PM-View/stylesheets/custom.css?v=5
+  - PM-View/stylesheets/custom.css?v=6
 
 extra_javascript:
-  - PM-View/js/refresh.js?v=5
+  - PM-View/js/refresh.js?v=6
 
 plugins:
   - search
   - awesome-pages
 
 markdown_extensions:
+  - pymdownx.snippets:
+      base_path: ['..']
+      check_paths: true
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span

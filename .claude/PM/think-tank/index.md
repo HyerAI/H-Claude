@@ -61,8 +61,17 @@ flowchart TB
 
 | Role | Agent | Purpose |
 |------|-------|---------|
+| **Orchestrator** | Opus | Moderator, coordination |
+| **Domain Expert** | Opus | Deep subject knowledge |
+| **Pragmatist** | Pro | Guardian of resources |
 | **Scouts** | Flash | Research facts, gather context |
-| **Experts** | Pro | Domain-specific analysis |
+
+---
+
+## Gauntlet Loop Roles
+
+| Role | Agent | Purpose |
+|------|-------|---------|
 | **Writer** | Opus | Defend the plan |
 | **Critic** | Pro | Find breaks, edge cases |
 | **Arbiter** | Flash | Rule on contested issues |

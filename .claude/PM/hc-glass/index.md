@@ -1,6 +1,6 @@
-# G.L.A.S.S.
+# G.L.A.S.S. (Audit)
 
-**Global Logic & Architecture System Scan**
+**Global Logic & Architecture System Scan - Brutal codebase audit.**
 
 Trust nothing. Verify everything. Cite line numbers or it didn't happen.
 
@@ -60,11 +60,11 @@ flowchart TB
 
 | Sector | Commander | Focus |
 |--------|-----------|-------|
-| **1** | Archaeologists | Git history, decision trails, zombie code |
-| **2** | Plumbers | Data flow, context propagation, pipelines |
-| **3** | Critics | Code smells, anti-patterns, complexity |
-| **4** | Janitors | Dead code, unused imports, cruft |
-| **5** | Guards | Security, edge cases, vulnerabilities |
+| **1** | Archaeologists | ADR vs Reality |
+| **2** | Plumbers | Data flow, context propagation |
+| **3** | Critics | Test quality, spec validation |
+| **4** | Janitors | Dead code, unused imports |
+| **5** | Guards | Permissions, file I/O safety |
 | **6** | Registrars | Doc-code alignment, SSoT drift |
 
 ---

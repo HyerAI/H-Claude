@@ -1,8 +1,8 @@
-# Red Team
+# Red Team (QA/Review)
 
-**Quality Seals Audit - Multi-layer deep-dive to find gaps, contradictions, and zombie artifacts.**
+**Quality Seals - Compare SSoT docs vs actual implementation to find drift.**
 
-Trust but Verify. Assume 15% of documentation doesn't match reality.
+Trust but Verify. Assume 20% of work and documentation doesn't match reality.
 
 ---
 
@@ -64,8 +64,8 @@ flowchart TB
 | **2** | Agent Architecture | Constitution compliance, role boundaries |
 | **3** | API/Tool Contracts | Interface signatures, implementation gaps |
 | **4** | Workflow Mechanics | State machines, transition validity |
-| **5** | Resource Safety | Limits, cleanup, leak prevention |
-| **6** | Error Handling | Recovery paths, failure modes |
+| **5** | Skills & Commands | Zombie skills, ghost commands, prompt vs behavior |
+| **6** | Template Fitness | Orphan templates, usage validation, output formats |
 
 ---
 

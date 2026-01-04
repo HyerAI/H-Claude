@@ -129,15 +129,15 @@ Opus Orchestrator
 
 ---
 
-## Pattern 3: Adversarial Prior (The 15% Rule)
+## Pattern 3: Adversarial Prior (The 20% Rule)
 
 **Problem:** Optimism bias. We assume work is complete when workers say it's done.
 
-**Solution:** Build in skepticism. Assume 15% is missing or wrong.
+**Solution:** Build in skepticism. Assume 20% is missing or wrong.
 
 **Implementation Techniques:**
 
-1. **Sweep Phase:** After all work, spawn a "15% Hunter" to compare plan vs result
+1. **Sweep Phase:** After all work, spawn a "20% Hunter" to compare plan vs result
 2. **QA Gates:** Every phase boundary has Pro QA before proceeding
 3. **Path Validation:** Before spawning agents, verify target paths exist
 4. **Evidence Required:** Workers must produce artifacts, not just claim completion
@@ -145,7 +145,7 @@ Opus Orchestrator
 ```
 Workers claim "DONE"
         ↓
-   Phase QA (Pro) ── 15% prior → Rejects partial work
+   Phase QA (Pro) ── 20% prior → Rejects partial work
         ↓
    Sweeper (Pro) ── Compares plan to reality → Finds gaps
         ↓
@@ -335,7 +335,7 @@ def on_qa_rejection(task_id, reason):
 |-----------|---------|-----|
 | Research before planning | Synthesis Before Reasoning | Don't pollute Opus with raw data |
 | Plan has 10+ tasks | Oraca Phase Orchestrators | Phase isolation prevents context blowup |
-| Critical feature | Adversarial Prior (15% Rule) | Catch what optimism misses |
+| Critical feature | Adversarial Prior (20% Rule) | Catch what optimism misses |
 | Multi-step workflow | Session Folders | Traceability and debugging |
 | Any orchestration | Flight Recorder | Know what happened when it breaks |
 | Audit or investigation | Pro as Commander | Domain expertise without Opus pollution |

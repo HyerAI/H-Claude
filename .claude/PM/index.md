@@ -1,76 +1,129 @@
-# H-Claude PM Observatory
+# PM Dashboard
 
-**AI-orchestrated project management for agentic coding.**
+**H-Claude** • Current Focus: *Workflow self-reviews complete*
 
 ---
 
+## Commands
+
 <div class="grid cards" markdown>
 
--   :material-head-lightbulb:{ .lg .middle } **Plan**
+-   :material-head-lightbulb:{ .lg .middle } **[Plan](think-tank/index.md)**
 
     ---
 
-    `/think-tank` convenes a council of experts to map decisions, surface trade-offs, and create execution plans.
+    `/think-tank` convenes experts to map decisions and create execution plans.
 
-    [:octicons-arrow-right-24: NORTHSTAR](SSoT/NORTHSTAR.md)
-
--   :material-play-circle:{ .lg .middle } **Execute**
+-   :material-play-circle:{ .lg .middle } **[Execute](hc-execute/index.md)**
 
     ---
 
-    `/hc-execute` runs SWEEP & VERIFY with Oraca orchestrators, QA gates, and the "15% Hunter" sweep.
+    `/hc-execute` runs phased implementation with Oraca orchestrators and QA gates.
 
-    [:octicons-arrow-right-24: Agent Roles](SSoT/AGENT_ROLES.md)
-
--   :material-magnify:{ .lg .middle } **Review**
+-   :material-magnify:{ .lg .middle } **[Audit](hc-glass/index.md)**
 
     ---
 
-    `/hc-glass` deploys 6 sector commanders to audit code against docs. Trust nothing.
+    `/hc-glass` - Brutal codebase audit. Trust nothing, verify everything.
 
-    [:octicons-arrow-right-24: ADRs](SSoT/ADRs/ADR-001-diffusion-development-framework.md)
-
--   :material-shield-search:{ .lg .middle } **Audit**
+-   :material-shield-search:{ .lg .middle } **[QA/Review](red-team/index.md)**
 
     ---
 
-    `/red-team` performs deep multi-layer quality audits. Find the rot, the lies, the fragile logic.
-
-    [:octicons-arrow-right-24: Changelog](CHANGELOG.md)
+    `/red-team` - Quality Seals. Compare docs vs reality, find drift.
 
 </div>
 
 ---
 
-## Command Flow
+<div class="grid" markdown>
+
+<div markdown>
+
+## Project Status
+
+| Field | Value |
+|-------|-------|
+| **Active Phase** | Foundation |
+| **Status** | Workflow improvements |
+| **Type** | Template |
+
+### Recent Actions
+
+| Date | Action |
+|------|--------|
+| 2026-01-04 | hc-execute self-review V2.9.0 (ADR-004) |
+| 2026-01-04 | think-tank self-review V2.5.0 (ADR-003) |
+| 2026-01-04 | Gauntlet Loop integration (ADR-002) |
+| 2026-01-03 | Diffusion Development Philosophy |
+| 2026-01-02 | Initial H-Claude structure |
+
+</div>
+
+<div markdown>
+
+## Quick Access
+
+<div class="grid cards" markdown>
+
+-   :material-compass: **[NORTHSTAR](SSoT/NORTHSTAR.md)**
+
+    Goals & requirements
+
+-   :material-map: **[ROADMAP](SSoT/roadmap-view.md)**
+
+    Development phases
+
+-   :material-format-list-checks: **[BACKLOG](backlog-view.md)**
+
+    Deferred work
+
+-   :material-cog: **[context.yaml](context-view.md)**
+
+    Session state
+
+</div>
+
+### Resources
+
+| Document | Purpose |
+|----------|---------|
+| [Agent Roles](SSoT/AGENT_ROLES.md) | Role definitions |
+| [Changelog](CHANGELOG.md) | Version history |
+| [Get Started](docs/GET_STARTED.md) | Installation |
+
+</div>
+
+</div>
+
+---
+
+## Active Sessions
+
+| Type | Topic | Status | Path |
+|------|-------|--------|------|
+| think-tank | [hc_execute_self_review](think-tank/hc_execute_self_review_20260104/00_BRIEFING.md) | :material-check-circle:{ .green } decided | ADR-004 |
+| think-tank | [think_tank_self_review](think-tank/think_tank_self_review_20260104/00_BRIEFING.md) | :material-check-circle:{ .green } decided | ADR-003 |
+| think-tank | [agentic_framework](think-tank/agentic_framework_20260103/00_BRIEFING.md) | :material-check-circle:{ .green } decided | Diffusion |
+
+---
+
+## Workflow
 
 ```mermaid
 graph LR
-    A[NORTHSTAR] --> B[think-tank]
+    A[NORTHSTAR] --> B["/think-tank"]
     B --> C[ROADMAP]
-    C --> D[hc-execute]
+    C --> D["/hc-execute"]
     D --> E[Codebase]
-    E --> F[hc-glass]
-    E --> G[red-team]
+    E --> F["/hc-glass"]
+    E --> G["/red-team"]
     F --> H[Issues]
     G --> H
     H -.-> B
 ```
 
----
-
-## Quick Links
-
-| Document | Purpose |
-|----------|---------|
-| [:material-compass: **NORTHSTAR**](SSoT/NORTHSTAR.md) | Project goals & requirements |
-| [:material-account-group: **Agent Roles**](SSoT/AGENT_ROLES.md) | Role definitions |
-| [:material-history: **Changelog**](CHANGELOG.md) | Version history |
-| [:material-book-open: **Get Started**](docs/GET_STARTED.md) | Installation guide |
-
----
-
-<div style="text-align: center; color: #6ba8b9; font-size: 0.85rem; margin-top: 2rem;">
+<div style="text-align: center; color: #6ba8b9; font-size: 0.85rem; margin-top: 1rem;">
 
 **Agent Hierarchy:** Opus (strategy) → Pro (reasoning) → Flash (execution)
 

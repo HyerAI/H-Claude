@@ -106,7 +106,7 @@ These MUST stay aligned. NORTHSTAR is the destination; ROADMAP is the route.
 │                              ↓                              │
 │    /hc-execute                                         │
 │      └── Workers implement with QA gates                    │
-│      └── SWEEP & VERIFY catches 15% missed work             │
+│      └── SWEEP & VERIFY catches 20% missed work             │
 │                              ↓                              │
 │    /hc-glass (optional)                                     │
 │      └── Code review, security audit                        │
