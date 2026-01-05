@@ -28,7 +28,7 @@ FOCUS:
 - [Optional: specific concerns to investigate]
 ```
 
-This command spawns a background Opus orchestrator that runs the full audit workflow. You'll be notified when complete.
+This command spawns a background Flash orchestrator that runs the full audit workflow. You'll be notified when complete.
 
 ---
 
@@ -37,11 +37,11 @@ This command spawns a background Opus orchestrator that runs the full audit work
 ```
 HC invokes /red-team
      ↓
-Spawn OPUS Orchestrator (BACKGROUND)
+Spawn Flash Orchestrator (BACKGROUND)
      ↓
 ┌────────────────────────────────────────────────────────────────────────┐
 │  PHASE 0: SETUP & PATH VALIDATION                                      │
-│  Opus validates sector paths exist, creates session folder             │
+│  Flash validates sector paths exist, creates session folder            │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 1: SECTOR EXECUTION (Pro Commanders, batched)                   │
 │  Each Commander spawns Flash specialists → SECTOR_REPORTS/             │
@@ -86,14 +86,14 @@ Spawn OPUS Orchestrator (BACKGROUND)
 ## Proxy Configuration
 
 ```bash
-# Specialists (Flash)
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions
+# Specialists (HC-Work - workers)
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions
 
-# Sector Commanders, Synthesizer (Pro)
-ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions
+# Sector Commanders, Synthesizer (HC-Reas-B - challenger reasoning)
+ANTHROPIC_API_BASE_URL=http://localhost:2411 claude --dangerously-skip-permissions
 
-# Orchestrator (Opus)
-ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions
+# Orchestrator (HC-Orca - light coordination)
+ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions
 ```
 
 ---
@@ -108,7 +108,7 @@ TIMEOUT=${TIMEOUT:-3600}
 
 # Spawn pattern with timeout
 timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "..."'
 
 # Check exit code
 EXIT_CODE=$?
@@ -129,7 +129,7 @@ fi
 
 ## Orchestrator Protocol
 
-Spawn background Opus orchestrator using template `orchestrator.md` with timeout wrapper:
+Spawn background Flash orchestrator using template `orchestrator.md` with timeout wrapper:
 
 | Variable | Value |
 |----------|-------|
@@ -252,7 +252,7 @@ All prompts in: `.claude/templates/template-prompts/red-team/`
 
 | Template | Model | Purpose |
 |----------|-------|---------|
-| `orchestrator.md` | Opus | Main coordination |
+| `orchestrator.md` | Flash | Main coordination |
 | `sector_commander.md` | Pro | Sector investigation lead |
 | `specialist_librarian.md` | Flash | Doc cross-reference check |
 | `specialist_engineer.md` | Flash | Doc vs code comparison |

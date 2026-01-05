@@ -37,7 +37,7 @@ Or by topic name (auto-locates approved plan):
 ```
 HC invokes /hc-execute
      ↓
-Spawn OPUS Orchestrator (BACKGROUND)
+Spawn Flash Orchestrator (BACKGROUND)
      ↓
 ┌────────────────────────────────────────────────────────────────────────┐
 │  PHASE 1: PARSE, BATCH & CONTRACT                                      │
@@ -206,10 +206,11 @@ lookahead:
 ## Proxy Configuration
 
 ```bash
-# Flash (2405) - Oraca, Workers
-# Pro (2406) - Phase QA, QA Synthesis, Sweeper
-# Opus (2408) - Orchestrator
-ANTHROPIC_API_BASE_URL=http://localhost:240X claude --dangerously-skip-permissions -p "PROMPT"
+# HC-Orca (2414) - Orchestrator (light coordination)
+# HC-Work (2412) - Workers, git-engineer
+# HC-Work-R (2413) - Oraca (execution with reasoning)
+# HC-Reas-B (2411) - Phase QA, QA Synthesis, Sweeper
+ANTHROPIC_API_BASE_URL=http://localhost:241X claude --dangerously-skip-permissions -p "PROMPT"
 ```
 
 ---
@@ -224,7 +225,7 @@ TIMEOUT=${TIMEOUT:-3600}
 
 # Spawn pattern with timeout
 timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "..."'
 
 # Check exit code
 EXIT_CODE=$?
@@ -246,7 +247,7 @@ fi
 
 ## Orchestrator Protocol
 
-Spawn background Opus orchestrator using template `orchestrator.md` with timeout wrapper:
+Spawn background Flash orchestrator using template `orchestrator.md` with timeout wrapper:
 
 | Variable | Value |
 |----------|-------|
@@ -263,7 +264,7 @@ BEFORE any execution begins:
 1. Check `git status` - if dirty, prompt to commit first
 2. Spawn git-engineer with operation: `checkpoint`
    ```bash
-   ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+   ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
    You are git-engineer. Create a checkpoint.
    Read: .claude/agents/git-engineer.md for your protocol.
    OPERATION: checkpoint
@@ -411,7 +412,7 @@ On successful completion (all phases PASS):
 
 1. Spawn git-engineer with rollback operation:
    ```bash
-   ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+   ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
    You are git-engineer. Perform rollback.
    Read: .claude/agents/git-engineer.md for your protocol.
    OPERATION: rollback
@@ -534,7 +535,7 @@ All prompts in: `.claude/templates/template-prompts/hc-execute/`
 
 | Template | Model | Purpose |
 |----------|-------|---------|
-| `orchestrator.md` | Opus | Main coordination |
+| `orchestrator.md` | Flash | Main coordination |
 | `oraca_phase.md` | Flash | Phase orchestration |
 | `worker_task.md` | Flash | Task execution (with triangulated context) |
 | `qa_phase.md` | Pro | Phase QA review |

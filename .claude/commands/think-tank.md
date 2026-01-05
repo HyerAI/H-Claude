@@ -147,13 +147,13 @@ Each resolution level has a validation gate:
 
 ## The Cast
 
-| Role | Purpose | Model |
+| Role | Purpose | Proxy |
 |------|---------|-------|
 | **You (HC)** | The Chair | Human |
-| **Orchestrator** | Moderator | Opus |
-| **Domain Expert** | Deep subject knowledge | Opus (2408) |
-| **Pragmatist** | Guardian of Resources | Pro (2406) |
-| **Flash Scouts** | On-demand research | Flash (2405) |
+| **Orchestrator** | Moderator | HC-Orca-R (2415) |
+| **Domain Expert** | Deep subject knowledge | HC-Reas-A (2410) |
+| **Pragmatist** | Guardian of Resources | HC-Reas-B (2411) |
+| **Flash Scouts** | On-demand research | HC-Work (2412) |
 
 ---
 
@@ -190,8 +190,8 @@ execution-plan.yaml          # After DECIDE (test-driven)
 ## Proxy Configuration
 
 ```bash
-# Flash (2405) | Pro (2406) | Opus (2408)
-ANTHROPIC_API_BASE_URL=http://localhost:240X claude --dangerously-skip-permissions -p "PROMPT"
+# HC-Reas-A (2410) | HC-Reas-B (2411) | HC-Work (2412) | HC-Work-R (2413) | HC-Orca (2414) | HC-Orca-R (2415)
+ANTHROPIC_API_BASE_URL=http://localhost:241X claude --dangerously-skip-permissions -p "PROMPT"
 ```
 
 ---
@@ -206,7 +206,7 @@ TIMEOUT=${TIMEOUT:-2700}
 
 # Spawn pattern with timeout
 timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2415 claude --dangerously-skip-permissions -p "..."'
 
 # Check exit code
 EXIT_CODE=$?

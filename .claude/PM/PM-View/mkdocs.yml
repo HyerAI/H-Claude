@@ -40,10 +40,11 @@ theme:
     - toc.follow
 
 extra_css:
-  - PM-View/stylesheets/custom.css?v=10
+  - PM-View/stylesheets/custom.css?v=11
 
 extra_javascript:
   - PM-View/js/refresh.js?v=6
+  - PM-View/js/proxy-status.js?v=1
 
 plugins:
   - search

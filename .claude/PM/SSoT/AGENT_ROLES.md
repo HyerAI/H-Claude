@@ -21,7 +21,7 @@ H-Claude uses a hierarchy of specialized agents. Each role has defined responsib
       └─────────────────────┬───────────────────────────┘
                             │
       ┌─────────────────────┴───────────────────────────┐
-      │                   ORCA (Opus)                   │
+      │              ORCA (Pro/Flash)                   │
       │      Orchestrator - Coordination & Strategy     │
       └─────────────────────┬───────────────────────────┘
                             │
@@ -57,10 +57,18 @@ H-Claude uses a hierarchy of specialized agents. Each role has defined responsib
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Opus (2408) |
-| **Template** | `hc-execute/orchestrator.md` |
+| **Model** | Context-dependent (see below) |
+| **Template** | `*/orchestrator.md` |
 | **Responsibility** | Coordinate phases, delegate to specialists, maintain context |
 | **Failure Condition** | Losing track of state, spawning redundant agents |
+
+**Orchestrator Model by Command:**
+| Command | Model | Rationale |
+|---------|-------|-----------|
+| `/think-tank` | Pro (2406) | Needs reasoning for dialectic |
+| `/hc-execute` | Flash (2405) | Straightforward coordination |
+| `/hc-glass` | Flash (2405) | Straightforward coordination |
+| `/red-team` | Flash (2405) | Straightforward coordination |
 
 ### RCH - Researcher
 
@@ -146,11 +154,14 @@ Special roles for adversarial plan refinement:
 
 | Model | Cost | Speed | Use For |
 |-------|------|-------|---------|
-| **Flash (2405)** | Low | Fast | Research, validation, workers, drafts |
-| **Pro (2406)** | Medium | Medium | Reasoning, QA, critique, synthesis |
-| **Opus (2408)** | High | Slow | Complex reasoning, ownership, final decisions |
+| **Flash (2405)** | Low | Fast | Research, validation, workers, drafts, orchestration |
+| **Pro (2406)** | Medium | Medium | Reasoning, QA, critique, synthesis, think-tank orchestration |
+| **Opus (2408)** | High | Slow | Dialectic (Domain Expert, Writer), complex reasoning |
 
-**Rule:** Use cheapest model that can do the job. Escalate only when cheaper model fails.
+**Rules:**
+1. Use cheapest model that can do the job. Escalate only when cheaper model fails.
+2. **Reserve Opus for dialectic roles** (Domain Expert, Gauntlet Writer) where model diversity creates value.
+3. **Orchestration is coordination** - Flash/Pro can handle it; Opus is overkill.
 
 ---
 

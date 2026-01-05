@@ -14,6 +14,9 @@
 | `$ROAD` | `$SSOT/ROADMAP.yaml` |
 | `$NORTH` | `$SSOT/NORTHSTAR.md` |
 | `$TEMP` | `$PM/TEMP` |
+| `$PREFS` | `$PM/HC-LOG/USER-PREFERENCES.md` |
+| `$FAILS` | `$PM/HC-LOG/HC-FAILURES.md` |
+| `$BACKLOG` | `$PM/BACKLOG.yaml` |
 
 **Proxies:**
 | Var | Command |
@@ -22,7 +25,7 @@
 | `$PRO` | `ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p` |
 | `$OPUS` | `ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p` |
 
-**Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout | `$TRIAGE` = session-triage
+**Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout | `$STATE` = state-agent
 
 ---
 
@@ -144,33 +147,43 @@ Reusing it provides consistent answers and avoids duplicate research.
 
 | Agent | Purpose | When to Use |
 |-------|---------|-------------|
-| `$TRIAGE` | Update SESSION_STATUS.md at session start | Every session (background) |
+| `$STATE` | Manage $CTX, $PREFS, $FAILS, triage next steps | Post-command, on-demand |
 | `$GIT` | Handle commits, maintain protocols | "commit these changes" |
-| `$SCOUT` | Research to preserve HC context | 5+ files to search/read |
+| `$SCOUT` | Research, system checks, preserve HC context | Session start, 5+ file searches |
 
 Agents defined in: `.claude/agents/`
 
 ---
 
-## SESSION START (Do This First)
+## SESSION START
 
-**On every new session:**
+1. **Read State:** `$CTX` (has focus, recent actions, next steps)
+2. **Launch $SCOUT (background):** Check proxies, system ready
+3. **Greet User:** "Last session: [action]. Focus: [objective]. What's next?"
+4. **If SSoT Incomplete:** Guide user through setup first
 
-1. **Read State**
-   ```
-   Read $CTX
-   Read $ROAD
-   ```
+$SCOUT reports: "Systems ON" or "Issue found, investigating..."
+HC continues working while $SCOUT runs.
 
-2. **Greet User**
-   ```
-   "Last session we [recent_action from context.yaml].
-   Current focus: [objective]. What's next?"
-   ```
+---
 
-3. **If SSoT Incomplete** (NORTHSTAR or ROADMAP missing/placeholder)
-   - Guide user through setup before proceeding with work
-   - Don't assume - ask what the project is about
+## POST-EXECUTION
+
+After `/hc-execute`, `/think-tank`, `/hc-glass` completion, spawn `$STATE`:
+
+```
+$STATE reviews session and updates:
+- $CTX: focus, recent_actions, next steps
+- $BACKLOG: tech debt discovered
+- $FAILS: notable failures (NOT trivial)
+- $PREFS: user preferences surfaced (NOT trivial)
+```
+
+**$STATE triage questions:**
+1. What tech debt emerged? → $BACKLOG
+2. Any failures to learn from? → $FAILS (if notable)
+3. Any user preferences revealed? → $PREFS (if notable)
+4. What's next? → $CTX focus/next steps
 
 ---
 

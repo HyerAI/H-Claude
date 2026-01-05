@@ -30,7 +30,7 @@ CONCERNS:
 - [Optional: specific areas to investigate]
 ```
 
-This command spawns a background Opus orchestrator that coordinates 6 sector Pro commanders (each with Flash scouts), a Merge Gate synthesizer, and a Classification Arbiter. You'll be notified when the Board Report is ready.
+This command spawns a background Flash orchestrator that coordinates 6 sector Pro commanders (each with Flash scouts), a Merge Gate synthesizer, and a Classification Arbiter. You'll be notified when the Board Report is ready.
 
 ---
 
@@ -39,7 +39,7 @@ This command spawns a background Opus orchestrator that coordinates 6 sector Pro
 ```
 HC invokes /hc-glass
      |
-Spawn OPUS Orchestrator (BACKGROUND)
+Spawn Flash Orchestrator (BACKGROUND)
      |
 +-----------------------------------------------------------------------------+
 |  PHASE 0: SETUP & VALIDATION                                                |
@@ -95,14 +95,14 @@ Spawn OPUS Orchestrator (BACKGROUND)
 ## Proxy Configuration
 
 ```bash
-# Orchestrator (Opus)
-ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions
+# Orchestrator (HC-Orca - light coordination)
+ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions
 
-# Sector Commanders, Synthesizer, Arbiter (Pro)
-ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions
+# Sector Commanders, Synthesizer, Arbiter (HC-Reas-B - challenger reasoning)
+ANTHROPIC_API_BASE_URL=http://localhost:2411 claude --dangerously-skip-permissions
 
-# Scouts (Flash)
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions
+# Scouts (HC-Work - workers)
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions
 ```
 
 ---
@@ -117,7 +117,7 @@ TIMEOUT=${TIMEOUT:-5400}
 
 # Spawn pattern with timeout
 timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "..."'
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "..."'
 
 # Check exit code
 EXIT_CODE=$?
@@ -138,7 +138,7 @@ fi
 
 ## Orchestrator Protocol
 
-Spawn background Opus orchestrator using template `orchestrator.md` with timeout wrapper:
+Spawn background Flash orchestrator using template `orchestrator.md` with timeout wrapper:
 
 | Variable | Value |
 |----------|-------|
@@ -231,7 +231,7 @@ All prompts in: `.claude/templates/template-prompts/hc-glass/`
 
 | Template | Model | Purpose |
 |----------|-------|---------|
-| `orchestrator.md` | Opus | Main coordination |
+| `orchestrator.md` | Flash | Main coordination |
 | `sector_archaeologists.md` | Pro | ADR vs Reality |
 | `sector_plumbers.md` | Pro | Data Flow & Logic |
 | `sector_critics.md` | Pro | Test Quality |

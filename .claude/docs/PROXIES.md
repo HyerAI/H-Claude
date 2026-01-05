@@ -17,28 +17,53 @@ Claude Code (main)
        │
        ▼
 ┌──────────────────┐     ┌──────────────────┐
-│  CG-Flash:2405   │     │  Gemini Flash    │
+│  HC-Work:2412    │     │  Gemini Flash    │
 │  (Anthropic API) │ ──► │  (Google AI API) │
 └──────────────────┘     └──────────────────┘
 ```
 
 Each proxy:
 1. Receives requests in **Anthropic API format** (what Claude Code speaks)
-2. Translates to the **backend's native format** (Google AI, etc.)
+2. Translates to the **backend's native format** (Google AI, Claude CLI)
 3. Forwards to the backend LLM
 4. Translates the response back to Anthropic format
 5. Returns to Claude Code
 
 ---
 
-## Available Proxies
+## Role-Based Proxy Architecture
 
-| Proxy | Port | Backend Model | Use Case |
-|-------|------|---------------|----------|
-| **CG-Flash** | 2405 | Gemini 3 Flash | Fast workers, code writing, scouts |
-| **CG-Pro** | 2406 | Gemini 3 Pro | Reasoning, QA, analysis, commanders |
-| **CG-Image** | 2407 | Nano Banana (Gemini 3 Pro) | Native image generation |
-| **CC-Claude** | 2408 | Claude Opus | Complex reasoning, orchestrators |
+Proxies are named by **role**, not model. This decouples documentation from specific models.
+
+| Proxy | Port | Default Model | Purpose |
+|-------|------|---------------|---------|
+| **HC-Reas-A** | 2410 | Claude Opus (via CLI) | Heavy reasoning, complex orchestration |
+| **HC-Reas-B** | 2411 | Gemini Pro | Challenger reasoning, QA commanders |
+| **HC-Work** | 2412 | Gemini Flash | Execution workers, scouts |
+| **HC-Work-R** | 2413 | Gemini Flash | Execution with extended thinking |
+| **HC-Orca** | 2414 | Gemini Flash | Light coordination |
+| **HC-Orca-R** | 2415 | Gemini Pro | Heavy coordination |
+| **CG-Image** | 2407 | Gemini Pro (Banana) | Native image generation |
+
+### Proxy Naming Convention
+
+- **HC-Reas-** = Reasoning proxies (heavy thinking)
+- **HC-Work-** = Worker proxies (task execution)
+- **HC-Orca-** = Orchestration proxies (coordination)
+- **-R suffix** = Enhanced reasoning/thinking variant
+
+---
+
+## Agent-to-Proxy Mapping
+
+| Agent Role | Proxy | Port | Why |
+|------------|-------|------|-----|
+| Orchestrators | HC-Orca | 2414 | Light coordination |
+| Heavy Orchestrators | HC-Orca-R | 2415 | Complex coordination |
+| QA/Commanders | HC-Reas-B | 2411 | Challenger reasoning |
+| Complex Reasoning | HC-Reas-A | 2410 | Heavy analysis |
+| Workers/Scouts | HC-Work | 2412 | Fast execution |
+| Workers (thinking) | HC-Work-R | 2413 | Extended reasoning |
 
 ---
 
@@ -47,14 +72,20 @@ Each proxy:
 To spawn a sub-agent through a proxy:
 
 ```bash
-# Flash agent (fast, cheap)
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "task"
+# Worker (fast execution)
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "task"
 
-# Pro agent (reasoning)
-ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "task"
+# Reasoning/QA
+ANTHROPIC_API_BASE_URL=http://localhost:2411 claude --dangerously-skip-permissions -p "task"
 
-# Claude agent (complex)
-ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "task"
+# Heavy reasoning (Claude)
+ANTHROPIC_API_BASE_URL=http://localhost:2410 claude --dangerously-skip-permissions -p "task"
+
+# Light orchestration
+ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "task"
+
+# Heavy orchestration
+ANTHROPIC_API_BASE_URL=http://localhost:2415 claude --dangerously-skip-permissions -p "task"
 ```
 
 ---
@@ -63,13 +94,13 @@ ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissio
 
 ### API Keys
 
-Each Gemini proxy requires a Google AI API key:
+Gemini proxies require a Google AI API key:
 
 ```bash
 # Edit the .env file for each proxy
-~/.claude/HC-Proxies/CG-Flash/.env
-~/.claude/HC-Proxies/CG-Pro/.env
-~/.claude/HC-Proxies/CG-Image/.env
+~/.claude/HC-Proxies/HC-Work/.env
+~/.claude/HC-Proxies/HC-Reas-B/.env
+# etc.
 
 # Content:
 GOOGLE_AI_API_KEY=your-key-here
@@ -77,57 +108,59 @@ GOOGLE_AI_API_KEY=your-key-here
 
 Get your key at: [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
 
-**CC-Claude** uses your existing Claude CLI authentication (no API key needed).
+**HC-Reas-A** uses your existing Claude CLI authentication (no API key needed).
 
 ### Environment Variables
 
-| Variable | Default | Description |
+Each proxy can be configured via its `.env` file:
+
+| Variable | Example | Description |
 |----------|---------|-------------|
-| `GOOGLE_AI_API_KEY` | (required) | Your Google AI API key |
-| `KS_PROXY_MODEL` | `gemini-3-flash-preview` | Flash proxy model |
-| `CG_PRO_MODEL` | `gemini-3-pro` | Pro proxy model |
-| `CC_CLAUDE_MODEL` | `opus` | Claude CLI model (opus recommended) |
-| `KS_PROXY_PORT` | `2405` | Flash port |
-| `CG_PRO_PORT` | `2406` | Pro port |
-| `CC_CLAUDE_PORT` | `2408` | Claude port |
+| `GOOGLE_AI_API_KEY` | (required for Gemini) | Your Google AI API key |
+| `MODEL` | `gemini-3-flash-preview` | Backend model to use |
+| `PORT` | `2412` | Port number |
 
 ---
 
 ## Changing Models
 
-To use a different model, edit the proxy's `.env` file:
+The power of role-based proxies: change the model without updating any docs.
 
-### Option 1: Change Gemini Model
+### Edit Proxy .env File
 
 ```bash
-# In ~/.claude/HC-Proxies/CG-Flash/.env
-GOOGLE_AI_API_KEY=your-key
-KS_PROXY_MODEL=gemini-2.0-flash-exp  # or gemini-1.5-flash, etc.
+# Example: Change HC-Work from Flash to Pro
+# Edit ~/.claude/HC-Proxies/HC-Work/.env
+MODEL=gemini-3-pro  # was gemini-3-flash-preview
 ```
 
-Available Gemini models:
-- `gemini-3-flash-preview` (default for Flash)
-- `gemini-3-pro` (default for Pro)
+Restart the proxy. All commands using HC-Work now use Pro.
+
+### Available Models
+
+**Gemini (Google AI):**
+- `gemini-3-flash-preview` (default for HC-Work, HC-Orca)
+- `gemini-3-pro` (default for HC-Reas-B, HC-Orca-R)
 - `gemini-2.5-pro-preview`
 - `gemini-2.0-flash-exp`
-- `gemini-1.5-flash`
-- `gemini-1.5-pro`
 
-**Note:** H-Claude defaults to Gemini 3 family for best performance.
-
-### Option 2: Use Different Provider
-
-To use a different LLM provider (e.g., OpenAI, Anthropic direct), you would need to:
-
-1. Create a new proxy server that translates Anthropic API → your provider's API
-2. Update the port mapping
-3. Set `ANTHROPIC_API_BASE_URL` to your new proxy
-
-The proxy code is in `HC-Proxies/CG-Flash/server.js` - use it as a template.
+**Claude (via CLI):**
+- `opus` (default for HC-Reas-A)
+- `sonnet`
 
 ---
 
 ## Starting/Stopping Proxies
+
+### Project Scripts
+
+```bash
+# Start all proxies
+.claude/scripts/start-proxies.sh
+
+# Stop all proxies
+.claude/scripts/stop-proxies.sh
+```
 
 ### Global Install
 
@@ -139,16 +172,6 @@ The proxy code is in `HC-Proxies/CG-Flash/server.js` - use it as a template.
 ~/.claude/bin/stop-proxies.sh
 ```
 
-### Template Clone
-
-```bash
-# Start
-.claude/scripts/start-proxies.sh
-
-# Stop
-.claude/scripts/stop-proxies.sh
-```
-
 ---
 
 ## Health Checks
@@ -156,9 +179,12 @@ The proxy code is in `HC-Proxies/CG-Flash/server.js` - use it as a template.
 Verify proxies are running:
 
 ```bash
-curl http://localhost:2405/health  # Flash
-curl http://localhost:2406/health  # Pro
-curl http://localhost:2408/health  # Claude
+curl http://localhost:2410/health  # HC-Reas-A
+curl http://localhost:2411/health  # HC-Reas-B
+curl http://localhost:2412/health  # HC-Work
+curl http://localhost:2413/health  # HC-Work-R
+curl http://localhost:2414/health  # HC-Orca
+curl http://localhost:2415/health  # HC-Orca-R
 
 # Expected: {"status":"ok"}
 ```
@@ -171,13 +197,13 @@ curl http://localhost:2408/health  # Claude
 
 ```bash
 # Check if running
-curl http://localhost:2405/health
+curl http://localhost:2412/health
 
 # Start proxies
-~/.claude/bin/start-proxies.sh
+.claude/scripts/start-proxies.sh
 
 # Check logs
-cat /tmp/h-claude/cg-flash.log
+cat /tmp/h-claude/hc-work.log
 ```
 
 ### Invalid API Key
@@ -193,10 +219,10 @@ If error, regenerate at [https://aistudio.google.com/apikey](https://aistudio.go
 
 ```bash
 # Stop existing proxies
-~/.claude/bin/stop-proxies.sh
+.claude/scripts/stop-proxies.sh
 
 # Or kill by port
-lsof -ti:2405 | xargs kill -9
+lsof -ti:2412 | xargs kill -9
 ```
 
 ---
@@ -205,14 +231,35 @@ lsof -ti:2405 | xargs kill -9
 
 The proxy architecture enables significant cost savings:
 
-| Agent Role | Proxy | Why |
-|------------|-------|-----|
-| Scouts (research) | Flash | High volume, simple tasks |
-| Workers (code) | Flash | Fast iteration |
-| QA/Commanders | Pro | Needs reasoning |
-| Orchestrators | Claude | Complex coordination |
+| Role | Proxy | Model | Why |
+|------|-------|-------|-----|
+| Scouts (research) | HC-Work | Flash | High volume, simple tasks |
+| Workers (code) | HC-Work | Flash | Fast iteration |
+| QA/Commanders | HC-Reas-B | Pro | Needs reasoning |
+| Orchestrators | HC-Orca | Flash | Light coordination |
+| Complex reasoning | HC-Reas-A | Claude | Heavy analysis |
 
 **Typical savings:** 60-80% vs using Claude for everything.
+
+---
+
+## Proxy Types
+
+### Google AI Proxies (axios)
+
+HC-Work, HC-Work-R, HC-Reas-B, HC-Orca, HC-Orca-R all use the Google AI API:
+
+- Translate Anthropic format → Google generativelanguage.googleapis.com
+- Support streaming responses
+- Handle tool use translation
+
+### Claude CLI Proxy (child_process)
+
+HC-Reas-A spawns Claude CLI as a subprocess:
+
+- Uses your existing Claude authentication
+- Full Claude Opus capability
+- Higher latency, higher cost
 
 ---
 

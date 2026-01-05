@@ -3,3 +3,4 @@ nav:
   - GET_STARTED.md
   - WORKFLOW_GUIDE.md
   - PROXIES.md
+  - proxy-status.md

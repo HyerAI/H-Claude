@@ -4,6 +4,19 @@ All notable changes to H-Claude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.2] - 2026-01-04
+
+### Changed
+- **Orchestrator models optimized** - Reduced Claude Opus usage to preserve limits
+  - `/think-tank` → Pro (2406) - needs reasoning for dialectic
+  - `/hc-execute` → Flash (2405) - coordination only
+  - `/hc-glass` → Flash (2405) - coordination only
+  - `/red-team` → Flash (2405) - coordination only
+- **AGENT_ROLES.md** - Updated ORCA to context-dependent model (Pro/Flash)
+- **Model philosophy** - Reserve Opus for dialectic roles (Domain Expert, Writer)
+
+---
+
 ## [0.3.1] - 2026-01-04
 
 ### Changed

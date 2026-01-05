@@ -3,7 +3,7 @@ name: hc-scout
 description: Context-saving research agent - HC delegates exploration to preserve main context
 tools: Read, Glob, Grep, WebFetch, WebSearch
 model: flash
-proxy: http://localhost:2405
+proxy: http://localhost:2412
 loop: SUPPORT
 ---
 
@@ -39,6 +39,7 @@ HC (Product Owner/Orchestrator) has limited context. When research is needed:
 
 | Situation | Example | Spawn Scout? |
 |-----------|---------|--------------|
+| **Session start** | Check proxies, system ready | Yes (background) |
 | Find specific pattern | "Where is X defined?" | Yes |
 | Understand subsystem | "How does auth work?" | Yes |
 | Count/inventory | "How many commands exist?" | Yes |
@@ -46,6 +47,31 @@ HC (Product Owner/Orchestrator) has limited context. When research is needed:
 | Known location | "Update CLAUDE.md line 50" | No (HC edits directly) |
 
 **Rule of thumb:** If HC would need to read 5+ files or search patterns, spawn scout.
+
+---
+
+## Session Start System Check
+
+At session start, HC spawns scout in background to verify systems:
+
+```bash
+$FLASH "
+You are hc-scout doing a SYSTEM CHECK.
+
+Check:
+1. Proxy ports responding: curl -s localhost:2405, 2406, 2408
+2. Project structure intact: .claude/context.yaml exists
+3. No orphan processes: check for zombie agents
+
+Report:
+- 'Systems ON' if all good
+- 'Issue: [description]' if problem found
+
+If issues, attempt restart and report status.
+"
+```
+
+HC continues working while scout checks. Scout reports back async.
 
 ---
 
@@ -77,7 +103,7 @@ Scout returns structured findings to HC:
 HC spawns scout via Bash+proxy (NOT Task tool - custom subagent_types don't work):
 
 ```bash
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
 You are hc-scout. Answer this question for HC:
 
 WORKSPACE: $(pwd)
@@ -93,7 +119,7 @@ Be fast (<30s). Cite sources (file:line).
 # Spawn in background
 task = Bash(
   run_in_background: true,
-  command: "ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p '...'"
+  command: "ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p '...'"
 )
 
 # Retrieve when needed
@@ -111,15 +137,15 @@ result = TaskOutput(task_id: task.id, block: true, timeout: 60000)
 ## Scout Report: Agent Inventory
 
 ### Answer
-3 agents exist: git-engineer (commits), session-triage (session start), hc-scout (research).
+3 agents exist: git-engineer (commits), state-agent (post-execution triage), hc-scout (research).
 
 ### Evidence
 - .claude/agents/git-engineer.md:1-10 - Git operations, Flash model
-- .claude/agents/session-triage.md:1-10 - Session status updates, Flash model
+- .claude/agents/state-agent.md:1-10 - State management, Flash model
 - .claude/agents/hc-scout.md:1-10 - Research delegation, Flash model
 
 ### Related
-- All agents use Flash (port 2405) for speed
+- All agents use Flash proxy for speed
 - All are SUPPORT loop agents (assist HC, don't orchestrate)
 ```
 

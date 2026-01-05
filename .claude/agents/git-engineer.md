@@ -3,7 +3,7 @@ name: git-engineer
 description: Invoke for git operations - maintains project protocols, improvement plans, and executes commits/reviews
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: flash
-proxy: http://localhost:2405
+proxy: http://localhost:2412
 skills: commit-gate
 loop: SUPPORT
 ---
@@ -423,7 +423,7 @@ When `.claude/PM/GIT/PROTOCOLS.md` doesn't exist:
 ## Spawning Command
 
 ```bash
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
 You are Git Engineer for project at ${WORKSPACE}.
 
 OPERATION: ${OPERATION}

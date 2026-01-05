@@ -1,7 +1,27 @@
 # HC Failures Log
 
-Incidents and lessons learned. Triage reads last 5 at session start.
-Add entry when: command fails, workflow breaks, audit finds gaps.
+Incidents and lessons learned. $STATE updates after commands.
+
+## When to Add Entry
+
+| Trigger | Example |
+|---------|---------|
+| **Command failed** | /hc-execute crashed, worker timeout |
+| **Workflow broke** | Missing files, wrong state, broken handoff |
+| **Audit found gaps** | /hc-glass or /red-team discovered issues |
+| **Pattern of errors** | Same mistake repeated across sessions |
+
+**NOT trivial:** Skip typos, one-off glitches. Capture systemic failures with lessons.
+
+**Entry format:**
+```
+### [DATE] ID: Short title
+- **What happened:** Facts only
+- **Evidence:** Links to files/sessions
+- **Root cause:** Why it failed
+- **Lesson:** What to do differently
+- **Prevention:** Concrete fix applied
+```
 
 ---
 

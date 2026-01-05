@@ -102,6 +102,113 @@
   background: transparent !important;
 }
 
+/* Proxy Status Page Styles */
+#proxy-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--md-code-bg-color);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+#proxy-summary {
+  font-size: 1.1em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+}
+
+.summary-ok { background: rgba(0, 200, 83, 0.2); color: #00c853; }
+.summary-partial { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+.summary-fail { background: rgba(255, 82, 82, 0.2); color: #ff5252; }
+
+.proxy-timestamp {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.85em;
+}
+
+.proxy-refresh-btn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: var(--md-primary-fg-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.proxy-refresh-btn:hover {
+  background: var(--md-accent-fg-color);
+  transform: scale(1.02);
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-online {
+  background: #00c853;
+  box-shadow: 0 0 8px rgba(0, 200, 83, 0.6);
+}
+
+.status-offline {
+  background: #ff5252;
+  box-shadow: 0 0 8px rgba(255, 82, 82, 0.6);
+  animation: none;
+}
+
+.status-error {
+  background: #ffc107;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+}
+
+.status-checking {
+  background: #888;
+  animation: blink 0.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+#proxy-status-table {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+#proxy-status-table th {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 2px solid var(--md-primary-fg-color);
+}
+
+#proxy-status-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+#proxy-status-table code {
+  background: var(--md-code-bg-color);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
 /* Floating refresh button */
 #refresh-btn {
   position: fixed;

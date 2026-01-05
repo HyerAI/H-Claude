@@ -1,7 +1,17 @@
 # User Preferences
 
-Learned preferences from sessions. HC reads at session start.
-Update when user explicitly states a preference.
+Learned preferences from sessions. $STATE updates after commands.
+
+## When to Add Entry
+
+| Trigger | Example |
+|---------|---------|
+| **User emotional** | Frustration, excitement, strong reaction to approach |
+| **User says "remember"** | "Remember I prefer X", "Don't forget to Y" |
+| **Important pattern** | Repeated behavior worth capturing |
+| **Explicit preference** | "I like X", "Never do Y", "Always Z" |
+
+**NOT trivial:** Skip one-off situational choices. Capture lasting preferences.
 
 ---
 
