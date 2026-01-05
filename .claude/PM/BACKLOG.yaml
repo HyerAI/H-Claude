@@ -15,36 +15,187 @@
 
 meta:
   last_updated: '2026-01-04'
-  description: 'Prioritized backlog with dependency tracking'
+  description: 'Prioritized backlog from G.L.A.S.S. audit glass_20260104_1534'
 
-# P1 = Critical (ready to work)
-P1: []
+# P1 = Critical (Security + Stability - Fix NOW)
+P1:
+  - id: GLASS-S5-006
+    title: 'Sanitize prompt before spawn() in CC-Claude'
+    context: 'CC-Claude/server.js:57 passes prompt directly to spawn() - command injection risk'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 5 Guards'
 
-# P2 = Important (has dependencies)
-P2: []
+  - id: GLASS-S5-004
+    title: 'Validate model parameter in CG-Flash'
+    context: 'CG-Flash/server.js:156 - model param in URL unvalidated. Add allowlist.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 5 Guards'
 
-# P3 = Nice to have
+  - id: GLASS-S5-005
+    title: 'Validate model parameter in CG-Pro'
+    context: 'CG-Pro/server.js:156 - model param in URL unvalidated. Add allowlist.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 5 Guards'
+
+  - id: GLASS-CRIT-004
+    title: 'Add max_sweep_cycles to hc-execute'
+    context: 'hc-execute.md:375 - Sweep→Fix→Re-sweep cycle unbounded. Add max_sweep_cycles: 3'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 2 Plumbers'
+
+  - id: GLASS-CRIT-005
+    title: 'Add max_retry_attempts to hc-execute'
+    context: 'hc-execute.md:441-447 - RETRY_FAILED has no max. Add max_retry_attempts: 2'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 2 Plumbers'
+
+# P2 = Important (Correctness - This Week)
+P2:
+  - id: GLASS-MAJ-016
+    title: 'Fix scout count drift in merge_facts.md'
+    context: 'merge_facts.md:16 references facts_scout_4.yaml. ADR-003 reduced to 3 scouts.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 1 Archaeologists'
+
+  - id: GLASS-MAJ-010
+    title: 'Delete deprecated scout_consensus.md'
+    context: 'scout_consensus.md exists but deprecated per ADR-003. Still references "4 scouts".'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 4 Janitors'
+
+  - id: GLASS-MAJ-012
+    title: 'Remove hc-plan.md phantom references'
+    context: 'SKILL.md:341 and ORCHESTRATION_PATTERNS.md:553 reference non-existent hc-plan.md'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 4 Janitors'
+
+  - id: GLASS-MAJ-006
+    title: 'Add GOAL/BEDROCK_FILES to Phase QA template'
+    context: 'oraca_phase.md:84-93 - QA context starved. Violates ADR-004 triangulated context.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 2 Plumbers'
+
+  - id: GLASS-MAJ-006b
+    title: 'Add GOAL/BEDROCK_FILES to Sweeper template'
+    context: 'hc-execute.md:370-373 - Sweeper only has SESSION_PATH/PLAN_PATH, missing context.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 2 Plumbers'
+
+  - id: GLASS-MAJ-007
+    title: 'Implement or remove ESCALATE handler'
+    context: 'oraca_phase.md:71 - "ESCALATE to Orchestrator" documented but no handler exists.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 2 Plumbers'
+
+  - id: GLASS-MAJ-013
+    title: 'Fix phantom agent references in skills'
+    context: 'commit-gate/SKILL.md:5 refs quality-gatekeeper, flowchart-designer refs lead-architect - agents dont exist'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 6 Registrars'
+
+  - id: GLASS-MAJ-001
+    title: 'Remove escalations from STATE_SCHEMA per ADR-003'
+    context: 'STATE_SCHEMA.md:36-44 still has escalations. ADR-003:27-29 said delete them.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 1 Archaeologists'
+
+  - id: GLASS-MAJ-018
+    title: 'Add cost_tracking/incident_log to STATE_SCHEMA'
+    context: 'ADR-003:44-52 mandates these fields but they dont exist in schema.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 1 Archaeologists'
+
+# P3 = Nice to have (Hygiene)
 P3:
+  - id: GLASS-MAJ-011
+    title: 'Remove unused axios from CC-Claude'
+    context: 'CC-Claude/package.json:12 lists axios but never imported in server.js'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 4 Janitors'
+
+  - id: GLASS-MIN-003
+    title: 'Fix hc-glass.md version mismatch'
+    context: 'Frontmatter says V1.3.0, footer says V1.4.0'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 1 Archaeologists'
+
+  - id: GLASS-MIN-004
+    title: 'Add frontmatter to update-context.md'
+    context: 'Inconsistent with other skills that have YAML headers'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 6 Registrars'
+
+  - id: GLASS-MIN-005
+    title: 'Add frontmatter to hc-init.md'
+    context: 'Missing YAML frontmatter unlike other skills'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 6 Registrars'
+
+  - id: GLASS-MIN-006
+    title: 'Add frontmatter to session-triage.md'
+    context: 'session-triage.md lacks frontmatter unlike git-engineer.md'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 6 Registrars'
+
   - id: BACK-001
     title: 'Add --parallel flag to hc-execute'
-    context: 'Documented at hc-execute.md:403 as "Future" but never implemented. Would enable concurrent phase execution.'
+    context: 'Documented at hc-execute.md:403 as "Future" but never implemented.'
     blocked_by: null
     added: '2026-01-04'
     source: 'Sector 4 Janitors audit'
 
   - id: BACK-002
     title: 'Add API cost tracking to think-tank'
-    context: 'ADR-003:81 mentions "future: add actual API cost tracking". Currently uses manual estimates.'
+    context: 'ADR-003:81 mentions "future: add actual API cost tracking".'
     blocked_by: null
     added: '2026-01-04'
     source: 'Sector 4 Janitors audit'
 
-# P4 = Someday/Maybe
-P4: []
+# P4 = Someday/Maybe (Tech Debt)
+P4:
+  - id: GLASS-CRIT-001
+    title: 'Add test framework to infrastructure'
+    context: 'CG-Flash, CG-Pro, CC-Claude have 800+ lines with zero tests. Add vitest.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 3 Critics'
 
-# Example entry:
-#   - id: BACK-001
-#     title: 'Write atomic_write.py'
-#     context: 'Crash-safe file writes'
-#     blocked_by: null  # Ready now (null = no blocker)
-#     added: '2026-01-02'
+  - id: GLASS-S5-007
+    title: 'Document --dangerously-skip-permissions risk'
+    context: '44 occurrences across 19 files. Add security notice to docs.'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 5 Guards'
+
+  - id: GLASS-INFO-DEAD
+    title: 'Remove dead status transitions from schemas'
+    context: '12 status values (initializing, paused, failed, rolled_back, etc) never used'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Verified Synthesis'
+
+  - id: GLASS-S5-008
+    title: 'Bind proxies to localhost only'
+    context: 'All proxies bind to 0.0.0.0 instead of 127.0.0.1'
+    blocked_by: null
+    added: '2026-01-04'
+    source: 'hc-glass Sector 5 Guards'
