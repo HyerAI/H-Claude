@@ -35,7 +35,7 @@
 | `$HC_ORCA` | 2414 | Orchestrator |
 | `$HC_ORCA_R` | 2415 | Orchestrator (Retry) |
 
-**Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout | `$STATE` = state-agent
+**Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout
 
 ---
 
@@ -157,9 +157,10 @@ Reusing it provides consistent answers and avoids duplicate research.
 
 | Agent | Purpose | When to Use |
 |-------|---------|-------------|
-| `$STATE` | Manage $CTX, $PREFS, $FAILS, triage next steps | Post-command, on-demand |
+| `$SCOUT` | Research, system checks, state triage | Session start, post-command, 5+ file searches |
 | `$GIT` | Handle commits, maintain protocols | "commit these changes" |
-| `$SCOUT` | Research, system checks, preserve HC context | Session start, 5+ file searches |
+
+**$SCOUT lifespan:** 45 minutes max. Respawn as needed.
 
 Agents defined in: `.claude/agents/`
 
@@ -179,17 +180,17 @@ HC continues working while $SCOUT runs.
 
 ## POST-EXECUTION
 
-After `/hc-execute`, `/think-tank`, `/hc-glass` completion, spawn `$STATE`:
+After `/hc-execute`, `/think-tank`, `/hc-glass`, `/red-team` completion, spawn `$SCOUT` for triage:
 
 ```
-$STATE reviews session and updates:
+$SCOUT reviews session and updates:
 - $CTX: focus, recent_actions, next steps
 - $BACKLOG: tech debt discovered
 - $FAILS: notable failures (NOT trivial)
 - $PREFS: user preferences surfaced (NOT trivial)
 ```
 
-**$STATE triage questions:**
+**Triage questions:**
 1. What tech debt emerged? → $BACKLOG
 2. Any failures to learn from? → $FAILS (if notable)
 3. Any user preferences revealed? → $PREFS (if notable)
@@ -206,7 +207,7 @@ $STATE reviews session and updates:
 Project-Workspace/
 ├── .claude/                  # ALL workflow goes here
 │   ├── context.yaml          # $CTX - session state
-│   ├── agents/               # $GIT, $SCOUT, $STATE
+│   ├── agents/               # $GIT, $SCOUT
 │   ├── commands/             # /think-tank, /hc-execute, /hc-glass, /red-team
 │   ├── skills/               # /tt and other skills
 │   └── PM/                   # $PM

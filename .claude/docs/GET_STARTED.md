@@ -292,7 +292,7 @@ If error: regenerate at https://aistudio.google.com/apikey
 your-project/
 ├── .claude/                # Workflow files
 │   ├── commands/           # think-tank, hc-execute, etc.
-│   ├── agents/             # git-engineer, session-triage
+│   ├── agents/             # git-engineer, hc-scout
 │   ├── skills/             # adr-writer, hc-init, etc.
 │   ├── templates/          # Prompt templates
 │   ├── context.yaml        # Session state

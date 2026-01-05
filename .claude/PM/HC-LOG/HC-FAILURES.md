@@ -1,6 +1,6 @@
 # HC Failures Log
 
-Incidents and lessons learned. $STATE updates after commands.
+Incidents and lessons learned. $SCOUT updates after commands (triage).
 
 ## When to Add Entry
 

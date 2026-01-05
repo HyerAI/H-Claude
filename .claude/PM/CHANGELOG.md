@@ -4,6 +4,18 @@ All notable changes to H-Claude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.1] - 2026-01-05
+
+### Changed
+- **hc-scout V2.0.0** - Consolidated state-agent into scout (dual role: research + triage)
+- **CLAUDE.md** - Removed $STATE references, scout now handles post-execution triage
+- **HC-LOG files** - Updated to reference $SCOUT for triage updates
+
+### Removed
+- **state-agent.md** - Consolidated into hc-scout (KISS: one agent, two jobs)
+
+---
+
 ## [0.4.0] - 2026-01-05
 
 ### Changed

@@ -149,13 +149,6 @@ P3:
     added: '2026-01-04'
     source: 'hc-glass Sector 6 Registrars'
 
-  - id: GLASS-MIN-006
-    title: 'Add frontmatter to session-triage.md'
-    context: 'session-triage.md lacks frontmatter unlike git-engineer.md'
-    blocked_by: null
-    added: '2026-01-04'
-    source: 'hc-glass Sector 6 Registrars'
-
   - id: BACK-001
     title: 'Add --parallel flag to hc-execute'
     context: 'Documented at hc-execute.md:403 as "Future" but never implemented.'

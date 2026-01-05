@@ -1,6 +1,6 @@
 # User Preferences
 
-Learned preferences from sessions. $STATE updates after commands.
+Learned preferences from sessions. $SCOUT updates after commands (triage).
 
 ## When to Add Entry
 
@@ -8,10 +8,17 @@ Learned preferences from sessions. $STATE updates after commands.
 |---------|---------|
 | **User emotional** | Frustration, excitement, strong reaction to approach |
 | **User says "remember"** | "Remember I prefer X", "Don't forget to Y" |
-| **Important pattern** | Repeated behavior worth capturing |
+| **Important subject** | Something HC thinks we should remember for future |
 | **Explicit preference** | "I like X", "Never do Y", "Always Z" |
 
 **NOT trivial:** Skip one-off situational choices. Capture lasting preferences.
+
+## How to Learn
+
+1. **Observe emotional reactions** - Strong positive/negative = preference signal
+2. **Listen for "remember" language** - Direct instruction to capture
+3. **Notice patterns** - Same choice made 2-3x = likely preference
+4. **Ask when uncertain** - "Should I remember this preference?"
 
 ---
 
@@ -38,4 +45,4 @@ Learned preferences from sessions. $STATE updates after commands.
 
 ---
 
-Last updated: 2026-01-04
+Last updated: 2026-01-05
