@@ -8,6 +8,9 @@
 
 | Date | Session | Status |
 |------|---------|--------|
+| 2026-01-04 | [Session Start Hooks](session_start_hooks_20260104/index.md) | Active |
+| 2026-01-04 | [HC Folder Architecture](hc_folder_architecture_20260104/index.md) | Decided |
+| 2026-01-04 | [HC System Prompt Design](hc_system_prompt_design_20260104/index.md) | Decided |
 | 2026-01-04 | [hc-execute Self-Review](hc_execute_self_review_20260104/index.md) | Decided |
 | 2026-01-04 | [Think-Tank Self-Review](think_tank_self_review_20260104/index.md) | Decided |
 | 2026-01-04 | [Ralph Loop Integration](ralph_loop_integration_20260104/index.md) | Decided |
