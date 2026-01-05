@@ -198,24 +198,6 @@ Project-Workspace/
 └── CLAUDE.md                 # Project instructions
 ```
 
-**Global (shared across all projects):**
-```
-~/.claude/
-├── HC-Proxies/               # LLM Proxy servers
-│   ├── CG-Flash/             # Gemini Flash (port 2405)
-│   ├── CG-Pro/               # Gemini Pro (port 2406)
-│   └── CC-Claude/            # Claude Opus (port 2408)
-├── bin/                      # Helper scripts
-│   ├── start-proxies.sh
-│   └── stop-proxies.sh
-└── CLAUDE.md                 # Global instructions
-```
-
-**Key Rules:**
-- `.claude/` = workflow (agents, commands, PM artifacts)
-- Project code/assets = outside `.claude/` (e.g., `src/`, `lib/`)
-- Infrastructure = GLOBAL only (`~/.claude/HC-Proxies/`), not per-project
-
 ### Commands
 
 | Command | Purpose | Output |
@@ -259,18 +241,15 @@ Full reference: `$SSOT/AGENT_ROLES.md`
 
 ## Development Workflow
 
-```
-NORTHSTAR.md (WHAT)  →  User fills out goals/requirements
-        ↓
-/think-tank --roadmap  →  Creates ROADMAP.yaml with phases
-        ↓
-/think-tank --phase=X  →  Plans phase → execution-plan.yaml
-        ↓
-git-engineer           →  Creates rollback checkpoint
-        ↓
-/hc-execute       →  Workers implement with QA gates
-        ↓
-Phase complete         →  ROADMAP updated → next phase unlocked
+```mermaid
+graph LR
+    A[$NORTH] --> B[/tt --roadmap]
+    B --> C[$ROAD]
+    C --> D[/tt --phase=X]
+    D --> E[$GIT checkpoint]
+    E --> F[/hc-execute]
+    F --> G[Phase complete]
+    G --> C
 ```
 
 ---
@@ -294,60 +273,11 @@ Phase complete         →  ROADMAP updated → next phase unlocked
 
 ## Critical Files
 
-### $CTX (context.yaml)
-
-```yaml
-meta:
-  last_modified: '2026-01-02T13:30:00Z'
-
-project:
-  name: '[PROJECT_NAME]'
-
-roadmap:
-  path: $ROAD
-
-focus:
-  current_objective: 'What we are working on'
-
-recent_actions:
-  - '[DATE] What was done'  # Keep last 10
-
-tasks:
-  active: []
-
-blockers: []
-backlog: []
-
-think_tank:
-  - topic: 'topic_name'
-    path: '$TT/topic_20260102/'
-    status: active  # active | paused | decided | archived
-```
-
-### $ROAD (ROADMAP.yaml)
-
-```yaml
-meta:
-  status: active  # draft | active | complete
-
-northstar: $NORTH
-active_phases: [PHASE-001]
-
-phases:
-  - id: PHASE-001
-    title: 'Foundation'
-    status: active  # planned | active | complete | blocked
-    dependencies: []
-    plan_path: $TT/foundation_20260102/execution-plan.yaml
-
-  - id: PHASE-002
-    title: 'MVP Features'
-    status: planned
-    dependencies: [PHASE-001]  # Blocked until Foundation complete
-    plan_path: null
-
-side_quests: []
-```
+| File | Purpose | Schema |
+|------|---------|--------|
+| `$CTX` | Session state, focus, recent actions | See actual file |
+| `$ROAD` | Phases, dependencies, plan paths | See actual file |
+| `$NORTH` | Goals, features, requirements | See actual file |
 
 ---
 
@@ -359,24 +289,6 @@ Ask Claude: "commit these changes" → spawns `$GIT`
 - Analyzes changes, crafts Conventional Commit message
 - Always includes `$CTX` (crash-proof state)
 - Follows `$PM/GIT/PROTOCOLS.md`
-
----
-
-## Resource Safety
-
-**Every `run_in_background: true` MUST have a matching `TaskOutput(block: true)`**
-
-```python
-# Spawn
-task = Task(subagent_type: "...", run_in_background: true, prompt: "...")
-
-# ...do other work...
-
-# ALWAYS retrieve (cleanup happens here)
-result = TaskOutput(task_id: task.id, block: true)
-```
-
-Never fire-and-forget → zombies accumulate → system degrades.
 
 ---
 
