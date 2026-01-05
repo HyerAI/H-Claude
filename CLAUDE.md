@@ -2,6 +2,30 @@
 
 <!-- Replace [PROJECT_NAME] and customize for your project. Keep workflow docs intact. -->
 
+## Shortcuts
+
+**Paths:**
+| Var | Path |
+|-----|------|
+| `$PM` | `.claude/PM` |
+| `$SSOT` | `$PM/SSoT` |
+| `$TT` | `$PM/think-tank` |
+| `$CTX` | `.claude/context.yaml` |
+| `$ROAD` | `$SSOT/ROADMAP.yaml` |
+| `$NORTH` | `$SSOT/NORTHSTAR.md` |
+| `$TEMP` | `$PM/TEMP` |
+
+**Proxies:**
+| Var | Command |
+|-----|---------|
+| `$FLASH` | `ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p` |
+| `$PRO` | `ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p` |
+| `$OPUS` | `ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p` |
+
+**Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout | `$TRIAGE` = session-triage
+
+---
+
 ## HC Role: Product Owner & Orchestrator
 
 Guide user through: **SSoT → Roadmap → Phases → Execution**
@@ -39,7 +63,7 @@ These MUST stay aligned. NORTHSTAR = destination; ROADMAP = route.
 
 ## Changelog
 
-Update `.claude/PM/CHANGELOG.md` after every commit.
+Update `$PM/CHANGELOG.md` after every commit.
 
 Format: [Keep a Changelog](https://keepachangelog.com/)
 Target: <20 words per entry
@@ -98,7 +122,7 @@ When stuck, surface to user:
 
 **Think-tanks are persistent context states.** Before starting work on any topic:
 
-1. **Check first:** `context.yaml → think_tank` for existing sessions
+1. **Check first:** `$CTX → think_tank` for existing sessions
 2. **If found (active/paused):** Resume to leverage existing KB
 3. **If found (decided):** Ask user - new info or start fresh?
 4. **If not found:** Start new session
@@ -120,9 +144,9 @@ Reusing it provides consistent answers and avoids duplicate research.
 
 | Agent | Purpose | When to Use |
 |-------|---------|-------------|
-| `session-triage` | Update SESSION_STATUS.md at session start | Every session (background) |
-| `git-engineer` | Handle commits, maintain protocols | "commit these changes" |
-| `hc-scout` | Research to preserve HC context | 5+ files to search/read |
+| `$TRIAGE` | Update SESSION_STATUS.md at session start | Every session (background) |
+| `$GIT` | Handle commits, maintain protocols | "commit these changes" |
+| `$SCOUT` | Research to preserve HC context | 5+ files to search/read |
 
 Agents defined in: `.claude/agents/`
 
@@ -134,8 +158,8 @@ Agents defined in: `.claude/agents/`
 
 1. **Read State**
    ```
-   Read .claude/context.yaml
-   Read .claude/PM/SSoT/ROADMAP.yaml
+   Read $CTX
+   Read $ROAD
    ```
 
 2. **Greet User**
@@ -157,25 +181,21 @@ Agents defined in: `.claude/agents/`
 **Project Workspace:**
 ```
 Project-Workspace/
-├── .claude/                  # ALL workflow goes here (from H-Claude template)
-│   ├── context.yaml          # Session state (read at start)
-│   ├── agents/               # git-engineer.md, session-triage.md, hc-scout.md
-│   ├── commands/             # think-tank, hc-execute, hc-glass, red-team
-│   ├── skills/               # Reusable capabilities
-│   ├── templates/            # Prompt templates
-│   ├── docs/                 # H-Claude workflow documentation
-│   └── PM/
-│       ├── SSoT/             # NORTHSTAR.md, ROADMAP.yaml, ADRs/
+├── .claude/                  # ALL workflow goes here
+│   ├── context.yaml          # $CTX - session state
+│   ├── agents/               # $GIT, $SCOUT, $TRIAGE
+│   ├── commands/             # /think-tank, /hc-execute, /hc-glass, /red-team
+│   ├── skills/               # /tt and other skills
+│   └── PM/                   # $PM
+│       ├── SSoT/             # $SSOT - $NORTH, $ROAD, ADRs/
 │       ├── HC-LOG/           # USER-PREFERENCES.md, HC-FAILURES.md
-│       ├── PM-View/          # MkDocs wiki for observability
-│       ├── think-tank/       # Session artifacts
+│       ├── PM-View/          # MkDocs wiki
+│       ├── think-tank/       # $TT - session artifacts
 │       ├── hc-execute/       # Execution artifacts
 │       ├── hc-glass/         # Review reports
-│       ├── BACKLOG.yaml      # Deferred work
-│       └── CHANGELOG.md      # Change history
-├── src/                      # Project deliverables (user creates)
-├── CLAUDE.md                 # Project instructions
-└── CHANGELOG.md              # Project changelog
+│       └── TEMP/             # $TEMP - drafts, scratch
+├── src/                      # Project deliverables
+└── CLAUDE.md                 # Project instructions
 ```
 
 **Global (shared across all projects):**
@@ -210,14 +230,9 @@ Project-Workspace/
 ### Proxies
 
 ```bash
-# Flash (fast workers)
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "task"
-
-# Pro (reasoning, QA)
-ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "task"
-
-# Claude (complex reasoning)
-ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p "task"
+$FLASH "task"   # Fast workers
+$PRO "task"     # Reasoning, QA
+$OPUS "task"    # Complex reasoning
 ```
 
 ### Agent Roles (Quick Reference)
@@ -238,7 +253,7 @@ ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissio
 | **Critic** | Pro | Simulate execution, find breaks |
 | **Arbiter** | Flash | Rule on contested issues |
 
-Full reference: `.claude/PM/SSoT/AGENT_ROLES.md`
+Full reference: `$SSOT/AGENT_ROLES.md`
 
 ---
 
@@ -262,24 +277,24 @@ Phase complete         →  ROADMAP updated → next phase unlocked
 
 ## During Session
 
-- Update `context.yaml` after significant work
+- Update `$CTX` after significant work
 - Log actions in `recent_actions` (keep last 10)
-- Document decisions as ADRs (template: `PM/SSoT/ADRs/`)
-- Unsorted tasks → `context.yaml` backlog
-- Tech debt → relevant phase in `ROADMAP.yaml`
+- Document decisions as ADRs (template: `$SSOT/ADRs/`)
+- Unsorted tasks → `$CTX` backlog
+- Tech debt → relevant phase in `$ROAD`
 
 ## End / Commit
 
-1. Update `context.yaml` with current state
-2. Update `ROADMAP.yaml` if phase progress changed
-3. Update `CHANGELOG.md`
-4. Spawn `git-engineer` to commit
+1. Update `$CTX` with current state
+2. Update `$ROAD` if phase progress changed
+3. Update `$PM/CHANGELOG.md`
+4. Spawn `$GIT` to commit
 
 ---
 
 ## Critical Files
 
-### context.yaml
+### $CTX (context.yaml)
 
 ```yaml
 meta:
@@ -289,7 +304,7 @@ project:
   name: '[PROJECT_NAME]'
 
 roadmap:
-  path: .claude/PM/SSoT/ROADMAP.yaml
+  path: $ROAD
 
 focus:
   current_objective: 'What we are working on'
@@ -305,17 +320,17 @@ backlog: []
 
 think_tank:
   - topic: 'topic_name'
-    path: '.claude/PM/think-tank/topic_20260102/'
+    path: '$TT/topic_20260102/'
     status: active  # active | paused | decided | archived
 ```
 
-### ROADMAP.yaml
+### $ROAD (ROADMAP.yaml)
 
 ```yaml
 meta:
   status: active  # draft | active | complete
 
-northstar: .claude/PM/SSoT/NORTHSTAR.md
+northstar: $NORTH
 active_phases: [PHASE-001]
 
 phases:
@@ -323,7 +338,7 @@ phases:
     title: 'Foundation'
     status: active  # planned | active | complete | blocked
     dependencies: []
-    plan_path: .claude/PM/think-tank/foundation_20260102/execution-plan.yaml
+    plan_path: $TT/foundation_20260102/execution-plan.yaml
 
   - id: PHASE-002
     title: 'MVP Features'
@@ -338,12 +353,12 @@ side_quests: []
 
 ## Git Agent
 
-Ask Claude: "commit these changes" → spawns `git-engineer` agent
+Ask Claude: "commit these changes" → spawns `$GIT`
 
 **What it does:**
 - Analyzes changes, crafts Conventional Commit message
-- Always includes `context.yaml` (crash-proof state)
-- Follows `.claude/PM/GIT/PROTOCOLS.md`
+- Always includes `$CTX` (crash-proof state)
+- Follows `$PM/GIT/PROTOCOLS.md`
 
 ---
 
