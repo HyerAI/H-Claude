@@ -4,6 +4,20 @@ All notable changes to H-Claude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.7.1] - 2026-01-04
+
+### Added
+- **docs/PROXIES.md** - Comprehensive proxy architecture documentation
+
+### Changed
+- **CC-Claude default** - Changed from sonnet to opus for best quality
+- **Proxy table** - Updated to show Gemini 3 family defaults, Nano Banana for CG-Image
+
+### Fixed
+- **CG-Pro .env.example** - Corrected default model documentation (gemini-3-pro)
+
+---
+
 ## [0.7.0] - 2026-01-04
 
 ### Added

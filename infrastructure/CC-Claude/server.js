@@ -33,7 +33,7 @@ if (fs.existsSync(envPath)) {
 }
 
 // Configuration
-const DEFAULT_MODEL = process.env.CC_CLAUDE_MODEL || 'sonnet';
+const DEFAULT_MODEL = process.env.CC_CLAUDE_MODEL || 'opus';
 const PORT = process.env.CC_CLAUDE_PORT || 2408;
 const TIMEOUT_MS = parseInt(process.env.CC_CLAUDE_TIMEOUT || '300000', 10); // 5 min default
 
