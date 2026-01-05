@@ -1,0 +1,199 @@
+scout_id: 3
+focus_area: 'State management, PM workflows & session artifacts'
+
+facts:
+  # context.yaml - Session State
+  - id: F3-001
+    category: state_management
+    finding: 'context.yaml is the central session state file with meta, project, roadmap, focus, recent_actions, tasks, blockers, backlog, think_tank, and git sections'
+    source: '.claude/context.yaml:1-72'
+    relevance: HIGH
+
+  - id: F3-002
+    category: state_management
+    finding: 'recent_actions section keeps rolling history of last 10 actions only - prevents unbounded growth'
+    source: '.claude/context.yaml:26-37'
+    relevance: HIGH
+
+  - id: F3-003
+    category: state_management
+    finding: 'think_tank section tracks active sessions with topic, path, and status (active|paused|decided|archived)'
+    source: '.claude/context.yaml:55-66'
+    relevance: HIGH
+
+  - id: F3-004
+    category: state_management
+    finding: 'git section has status field (idle|ready|working) for git-engineer coordination'
+    source: '.claude/context.yaml:68-72'
+    relevance: MEDIUM
+
+  # ROADMAP.yaml - Project Roadmap
+  - id: F3-005
+    category: state_management
+    finding: 'ROADMAP.yaml tracks project phases with meta.status (draft|active|complete|paused), active_phases, phases array, side_quests, archived_phases, and changelog'
+    source: '.claude/PM/SSoT/ROADMAP.yaml:1-80'
+    relevance: HIGH
+
+  - id: F3-006
+    category: state_management
+    finding: 'Each phase has id, title, status (planned|active|complete|blocked), dependencies, plan_path, tech_debt fields'
+    source: '.claude/PM/SSoT/ROADMAP.yaml:32-46'
+    relevance: HIGH
+
+  - id: F3-007
+    category: state_management
+    finding: 'ROADMAP has internal changelog for scope changes (added_phase, removed_phase) with date/reason'
+    source: '.claude/PM/SSoT/ROADMAP.yaml:68-79'
+    relevance: MEDIUM
+
+  # STATE.yaml Schema - Think-Tank Sessions
+  - id: F3-008
+    category: session_artifacts
+    finding: 'STATE.yaml schema has comprehensive lifecycle tracking: type (roadmap|phase|side_quest|legacy), status, archived_date, archive_reason, pause_reason'
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:18-29'
+    relevance: HIGH
+
+  - id: F3-009
+    category: session_artifacts
+    finding: 'STATE.yaml tracks current_session with number, step (1-6), started timestamp, trigger (initial|new_info|issue|reevaluate)'
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:45-50'
+    relevance: HIGH
+
+  - id: F3-010
+    category: session_artifacts
+    finding: 'Decision evolution tracked in decisions array with version, date, session, recommendation, confidence, rationale'
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:62-69'
+    relevance: HIGH
+
+  - id: F3-011
+    category: session_artifacts
+    finding: 'Learnings array tracks post-implementation discoveries with date, finding, impact (validates|challenges|neutral), action'
+    source: '.claude/templates/think-tank/STATE_SCHEMA.md:71-76'
+    relevance: MEDIUM
+
+  - id: F3-012
+    category: session_artifacts
+    finding: 'ADR-003 added cost_tracking (agent_spawns, estimated_tokens, session_duration_min) and incident_log to STATE.yaml'
+    source: '.claude/PM/SSoT/ADRs/ADR-003-think-tank-improvements.md:43-52'
+    relevance: HIGH
+
+  # execution-plan.yaml - Execution Tracking
+  - id: F3-013
+    category: session_artifacts
+    finding: 'execution-plan.yaml has execution section: started, completed, session_path, completion_report'
+    source: '.claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md:42-45'
+    relevance: HIGH
+
+  - id: F3-014
+    category: session_artifacts
+    finding: 'Task status tracked per-task: pending|in_progress|complete|blocked with notes field'
+    source: '.claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md:33-38'
+    relevance: HIGH
+
+  - id: F3-015
+    category: session_artifacts
+    finding: 'reviews array tracks approval workflow: date, reviewer, status (approved|changes_requested|blocked), notes'
+    source: '.claude/templates/think-tank/EXECUTION_PLAN_SCHEMA.md:47-52'
+    relevance: MEDIUM
+
+  # BACKLOG.yaml - Prioritized Work Tracking
+  - id: F3-016
+    category: state_management
+    finding: 'BACKLOG.yaml uses P1-P4 priority levels: P1=Critical, P2=Important, P3=Nice-to-have, P4=Someday/Maybe'
+    source: '.claude/PM/BACKLOG.yaml:10-14'
+    relevance: HIGH
+
+  - id: F3-017
+    category: state_management
+    finding: 'Each backlog item has id, title, context, blocked_by, added date, source fields'
+    source: '.claude/PM/BACKLOG.yaml:21-28'
+    relevance: MEDIUM
+
+  - id: F3-018
+    category: state_management
+    finding: 'Current BACKLOG has 24 items from G.L.A.S.S. audit - 5 P1, 10 P2, 6 P3, 4 P4'
+    source: '.claude/PM/BACKLOG.yaml:17-18'
+    relevance: MEDIUM
+
+  # CHANGELOG.md - Change Tracking
+  - id: F3-019
+    category: session_artifacts
+    finding: 'CHANGELOG.md uses Keep a Changelog format with version numbers and date headers'
+    source: '.claude/PM/CHANGELOG.md:1-6'
+    relevance: MEDIUM
+
+  - id: F3-020
+    category: session_artifacts
+    finding: 'Changelog tracks Added, Changed, Fixed, Removed categories - current version 0.6.4'
+    source: '.claude/PM/CHANGELOG.md:7-19'
+    relevance: MEDIUM
+
+  # ADRs - Decision Records
+  - id: F3-021
+    category: session_artifacts
+    finding: '4 ADRs exist: ADR-001 Diffusion, ADR-002 Gauntlet, ADR-003 Think-Tank, ADR-004 hc-execute'
+    source: '.claude/PM/SSoT/ADRs/*'
+    relevance: MEDIUM
+
+  - id: F3-022
+    category: session_artifacts
+    finding: 'ADRs link to think-tank sessions and include version tracking (e.g., V2.5.0, V2.9.0)'
+    source: '.claude/PM/SSoT/ADRs/ADR-003-think-tank-improvements.md:88-89'
+    relevance: MEDIUM
+
+  # State Synchronization Issues (ADR-004)
+  - id: F3-023
+    category: state_management
+    finding: 'ADR-004 identified SWEEP may not run - no SWEEP_REPORT.md in any session despite being mandatory'
+    source: '.claude/PM/SSoT/ADRs/ADR-004-hc-execute-improvements.md:16-17'
+    relevance: HIGH
+
+  - id: F3-024
+    category: state_management
+    finding: 'ADR-004 found artifact trail broken: no PHASE_X folders, WORKER_OUTPUTS exist in sessions'
+    source: '.claude/PM/SSoT/ADRs/ADR-004-hc-execute-improvements.md:17'
+    relevance: HIGH
+
+  - id: F3-025
+    category: state_management
+    finding: 'ADR-004 identified 100% success paradox: 36 tasks, 0 failures across 3 sessions suggests bypassing'
+    source: '.claude/PM/SSoT/ADRs/ADR-004-hc-execute-improvements.md:18'
+    relevance: HIGH
+
+  # Think-Tank Session STATE Examples
+  - id: F3-026
+    category: session_artifacts
+    finding: 'Real STATE.yaml examples show cost_tracking and incident_log fields being used'
+    source: '.claude/PM/think-tank/hc_execute_self_review_20260104/STATE.yaml:52-57'
+    relevance: HIGH
+
+  - id: F3-027
+    category: session_artifacts
+    finding: 'STATE.yaml validation section tracks current_round, max_rounds (5), status (skipped|pending|etc)'
+    source: '.claude/PM/think-tank/hc_execute_self_review_20260104/STATE.yaml:41-44'
+    relevance: MEDIUM
+
+  # SSoT Documents
+  - id: F3-028
+    category: state_management
+    finding: 'NORTHSTAR.md is the WHAT (user story), ROADMAP.yaml is the HOW (phases) - must stay aligned'
+    source: '.claude/PM/SSoT/NORTHSTAR.md:73-80'
+    relevance: HIGH
+
+  - id: F3-029
+    category: state_management
+    finding: 'AGENT_ROLES.md documents all agent roles with model, template, responsibility, failure_condition'
+    source: '.claude/PM/SSoT/AGENT_ROLES.md:1-177'
+    relevance: MEDIUM
+
+gaps:
+  - 'No HC-LOG equivalent - hc-execute sessions lack centralized execution log (ORACA_LOG.md per ADR-004 but no session-level HC-LOG)'
+  - 'RETRY_FAILED never tested - recovery path has no evidence of ever being exercised (ADR-004 finding)'
+  - 'No failure tracking in context.yaml - blockers section exists but no failure history or incident log'
+  - 'STATE_SCHEMA.md still has deprecated escalations field (ADR-003 said delete, BACKLOG GLASS-MAJ-001)'
+  - 'STATE_SCHEMA.md missing cost_tracking and incident_log fields (BACKLOG GLASS-MAJ-018)'
+  - 'No EXECUTION_STATE.md schema defined - mentioned in hc-execute docs but no formal schema'
+  - 'No QA_SYNTHESIS.md or SWEEP_REPORT.md artifacts found in existing sessions - design exists but not enforced'
+  - 'Triangulated context (GOAL/BEDROCK_FILES) documented but not in qa_phase.md or sweeper.md (BACKLOG GLASS-MAJ-006)'
+  - 'Session transcript capture still optional in practice - 03_SESSIONS folders consistently empty despite ADR-003 making mandatory'
+  - 'No hc-execute session state file - execution relies on execution-plan.yaml but no dedicated session tracking'

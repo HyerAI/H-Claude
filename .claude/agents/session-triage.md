@@ -8,8 +8,10 @@
 
 ## Purpose
 
-Deep scan of project state to generate a SESSION BRIEF for alignment.
+Deep scan of project state to update SESSION_STATUS.md for HC alignment.
 Runs in BACKGROUND while user types - never blocks conversation.
+
+**Output:** Writes to `.claude/PM/SESSION_STATUS.md` (live document, not stdout).
 
 ---
 
@@ -65,6 +67,10 @@ Extract:
   - phases[].dependencies
   - phases[].plan_path
   - side_quests
+
+Read .claude/PM/HC-LOG/HC-FAILURES.md
+Extract:
+  - Last 5 incidents (for Recent Failures section)
 ```
 
 ### Step 2: Scan Think-Tank Workspaces (~2s)
@@ -98,48 +104,65 @@ For each phase in ROADMAP.yaml:
 □ NORTHSTAR-ROADMAP misalignment?       → ALIGNMENT_DRIFT
 ```
 
-### Step 5: Generate SESSION BRIEF (~1s)
+### Step 5: Write SESSION_STATUS.md (~1s)
+
+**Output target:** `.claude/PM/SESSION_STATUS.md`
 
 ---
 
 ## Output Format
 
-```
-═══════════════════════════════════════════════════════════════════
-SESSION BRIEF                                              [DATE]
-═══════════════════════════════════════════════════════════════════
+Write to `.claude/PM/SESSION_STATUS.md`:
 
-LAST SESSION
-  [First 3 recent_actions, one per line]
+```markdown
+# Session Status
 
-───────────────────────────────────────────────────────────────────
-ROADMAP STATUS
-  Active: [active phase names]
-  Next:   [next unblocked phase]
+Updated by session-triage agent at session start.
+HC reviews this instead of ephemeral triage output.
 
-───────────────────────────────────────────────────────────────────
-PHASE PROGRESS
-  [PHASE-001] Title    [status] - [plan_path or 'not planned']
-  [PHASE-002] Title    [status] - [blocked by X]
-  [PHASE-003] Title    [status]
+---
 
-───────────────────────────────────────────────────────────────────
-UNSORTED BACKLOG
-  [Count of backlog items needing assignment, or "None"]
+last_updated: [ISO timestamp]
 
-───────────────────────────────────────────────────────────────────
-DECISIONS PENDING
-  [Count and list of active think-tank sessions, or "None"]
+## Last Session
 
-───────────────────────────────────────────────────────────────────
-DRIFT ALERTS
-  [List of drift signals detected, or "None detected"]
+- [First 3 recent_actions, one per line]
 
-───────────────────────────────────────────────────────────────────
-RECOMMENDED ACTION
-  [Single concrete next step based on analysis]
+## Roadmap Status
 
-═══════════════════════════════════════════════════════════════════
+- Active: [active phase names]
+- Next: [next unblocked phase]
+
+## Phase Progress
+
+| Phase | Status | Notes |
+|-------|--------|-------|
+| [PHASE-001] Title | [status] | [plan_path or 'not planned'] |
+| [PHASE-002] Title | [status] | [blocked by X] |
+
+## Unsorted Backlog
+
+- [Count of backlog items needing assignment, or "None"]
+
+## Decisions Pending
+
+- [Count and list of active think-tank sessions, or "None"]
+
+## Recent Failures (from HC-FAILURES.md)
+
+- [Last 3-5 incidents from HC-FAILURES.md, or "None"]
+
+## Drift Alerts
+
+- [List of drift signals detected, or "None detected"]
+
+## Recommended Action
+
+- [Single concrete next step based on analysis]
+
+---
+
+*This file is a live document updated by session-triage at each session start.*
 ```
 
 ---
@@ -147,7 +170,7 @@ RECOMMENDED ACTION
 ## Constraints
 
 - **Target time:** 5-8 seconds total
-- **Read-only:** Never modify any files
+- **Write target:** Only writes to `.claude/PM/SESSION_STATUS.md`
 - **Background:** Main Claude continues without waiting
 - **Graceful degradation:** Missing files → show "N/A", don't crash
 
@@ -158,23 +181,24 @@ RECOMMENDED ACTION
 When Main Claude spawns this agent, use this prompt:
 
 ```
-You are the Session-Triage agent. Generate a SESSION BRIEF.
+You are the Session-Triage agent. Update SESSION_STATUS.md for HC.
 
 WORKSPACE: [project root]
 
 ## Your Tasks
 1. Read .claude/context.yaml - extract focus, recent_actions, blockers, backlog
 2. Read .claude/PM/SSoT/ROADMAP.yaml - extract phases, dependencies, active_phases
-3. Glob .claude/PM/think-tank/*/STATE.yaml - check each workspace status
-4. Validate phase dependencies - which phases are READY vs BLOCKED
-5. Check drift signals - stale context, stuck phases, unsorted backlog
-6. Output SESSION BRIEF in exact format
+3. Read .claude/PM/HC-LOG/HC-FAILURES.md - extract last 5 incidents
+4. Glob .claude/PM/think-tank/*/STATE.yaml - check each workspace status
+5. Validate phase dependencies - which phases are READY vs BLOCKED
+6. Check drift signals - stale context, stuck phases, unsorted backlog
+7. Write SESSION_STATUS.md with all findings
 
-## Output Format
-[Include the exact format template above]
+## Output Target
+Write to: .claude/PM/SESSION_STATUS.md
 
 ## Rules
-- Read-only - never modify files
+- Write ONLY to SESSION_STATUS.md
 - Graceful - missing data shows "N/A"
 - Fast - target <8 seconds
 - One recommended action only
@@ -198,10 +222,10 @@ pkill -f "Session-Triage agent" 2>/dev/null || true
 # 60s timeout (generous margin for 5-8s expected runtime)
 timeout --foreground --signal=TERM --kill-after=10 60 \
   bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
-You are the Session-Triage agent. Generate a SESSION BRIEF.
+You are the Session-Triage agent. Update SESSION_STATUS.md for HC.
 WORKSPACE: $(pwd)
-Read: .claude/context.yaml, .claude/PM/SSoT/ROADMAP.yaml
-Output: SESSION BRIEF with Last Session, Roadmap Status, Phase Progress, Drift Alerts, Recommended Action.
+Read: .claude/context.yaml, .claude/PM/SSoT/ROADMAP.yaml, .claude/PM/HC-LOG/HC-FAILURES.md
+Write to: .claude/PM/SESSION_STATUS.md with Last Session, Roadmap Status, Phase Progress, Recent Failures, Drift Alerts, Recommended Action.
 "'
 # Returns shell_id immediately
 ```

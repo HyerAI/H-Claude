@@ -1,0 +1,267 @@
+scout_id: 1
+focus_area: 'Commands, agents & orchestration patterns'
+timestamp: '2026-01-04'
+
+facts:
+  # =============================================================================
+  # COMMAND INFRASTRUCTURE
+  # =============================================================================
+
+  - id: F1-001
+    category: command_structure
+    finding: 'System has 4 main commands: /think-tank (planning), /hc-execute (execution), /hc-glass (code audit), /red-team (doc audit)'
+    source: '.claude/commands/*.md:listing'
+    relevance: HIGH
+
+  - id: F1-002
+    category: command_structure
+    finding: 'Commands define philosophy, workflow phases, proxy configs, templates, and output artifacts in structured markdown'
+    source: '.claude/commands/think-tank.md:1-10'
+    relevance: HIGH
+
+  - id: F1-003
+    category: command_routing
+    finding: '/think-tank is the entry point for all planning - outputs execution-plan.yaml which feeds /hc-execute'
+    source: '.claude/commands/think-tank.md:21-30'
+    relevance: HIGH
+
+  - id: F1-004
+    category: command_routing
+    finding: 'Command flow: NORTHSTAR.md -> /think-tank --roadmap -> ROADMAP.yaml -> /think-tank --phase=X -> execution-plan.yaml -> /hc-execute'
+    source: 'CLAUDE.md:200-214'
+    relevance: HIGH
+
+  - id: F1-005
+    category: command_hierarchy
+    finding: '/think-tank has session types: --roadmap (project phases), --phase=X (specific phase), no flag (side-quest/ad-hoc)'
+    source: '.claude/commands/think-tank.md:34-50'
+    relevance: HIGH
+
+  - id: F1-006
+    category: command_structure
+    finding: '/hc-glass outputs "The 4 Lists": Panic (critical), Lie (major), Kill (minor), Debt (info)'
+    source: '.claude/commands/hc-glass.md:194-200'
+    relevance: MEDIUM
+
+  - id: F1-007
+    category: command_structure
+    finding: '/red-team outputs: Kill List (files to delete), Fix List (missing implementations), Gap Table (doc-code mismatches)'
+    source: '.claude/commands/red-team.md:215-245'
+    relevance: MEDIUM
+
+  # =============================================================================
+  # AGENT DEFINITIONS
+  # =============================================================================
+
+  - id: F1-008
+    category: agent_structure
+    finding: 'System has 2 defined agents: git-engineer (SUPPORT loop, Flash model) and session-triage (background analysis, Flash model)'
+    source: '.claude/agents/*.md:listing'
+    relevance: HIGH
+
+  - id: F1-009
+    category: agent_structure
+    finding: 'git-engineer handles: commit, checkpoint, rollback, review, pr-prep, improve, audit operations'
+    source: '.claude/agents/git-engineer.md:109-119'
+    relevance: HIGH
+
+  - id: F1-010
+    category: agent_structure
+    finding: 'git-engineer MUST always include .claude/context.yaml in every commit for crash-proof session persistence'
+    source: '.claude/agents/git-engineer.md:48-78'
+    relevance: HIGH
+
+  - id: F1-011
+    category: agent_structure
+    finding: 'session-triage runs in background at session start, generates SESSION BRIEF in 5-8 seconds, read-only'
+    source: '.claude/agents/session-triage.md:9-16'
+    relevance: HIGH
+
+  - id: F1-012
+    category: agent_spawning
+    finding: 'Agents spawned via Bash tool with proxy, NOT Task tool - Task tool only recognizes hardcoded subagent_types'
+    source: '.claude/agents/session-triage.md:44-45'
+    relevance: HIGH
+
+  # =============================================================================
+  # ORCHESTRATION PATTERNS
+  # =============================================================================
+
+  - id: F1-013
+    category: orchestration
+    finding: 'All commands use background Opus orchestrator pattern with timeout wrapper (45-90 min depending on command)'
+    source: '.claude/commands/think-tank.md:199-216'
+    relevance: HIGH
+
+  - id: F1-014
+    category: orchestration
+    finding: 'Timeout wrapper pattern: timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT bash -c "..."'
+    source: '.claude/commands/think-tank.md:206-216'
+    relevance: HIGH
+
+  - id: F1-015
+    category: orchestration
+    finding: '/hc-execute uses Oraca[X] Phase Orchestrators - Flash agents that own one phase, spawn workers, collect evidence'
+    source: '.claude/commands/hc-execute.md:59-102'
+    relevance: HIGH
+
+  - id: F1-016
+    category: orchestration
+    finding: 'Oraca responsibilities: receive phase spec, spawn Flash workers (max 3 parallel), handle micro-retries (up to 3), spawn Pro Phase QA'
+    source: '.claude/commands/hc-execute.md:69-76'
+    relevance: HIGH
+
+  - id: F1-017
+    category: orchestration
+    finding: '/think-tank uses 3 Flash scouts in parallel for fact-based research, then merge+validate pattern'
+    source: '.claude/commands/think-tank.md:276-289'
+    relevance: HIGH
+
+  - id: F1-018
+    category: orchestration
+    finding: '/hc-glass uses 6 sector Pro commanders (parallel), each spawning Flash scouts (sequential), then Merge Gate + Classification Arbiter'
+    source: '.claude/commands/hc-glass.md:37-62'
+    relevance: HIGH
+
+  # =============================================================================
+  # MODEL ROUTING
+  # =============================================================================
+
+  - id: F1-019
+    category: model_routing
+    finding: 'Three proxy endpoints: Flash (port 2405), Pro (port 2406), Opus (port 2408) via ANTHROPIC_API_BASE_URL'
+    source: 'CLAUDE.md:165-176'
+    relevance: HIGH
+
+  - id: F1-020
+    category: model_routing
+    finding: 'Model assignment pattern: Opus=orchestrators/complex, Pro=QA/synthesis/commanders, Flash=workers/scouts/fast tasks'
+    source: 'CLAUDE.md:178-196'
+    relevance: HIGH
+
+  - id: F1-021
+    category: model_routing
+    finding: 'Agent roles defined: ORCA(Opus)=orchestration, RCH(Flash)=research, ARC(Pro)=architecture, WR(Flash)=execution, QA(Pro)=verification, VA(Flash)=alignment'
+    source: 'CLAUDE.md:179-187'
+    relevance: HIGH
+
+  - id: F1-022
+    category: model_routing
+    finding: 'Gauntlet roles: Writer(Opus)=defend artifact, Critic(Pro)=simulate/break, Arbiter(Flash)=rule on contested'
+    source: 'CLAUDE.md:189-194'
+    relevance: HIGH
+
+  # =============================================================================
+  # WORKFLOW DISCIPLINE
+  # =============================================================================
+
+  - id: F1-023
+    category: workflow_discipline
+    finding: 'SESSION START protocol: 1) Cleanup orphans (pkill), 2) Read state, 3) Spawn triage (background), 4) Greet user, 5) Retrieve triage output (MANDATORY)'
+    source: 'CLAUDE.md:77-125'
+    relevance: HIGH
+
+  - id: F1-024
+    category: workflow_discipline
+    finding: 'Every background task MUST have matching TaskOutput(block: true) to prevent zombie processes'
+    source: 'CLAUDE.md:305-319'
+    relevance: HIGH
+
+  - id: F1-025
+    category: workflow_discipline
+    finding: 'Pre-flight checks mandatory: df -h / before Docker/builds (>80% = STOP)'
+    source: 'CLAUDE.md:49-54'
+    relevance: MEDIUM
+
+  - id: F1-026
+    category: workflow_discipline
+    finding: 'Three safety layers for background tasks: 1) Orphan cleanup (pkill), 2) Timeout wrapper, 3) TaskOutput retrieval'
+    source: '.claude/agents/session-triage.md:229-236'
+    relevance: HIGH
+
+  - id: F1-027
+    category: workflow_discipline
+    finding: '/hc-execute has ROADMAP SYNC phase - on success updates ROADMAP.yaml phase status to complete and unlocks dependent phases'
+    source: '.claude/commands/hc-execute.md:386-408'
+    relevance: HIGH
+
+  # =============================================================================
+  # VALIDATION PATTERNS
+  # =============================================================================
+
+  - id: F1-028
+    category: validation
+    finding: 'Gauntlet Loop: Draft(Flash) -> Critic(Pro) -> Writer(Opus) -> repeat 3-5x -> APPROVED'
+    source: '.claude/commands/think-tank.md:475-507'
+    relevance: HIGH
+
+  - id: F1-029
+    category: validation
+    finding: 'Diffusion validation gates: Step 6=Simulation Check, Step 7=Scope & Physics Check, Step 8=Resolution Check'
+    source: '.claude/commands/think-tank.md:129-136'
+    relevance: MEDIUM
+
+  - id: F1-030
+    category: validation
+    finding: '/hc-execute SWEEP phase: Pro agent hunts 20% of work that was missed (Trust but Verify philosophy)'
+    source: '.claude/commands/hc-execute.md:366-376'
+    relevance: HIGH
+
+  - id: F1-031
+    category: validation
+    finding: 'Circuit breakers in /hc-glass: 3-Strike Rule (bad citations), Sector Timeout (>20 min), Overflow Cap (>20 findings)'
+    source: '.claude/commands/hc-glass.md:203-213'
+    relevance: MEDIUM
+
+  # =============================================================================
+  # STATE MANAGEMENT
+  # =============================================================================
+
+  - id: F1-032
+    category: state_management
+    finding: 'context.yaml is the living session state - updated after significant work, always committed with changes'
+    source: 'CLAUDE.md:237-265'
+    relevance: HIGH
+
+  - id: F1-033
+    category: state_management
+    finding: 'ROADMAP.yaml tracks phases, dependencies, and links to execution plans via plan_path field'
+    source: 'CLAUDE.md:267-290'
+    relevance: HIGH
+
+  - id: F1-034
+    category: state_management
+    finding: 'Think-tank workspaces have STATE.yaml tracking: topic, status (active|paused|decided|archived), lifecycle type, sessions, decisions'
+    source: '.claude/commands/think-tank.md:238-260'
+    relevance: MEDIUM
+
+  # =============================================================================
+  # ERROR HANDLING
+  # =============================================================================
+
+  - id: F1-035
+    category: error_handling
+    finding: 'Oraca micro-retry protocol: Attempt 1 (standard), 2 (error+context), 3 (errors+simplify), 4+ (ESCALATE to Orchestrator)'
+    source: '.claude/commands/hc-execute.md:77-96'
+    relevance: HIGH
+
+  - id: F1-036
+    category: error_handling
+    finding: '/hc-execute failure recovery options: RETRY_FAILED (re-run only failed), ROLLBACK (restore checkpoint), MANUAL (user fixes)'
+    source: '.claude/commands/hc-execute.md:429-455'
+    relevance: HIGH
+
+  - id: F1-037
+    category: error_handling
+    finding: 'Pre-execution checkpoint: git-engineer creates rollback point before major executions, stored in EXECUTION_STATE.md'
+    source: '.claude/commands/hc-execute.md:259-282'
+    relevance: HIGH
+
+gaps:
+  - 'No explicit routing decision tree for when to use which command (think-tank vs direct implementation)'
+  - 'No defined escalation path when user wants to override AI recommendations'
+  - 'Agent role definitions scattered across CLAUDE.md and command files - no single AGENT_ROLES.md found'
+  - 'Missing explicit rules for when HC should ask questions vs proceed autonomously'
+  - 'No defined protocol for handling conflicting user instructions mid-execution'
+  - 'Parallel execution limits defined per-command but no system-wide concurrency policy'
+  - 'Template prompt files referenced but not examined - actual agent prompts may differ from docs'

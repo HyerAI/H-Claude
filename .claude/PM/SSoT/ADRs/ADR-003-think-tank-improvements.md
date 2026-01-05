@@ -16,7 +16,7 @@ The think-tank workflow was examined through a self-review session where the cou
 4. **Validation Overlap:** Triple validation at Step 7 (generator → Gauntlet → Diffusion) with unclear integration
 5. **No Observability:** No cost tracking, no incident log for post-mortems
 
-Council reached consensus on core issues but user (HD) provided key override:
+Council reached consensus on core issues but user (HC) provided key override:
 
 > "If you missed the design of this whole system I do not trust even myself. I want my work, your work, and any work to be looked by a few to catch errors. These validators stay on for now."
 

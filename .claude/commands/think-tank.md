@@ -149,7 +149,7 @@ Each resolution level has a validation gate:
 
 | Role | Purpose | Model |
 |------|---------|-------|
-| **You (HD)** | The Chair | Human |
+| **You (HC)** | The Chair | Human |
 | **Orchestrator** | Moderator | Opus |
 | **Domain Expert** | Deep subject knowledge | Opus (2408) |
 | **Pragmatist** | Guardian of Resources | Pro (2406) |

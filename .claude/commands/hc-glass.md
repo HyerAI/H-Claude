@@ -37,7 +37,7 @@ This command spawns a background Opus orchestrator that coordinates 6 sector Pro
 ## Architecture Overview
 
 ```
-HD invokes /hc-glass
+HC invokes /hc-glass
      |
 Spawn OPUS Orchestrator (BACKGROUND)
      |

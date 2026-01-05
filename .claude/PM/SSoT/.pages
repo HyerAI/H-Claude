@@ -1,5 +1,6 @@
 title: SSoT
 nav:
   - NORTHSTAR.md
+  - roadmap-view.md
   - AGENT_ROLES.md
   - ADRs

@@ -35,7 +35,7 @@ Or by topic name (auto-locates approved plan):
 ## Architecture
 
 ```
-HD invokes /hc-execute
+HC invokes /hc-execute
      ↓
 Spawn OPUS Orchestrator (BACKGROUND)
      ↓
@@ -108,7 +108,7 @@ Attempt 4+: ESCALATE to Orchestrator
 .claude/PM/hc-execute/${session-slug}/
 ├── EXECUTION_STATE.md          # Dashboard
 ├── ORCHESTRATOR_LOG.md         # Flight Recorder
-├── COMMANDS.md                 # HD→Orchestrator channel
+├── COMMANDS.md                 # HC→Orchestrator channel
 ├── INTERFACES.md               # Shared contracts
 ├── PHASE_1/
 │   ├── ORACA_LOG.md
@@ -381,7 +381,7 @@ If GAPS_FOUND → create fix tasks → Oraca[FIX] → re-sweep.
 1. Run automated checks (tests, linting)
 2. Generate COMPLETION_REPORT.md
 3. Log: `[DONE] Status: [STATUS]`
-4. Report to HD
+4. Report to HC
 
 ---
 
@@ -583,7 +583,7 @@ Trust but Verify.
 |---------|---------------------|
 | `/think-tank` | Research, decisions, plan generation |
 | Direct implementation | Single small task, no QA needed |
-| Manual execution | HD in loop for each task |
+| Manual execution | HC in loop for each task |
 
 ---
 

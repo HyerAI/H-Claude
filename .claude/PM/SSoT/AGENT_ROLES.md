@@ -16,7 +16,7 @@ H-Claude uses a hierarchy of specialized agents. Each role has defined responsib
 
 ```
       ┌─────────────────────────────────────────────────┐
-      │                    PO (You/HD)                  │
+      │                    PO (You/HC)                  │
       │               Product Owner - Human             │
       └─────────────────────┬───────────────────────────┘
                             │
@@ -48,7 +48,7 @@ H-Claude uses a hierarchy of specialized agents. Each role has defined responsib
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Human (HD) |
+| **Model** | Human (HC) |
 | **Template** | N/A |
 | **Responsibility** | Define NORTHSTAR, approve decisions, break ties |
 | **Failure Condition** | N/A |

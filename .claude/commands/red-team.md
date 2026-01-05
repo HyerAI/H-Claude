@@ -35,7 +35,7 @@ This command spawns a background Opus orchestrator that runs the full audit work
 ## Architecture Overview
 
 ```
-HD invokes /red-team
+HC invokes /red-team
      ↓
 Spawn OPUS Orchestrator (BACKGROUND)
      ↓

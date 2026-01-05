@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-01-04
-**Decision Makers:** HD, Claude Council
+**Decision Makers:** HC, Claude Council
 **Source:** `.claude/PM/think-tank/ralph_loop_integration_20260104/`
 
 ## Context

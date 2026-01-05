@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-01-03
-**Decision Makers:** HD, Claude Council
+**Decision Makers:** HC, Claude Council
 **Source:** `.claude/PM/think-tank/agentic_framework_20260103/`
 
 ## Context

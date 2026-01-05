@@ -1,0 +1,83 @@
+# .claude/context.yaml
+# LIVE CONTEXT - Updated after every significant task/commit
+# Read this at session start to resume work
+# See: .claude/PM/SSoT/NORTHSTAR.md for project guidance
+# See: .claude/PM/SSoT/ROADMAP.yaml for development phases
+
+meta:
+  last_modified: '2026-01-04T18:30:00Z'
+
+# PROJECT INFO
+project:
+  name: 'H-Claude'
+  description: 'Minimal multi-agent system with Diffusion Development Philosophy'
+  type: 'template'
+
+# Reference to development roadmap (the HOW)
+# active_phases read directly from ROADMAP.yaml - no duplication
+roadmap:
+  path: .claude/PM/SSoT/ROADMAP.yaml
+
+# THE BRAIN (What are we thinking about right now?)
+focus:
+  current_objective: 'HC System Prompt Design complete - ready for next phase'
+  active_decisions: []
+
+# THE LOG (Rolling history - last 10 actions only)
+recent_actions:
+  - '2026-01-04: HC System Prompt Design - renamed HD→HC, HC-LOG folder, hc-scout agent, CLAUDE.md updates'
+  - '2026-01-04: G.L.A.S.S. audit - 58% health, 59 findings, 24 backlog items'
+  - '2026-01-04: red-team re-audit - 98% health, all fixes verified'
+  - '2026-01-04: PM-View wiki fixes, 20% adversarial prior, multi-project ports'
+  - '2026-01-04: hc-execute self-review V2.9.0 (ADR-004)'
+  - '2026-01-04: think-tank self-review V2.5.0 (ADR-003)'
+  - '2026-01-04: Gauntlet Loop integration (ADR-002)'
+  - '2026-01-03: Implemented Diffusion Development Philosophy (16 tasks)'
+  - '2026-01-03: Created document schemas (PHASE_ROADMAP, TASK_PLAN, TICKET)'
+  - '2026-01-03: Created generator/validator templates'
+
+# THE QUEUE
+tasks:
+  active: []
+  completed_this_session: []
+
+# BLOCKERS (only if strictly blocking current active task)
+blockers: []
+
+# UNSORTED BACKLOG - Tasks not yet assigned to a phase
+# Triage agent surfaces these; assign to phases or tech_debt
+backlog: []
+  # Example:
+  # - id: BACK-001
+  #   description: 'Task we noticed but not sure where it fits'
+  #   added: '2026-01-02'
+
+# THINK-TANK SESSIONS (phase sessions, side-quests)
+# Roadmap sessions don't need tracking here - ROADMAP.yaml is the state
+think_tank:
+  - topic: 'hc_system_prompt_design'
+    path: '.claude/PM/think-tank/hc_system_prompt_design_20260104/'
+    status: decided  # HC as PO, routing rules, HC-LOG, hc-scout
+  - topic: 'hc_execute_self_review'
+    path: '.claude/PM/think-tank/hc_execute_self_review_20260104/'
+    status: decided  # ADR-004: observability, context, artifacts
+  - topic: 'think_tank_self_review'
+    path: '.claude/PM/think-tank/think_tank_improvements_20260104/'
+    status: decided  # ADR-003: scouts, transcripts, validation
+  - topic: 'agentic_framework'
+    path: '.claude/PM/think-tank/agentic_framework_20260103/'
+    status: decided  # Diffusion Development Philosophy adopted
+
+# HC-GLASS SESSIONS (codebase audits)
+hc_glass:
+  - session: 'glass_20260104_1534'
+    path: '.claude/PM/hc-glass/glass_20260104_1534/'
+    health_score: 58
+    findings: 59
+    backlog_items: 24
+    status: complete
+
+# GIT COMMIT CONTROL (git-engineer watches this)
+git:
+  status: idle  # idle | ready | working
+  note: ''

@@ -2,9 +2,11 @@
 
 <!-- Replace [PROJECT_NAME] and customize for your project. Keep workflow docs intact. -->
 
-## Claude's Role: Product Owner
+## HC Role: Product Owner & Orchestrator
 
 Guide user through: **SSoT → Roadmap → Phases → Execution**
+
+**HC = H-Claude** (the main Claude session interacting with the user)
 
 | Document | Contains | Perspective |
 |----------|----------|-------------|
@@ -74,6 +76,36 @@ When stuck, surface to user:
 
 ---
 
+## HC Discipline
+
+**HC orchestrates. HC does not do inline work.**
+
+| Work Type | Route Through |
+|-----------|---------------|
+| 3+ files OR phase work | `/hc-execute` |
+| Decisions, planning | `/think-tank` |
+| Code review | `/hc-glass` |
+| Deep investigation | `/red-team` |
+| Research (5+ file reads) | `hc-scout` agent |
+| Git operations | `git-engineer` agent |
+
+**Anti-pattern:** HC editing 10 files inline "because it's faster"
+**Correct:** HC spawns command, reviews output, guides user
+
+---
+
+## HC Support Team
+
+| Agent | Purpose | When to Use |
+|-------|---------|-------------|
+| `session-triage` | Update SESSION_STATUS.md at session start | Every session (background) |
+| `git-engineer` | Handle commits, maintain protocols | "commit these changes" |
+| `hc-scout` | Research to preserve HC context | 5+ files to search/read |
+
+Agents defined in: `.claude/agents/`
+
+---
+
 ## SESSION START (Do This First)
 
 **On EVERY new session, IMMEDIATELY:**
@@ -88,6 +120,7 @@ pkill -f "Session-Triage agent" 2>/dev/null || true
 ```
 Read .claude/context.yaml
 Read .claude/PM/SSoT/ROADMAP.yaml
+Read .claude/PM/HC-LOG/USER-PREFERENCES.md
 ```
 
 ### Step 3: Spawn Triage (Background with Timeout)
@@ -98,18 +131,14 @@ Use **Bash tool with proxy** (NOT Task tool - custom subagent_types don't work):
 # Run in background with 60s timeout
 timeout --foreground --signal=TERM --kill-after=10 60 \
   bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
-You are the Session-Triage agent. Generate a SESSION BRIEF.
+You are the Session-Triage agent. Update SESSION_STATUS.md for HC.
 
 WORKSPACE: $(pwd)
 
-Read these files:
-1. .claude/context.yaml - extract focus, recent_actions, blockers, backlog
-2. .claude/PM/SSoT/ROADMAP.yaml - extract phases, dependencies, active_phases
-3. Glob .claude/PM/think-tank/*/STATE.yaml - check workspace statuses
+Read: .claude/context.yaml, .claude/PM/SSoT/ROADMAP.yaml, .claude/PM/HC-LOG/HC-FAILURES.md
+Write to: .claude/PM/SESSION_STATUS.md
 
-Output a SESSION BRIEF with: Last Session, Roadmap Status, Phase Progress, Drift Alerts, Recommended Action.
-
-Be fast (<8 seconds). Read-only. Missing data shows N/A.
+Include: Last Session, Roadmap Status, Phase Progress, Recent Failures, Drift Alerts, Recommended Action.
 "'
 ```
 
@@ -120,8 +149,11 @@ Use Bash tool's `run_in_background: true` parameter.
 "Last session we [recent_action from context.yaml]. Current focus: [objective]. What's next?"
 ```
 
-### Step 5: Retrieve Triage Output (MANDATORY)
-When user responds, retrieve triage output with `TaskOutput(block: true, timeout: 30000)` and combine with user intent. **Never skip this step - it ensures cleanup.**
+### Step 5: Retrieve Triage + Review Status (MANDATORY)
+When user responds:
+1. Retrieve triage output with `TaskOutput(block: true, timeout: 30000)` - ensures cleanup
+2. Read `.claude/PM/SESSION_STATUS.md` - the live document triage updated
+3. Combine with user intent for informed response
 
 ---
 
@@ -132,14 +164,16 @@ When user responds, retrieve triage output with `TaskOutput(block: true, timeout
 ```
 .claude/
 ├── context.yaml          # Session state (read at start, update regularly)
-├── agents/               # git-engineer.md, session-triage.md
+├── agents/               # git-engineer.md, session-triage.md, hc-scout.md
 ├── commands/             # think-tank, hc-execute, hc-glass, red-team
 ├── skills/               # Reusable capabilities
 ├── templates/            # Prompt templates
 └── PM/
     ├── SSoT/             # NORTHSTAR.md, ROADMAP.yaml, ADRs/
+    ├── HC-LOG/           # USER-PREFERENCES.md, HC-FAILURES.md
+    ├── SESSION_STATUS.md # Live triage output (updated each session)
     ├── think-tank/       # Session artifacts
-    ├── hc-execute/  # Execution artifacts
+    ├── hc-execute/       # Execution artifacts
     ├── hc-glass/         # Review reports
     ├── GIT/              # Protocols
     ├── BACKLOG.yaml      # Deferred work
