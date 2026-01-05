@@ -1,12 +1,12 @@
-site_name: H-Claude PM Wiki
+site_name: PM View
 site_description: AI-orchestrated project management for agentic coding
 docs_dir: ..
 site_dir: _site
 
 theme:
   name: material
-  logo: PM-View/assets/logo.png
-  favicon: PM-View/assets/logo.png
+  logo: PM-View/assets/banner.png
+  favicon: PM-View/assets/fabicon.png
   palette:
     - scheme: slate
       primary: custom
@@ -40,7 +40,7 @@ theme:
     - toc.follow
 
 extra_css:
-  - PM-View/stylesheets/custom.css?v=6
+  - PM-View/stylesheets/custom.css?v=10
 
 extra_javascript:
   - PM-View/js/refresh.js?v=6

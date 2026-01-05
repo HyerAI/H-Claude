@@ -54,10 +54,38 @@
   border-color: var(--md-accent-fg-color);
 }
 
-/* Logo sizing */
+/* Header logo - show fabicon */
 .md-header__button.md-logo img {
-  height: 32px;
+  height: 28px;
   width: auto;
+}
+
+/* Header title in gold */
+.md-header__title {
+  color: var(--md-accent-fg-color) !important;
+  font-weight: 600;
+}
+
+/* Large fabicon above sidebar navigation - 94% width, minimal spacing */
+.md-sidebar--primary .md-sidebar__scrollwrap::before {
+  content: '';
+  display: block;
+  width: 94%;
+  margin: 0.25rem auto 0.5rem auto;
+  background-image: url('/PM-View/assets/fabicon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-height: 140px;
+}
+
+/* Remove extra padding from sidebar */
+.md-sidebar--primary .md-sidebar__inner {
+  padding-top: 0;
+}
+
+.md-sidebar--primary .md-sidebar__scrollwrap {
+  margin-top: 0;
 }
 
 /* Grid cards styling */
