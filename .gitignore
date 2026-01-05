@@ -35,6 +35,9 @@ infrastructure/*/.env
 # PM-View local config (use .env.example as template)
 .claude/PM/PM-View/.env
 
+# MkDocs build output
+_site/
+
 # Project-specific changelog (use CHANGELOG.md.example as template)
 .claude/PM/CHANGELOG.md
 

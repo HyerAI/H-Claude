@@ -4,6 +4,20 @@ All notable changes to H-Claude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.7.2] - 2026-01-04
+
+### Changed
+- **docs/ → .claude/docs/** - Moved workflow docs inside .claude/ for consistency
+- **hc-init V1.1.0** - Now checks global `~/.claude/infrastructure/` instead of project-local
+- **CLAUDE.md** - Added Folder Architecture section documenting project vs global structure
+- **install.sh** - Added PM-View caching, mkdocs check, `pm-view-serve.sh` helper script
+
+### Fixed
+- **PM-View symlink** - Updated to point to new .claude/docs location
+- **mkdocs.yml** - Fixed site_dir path, added README.md to exclude list
+
+---
+
 ## [0.7.1] - 2026-01-04
 
 ### Added

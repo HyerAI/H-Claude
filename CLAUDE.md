@@ -159,31 +159,49 @@ When user responds:
 
 ## Quick Reference
 
-### Folder Structure
+### Folder Architecture
 
+**Project Workspace:**
 ```
-.claude/
-├── context.yaml          # Session state (read at start, update regularly)
-├── agents/               # git-engineer.md, session-triage.md, hc-scout.md
-├── commands/             # think-tank, hc-execute, hc-glass, red-team
-├── skills/               # Reusable capabilities
-├── templates/            # Prompt templates
-└── PM/
-    ├── SSoT/             # NORTHSTAR.md, ROADMAP.yaml, ADRs/
-    ├── HC-LOG/           # USER-PREFERENCES.md, HC-FAILURES.md
-    ├── SESSION_STATUS.md # Live triage output (updated each session)
-    ├── think-tank/       # Session artifacts
-    ├── hc-execute/       # Execution artifacts
-    ├── hc-glass/         # Review reports
-    ├── GIT/              # Protocols
-    ├── BACKLOG.yaml      # Deferred work
-    └── CHANGELOG.md      # Change history
+Project-Workspace/
+├── .claude/                  # ALL workflow goes here (from H-Claude template)
+│   ├── context.yaml          # Session state (read at start)
+│   ├── agents/               # git-engineer.md, session-triage.md, hc-scout.md
+│   ├── commands/             # think-tank, hc-execute, hc-glass, red-team
+│   ├── skills/               # Reusable capabilities
+│   ├── templates/            # Prompt templates
+│   ├── docs/                 # H-Claude workflow documentation
+│   └── PM/
+│       ├── SSoT/             # NORTHSTAR.md, ROADMAP.yaml, ADRs/
+│       ├── HC-LOG/           # USER-PREFERENCES.md, HC-FAILURES.md
+│       ├── PM-View/          # MkDocs wiki for observability
+│       ├── think-tank/       # Session artifacts
+│       ├── hc-execute/       # Execution artifacts
+│       ├── hc-glass/         # Review reports
+│       ├── BACKLOG.yaml      # Deferred work
+│       └── CHANGELOG.md      # Change history
+├── src/                      # Project deliverables (user creates)
+├── CLAUDE.md                 # Project instructions
+└── CHANGELOG.md              # Project changelog
+```
 
-infrastructure/               # LLM Proxy servers (global: ~/.claude/infrastructure/)
-├── CG-Flash/                 # Gemini Flash (port 2405)
-├── CG-Pro/                   # Gemini Pro (port 2406)
-└── CC-Claude/                # Claude pass-through (port 2408)
+**Global (shared across all projects):**
 ```
+~/.claude/
+├── infrastructure/           # LLM Proxy servers
+│   ├── CG-Flash/             # Gemini Flash (port 2405)
+│   ├── CG-Pro/               # Gemini Pro (port 2406)
+│   └── CC-Claude/            # Claude Opus (port 2408)
+├── bin/                      # Helper scripts
+│   ├── start-proxies.sh
+│   └── stop-proxies.sh
+└── CLAUDE.md                 # Global instructions
+```
+
+**Key Rules:**
+- `.claude/` = workflow (agents, commands, PM artifacts)
+- Project code/assets = outside `.claude/` (e.g., `src/`, `lib/`)
+- Infrastructure = GLOBAL only (`~/.claude/infrastructure/`), not per-project
 
 ### Commands
 

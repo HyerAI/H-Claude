@@ -112,6 +112,18 @@ check_prerequisites() {
         exit 1
     fi
 
+    # Optional: mkdocs for PM-View wiki
+    echo ""
+    log_info "Checking optional dependencies..."
+    if command -v mkdocs &> /dev/null; then
+        log_success "mkdocs $(mkdocs --version | cut -d' ' -f3)"
+        MKDOCS_AVAILABLE=1
+    else
+        log_warn "mkdocs not installed (PM-View wiki unavailable)"
+        log_info "  Install: pip install mkdocs-material"
+        MKDOCS_AVAILABLE=0
+    fi
+
     echo ""
 }
 
@@ -186,11 +198,24 @@ install_workflow_templates() {
     cp -r "$src/skills" "$TEMPLATE_DIR/" 2>/dev/null || true
     cp -r "$src/templates" "$TEMPLATE_DIR/" 2>/dev/null || true
 
+    # Copy docs (workflow documentation)
+    cp -r "$src/docs" "$TEMPLATE_DIR/" 2>/dev/null || true
+
     # Copy PM structure (SSoT only, not session artifacts)
     mkdir -p "$TEMPLATE_DIR/PM/SSoT/ADRs"
     mkdir -p "$TEMPLATE_DIR/PM/GIT"
+    mkdir -p "$TEMPLATE_DIR/PM/HC-LOG"
     cp -r "$src/PM/SSoT/"* "$TEMPLATE_DIR/PM/SSoT/" 2>/dev/null || true
     cp -r "$src/PM/GIT/"* "$TEMPLATE_DIR/PM/GIT/" 2>/dev/null || true
+    cp -r "$src/PM/HC-LOG/"* "$TEMPLATE_DIR/PM/HC-LOG/" 2>/dev/null || true
+
+    # Copy PM-View wiki structure
+    if [ -d "$src/PM/PM-View" ]; then
+        cp -r "$src/PM/PM-View" "$TEMPLATE_DIR/PM/" 2>/dev/null || true
+        # Remove session-specific files, keep templates
+        rm -rf "$TEMPLATE_DIR/PM/PM-View/.env" 2>/dev/null || true
+        log_success "  PM-View wiki cached"
+    fi
 
     # Copy .example files as templates
     cp "$src/context.yaml.example" "$TEMPLATE_DIR/context.yaml" 2>/dev/null || true
@@ -307,7 +332,53 @@ SCRIPT
 
     chmod +x "$BIN_DIR/stop-proxies.sh"
 
-    log_success "Created start-proxies.sh and stop-proxies.sh"
+    # pm-view-serve.sh
+    cat > "$BIN_DIR/pm-view-serve.sh" << 'SCRIPT'
+#!/bin/bash
+# Start PM-View wiki for the current project
+#
+# Usage: pm-view-serve.sh [port]
+#
+# Must be run from a project directory with .claude/PM/PM-View/
+
+PORT=${1:-8000}
+PM_VIEW_DIR=".claude/PM/PM-View"
+
+if [ ! -d "$PM_VIEW_DIR" ]; then
+    echo "Error: PM-View not found in current directory"
+    echo "Expected: $PM_VIEW_DIR/"
+    echo ""
+    echo "Run hc-init to set up project structure first."
+    exit 1
+fi
+
+if ! command -v mkdocs &> /dev/null; then
+    echo "Error: mkdocs not installed"
+    echo "Install: pip install mkdocs-material"
+    exit 1
+fi
+
+cd "$PM_VIEW_DIR"
+
+# Check for .env
+if [ ! -f ".env" ]; then
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo "Created .env from example"
+    fi
+fi
+
+echo "=== PM-View Wiki ==="
+echo "Starting on: http://localhost:$PORT"
+echo "Press Ctrl+C to stop"
+echo ""
+
+mkdocs serve -a "localhost:$PORT"
+SCRIPT
+
+    chmod +x "$BIN_DIR/pm-view-serve.sh"
+
+    log_success "Created start-proxies.sh, stop-proxies.sh, pm-view-serve.sh"
 }
 
 show_completion() {
@@ -331,6 +402,16 @@ show_completion() {
     echo "     claude"
     echo "     /hc-init"
     echo ""
+    if [ "$MKDOCS_AVAILABLE" -eq 1 ]; then
+        echo "  4. Start PM-View wiki (optional):"
+        echo "     ~/.claude/bin/pm-view-serve.sh"
+        echo ""
+    else
+        echo "  4. For PM-View wiki observability:"
+        echo "     pip install mkdocs-material"
+        echo "     ~/.claude/bin/pm-view-serve.sh"
+        echo ""
+    fi
     echo "Get your API key at: https://aistudio.google.com/apikey"
     echo ""
 }

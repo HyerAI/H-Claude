@@ -1,7 +1,7 @@
 site_name: PM View
 site_description: AI-orchestrated project management for agentic coding
 docs_dir: ..
-site_dir: _site
+site_dir: ../../../_site
 
 theme:
   name: material
@@ -83,6 +83,7 @@ exclude_docs: |
   TEMP/
   *.yaml
   *.yml
+  README.md
   PM-View/mkdocs.yml
   PM-View/_site/
   PM-View/README.md
