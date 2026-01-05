@@ -4,7 +4,6 @@ description: Invoke for git operations - maintains project protocols, improvemen
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: flash
 proxy: http://localhost:2412
-skills: commit-gate
 loop: SUPPORT
 ---
 

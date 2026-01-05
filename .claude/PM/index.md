@@ -108,6 +108,44 @@
 
 ---
 
+## Proxy Status
+
+<div id="proxy-controls">
+    <span id="proxy-summary">Checking...</span>
+    <span class="proxy-timestamp">Last check: <span id="proxy-timestamp">-</span></span>
+    <button onclick="refreshProxyStatus()" class="proxy-refresh-btn" title="Refresh status">Refresh</button>
+</div>
+
+<table id="proxy-status-table">
+<thead>
+<tr>
+<th>Status</th>
+<th>Proxy</th>
+<th>Port</th>
+<th>Model</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="5">Loading...</td></tr>
+</tbody>
+</table>
+
+<details>
+<summary>Proxy Commands</summary>
+
+```bash
+# Start all
+.claude/scripts/start-proxies.sh
+
+# Stop all
+.claude/scripts/stop-proxies.sh
+```
+
+</details>
+
+---
+
 ## Workflow
 
 ```mermaid

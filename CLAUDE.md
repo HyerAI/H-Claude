@@ -25,6 +25,16 @@
 | `$PRO` | `ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p` |
 | `$OPUS` | `ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p` |
 
+**Command-Internal Proxies** (used by /think-tank, /hc-execute, /hc-glass):
+| Var | Port | Purpose |
+|-----|------|---------|
+| `$HC_REAS_A` | 2410 | Reasoning Agent A |
+| `$HC_REAS_B` | 2411 | Reasoning Agent B |
+| `$HC_WORK` | 2412 | Worker Agent |
+| `$HC_WORK_R` | 2413 | Worker Agent (Retry) |
+| `$HC_ORCA` | 2414 | Orchestrator |
+| `$HC_ORCA_R` | 2415 | Orchestrator (Retry) |
+
 **Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout | `$STATE` = state-agent
 
 ---
@@ -196,7 +206,7 @@ $STATE reviews session and updates:
 Project-Workspace/
 ├── .claude/                  # ALL workflow goes here
 │   ├── context.yaml          # $CTX - session state
-│   ├── agents/               # $GIT, $SCOUT, $TRIAGE
+│   ├── agents/               # $GIT, $SCOUT, $STATE
 │   ├── commands/             # /think-tank, /hc-execute, /hc-glass, /red-team
 │   ├── skills/               # /tt and other skills
 │   └── PM/                   # $PM

@@ -4,6 +4,25 @@ All notable changes to H-Claude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.0] - 2026-01-05
+
+### Changed
+- **Proxy Architecture Refactor** (ADR-005) - Migrated from 3 model-coupled to 6 role-based proxies
+  - Old: CG-Flash (2405), CG-Pro (2406), CC-Claude (2408)
+  - New: HC-Reas-A (2410), HC-Reas-B (2411), HC-Work (2412), HC-Work-R (2413), HC-Orca (2414), HC-Orca-R (2415)
+- **Port references updated** - session-start.sh, hc-scout.md, session-triage.md, git-engineer.md
+- **PROXIES.md** - Updated to new architecture
+
+### Added
+- **Proxy status dashboard** - Live health indicators on PM Dashboard (index.md)
+- **proxy-status.js** - Browser-based proxy health checking
+- **CORS headers** - All proxy server.js files now allow wiki status checks
+
+### Removed
+- **Old proxy folders** - CG-Flash, CG-Pro, CC-Claude (kept CG-Image for image generation)
+
+---
+
 ## [0.3.2] - 2026-01-04
 
 ### Changed
