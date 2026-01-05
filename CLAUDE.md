@@ -83,7 +83,7 @@ When stuck, surface to user:
 | Work Type | Route Through |
 |-----------|---------------|
 | 3+ files OR phase work | `/hc-execute` |
-| Decisions, planning | `/think-tank` |
+| Decisions, planning | `/tt` (checks existing sessions first) |
 | Code review | `/hc-glass` |
 | Deep investigation | `/red-team` |
 | Research (5+ file reads) | `hc-scout` agent |
@@ -91,6 +91,28 @@ When stuck, surface to user:
 
 **Anti-pattern:** HC editing 10 files inline "because it's faster"
 **Correct:** HC spawns command, reviews output, guides user
+
+---
+
+## Topic Continuity
+
+**Think-tanks are persistent context states.** Before starting work on any topic:
+
+1. **Check first:** `context.yaml → think_tank` for existing sessions
+2. **If found (active/paused):** Resume to leverage existing KB
+3. **If found (decided):** Ask user - new info or start fresh?
+4. **If not found:** Start new session
+
+**Use `/tt "topic"` skill** - it handles this automatically.
+
+```
+/tt auth              # checks for existing auth session
+/tt --list            # show all sessions
+/think-tank "topic"   # bypasses check (direct)
+```
+
+**Why:** Think-tank KB accumulates facts, decisions, and context.
+Reusing it provides consistent answers and avoids duplicate research.
 
 ---
 
