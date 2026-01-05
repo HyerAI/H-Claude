@@ -108,52 +108,23 @@ Agents defined in: `.claude/agents/`
 
 ## SESSION START (Do This First)
 
-**On EVERY new session, IMMEDIATELY:**
+**On every new session:**
 
-### Step 1: Cleanup Orphans
-```bash
-# Kill any orphan triage from crashed sessions
-pkill -f "Session-Triage agent" 2>/dev/null || true
-```
+1. **Read State**
+   ```
+   Read .claude/context.yaml
+   Read .claude/PM/SSoT/ROADMAP.yaml
+   ```
 
-### Step 2: Read State
-```
-Read .claude/context.yaml
-Read .claude/PM/SSoT/ROADMAP.yaml
-Read .claude/PM/HC-LOG/USER-PREFERENCES.md
-```
+2. **Greet User**
+   ```
+   "Last session we [recent_action from context.yaml].
+   Current focus: [objective]. What's next?"
+   ```
 
-### Step 3: Spawn Triage (Background with Timeout)
-
-Use **Bash tool with proxy** (NOT Task tool - custom subagent_types don't work):
-
-```bash
-# Run in background with 60s timeout
-timeout --foreground --signal=TERM --kill-after=10 60 \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
-You are the Session-Triage agent. Update SESSION_STATUS.md for HC.
-
-WORKSPACE: $(pwd)
-
-Read: .claude/context.yaml, .claude/PM/SSoT/ROADMAP.yaml, .claude/PM/HC-LOG/HC-FAILURES.md
-Write to: .claude/PM/SESSION_STATUS.md
-
-Include: Last Session, Roadmap Status, Phase Progress, Recent Failures, Drift Alerts, Recommended Action.
-"'
-```
-
-Use Bash tool's `run_in_background: true` parameter.
-
-### Step 4: Greet User (Don't Wait)
-```
-"Last session we [recent_action from context.yaml]. Current focus: [objective]. What's next?"
-```
-
-### Step 5: Retrieve Triage + Review Status (MANDATORY)
-When user responds:
-1. Retrieve triage output with `TaskOutput(block: true, timeout: 30000)` - ensures cleanup
-2. Read `.claude/PM/SESSION_STATUS.md` - the live document triage updated
-3. Combine with user intent for informed response
+3. **If SSoT Incomplete** (NORTHSTAR or ROADMAP missing/placeholder)
+   - Guide user through setup before proceeding with work
+   - Don't assume - ask what the project is about
 
 ---
 
