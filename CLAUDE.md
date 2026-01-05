@@ -188,7 +188,7 @@ Project-Workspace/
 **Global (shared across all projects):**
 ```
 ~/.claude/
-├── infrastructure/           # LLM Proxy servers
+├── HC-Proxies/               # LLM Proxy servers
 │   ├── CG-Flash/             # Gemini Flash (port 2405)
 │   ├── CG-Pro/               # Gemini Pro (port 2406)
 │   └── CC-Claude/            # Claude Opus (port 2408)
@@ -201,7 +201,7 @@ Project-Workspace/
 **Key Rules:**
 - `.claude/` = workflow (agents, commands, PM artifacts)
 - Project code/assets = outside `.claude/` (e.g., `src/`, `lib/`)
-- Infrastructure = GLOBAL only (`~/.claude/infrastructure/`), not per-project
+- Infrastructure = GLOBAL only (`~/.claude/HC-Proxies/`), not per-project
 
 ### Commands
 

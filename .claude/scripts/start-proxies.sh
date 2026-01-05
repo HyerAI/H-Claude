@@ -22,7 +22,7 @@ check_port() {
 if check_port 2405; then
     echo "CG-Flash (2405): Already running"
 else
-    cd "$PROJECT_ROOT/infrastructure/CG-Flash"
+    cd "$PROJECT_ROOT/HC-Proxies/CG-Flash"
     nohup npm start > "$LOG_DIR/cg-flash.log" 2>&1 &
     echo "CG-Flash (2405): Started (PID: $!)"
 fi
@@ -31,7 +31,7 @@ fi
 if check_port 2406; then
     echo "CG-Pro (2406): Already running"
 else
-    cd "$PROJECT_ROOT/infrastructure/CG-Pro"
+    cd "$PROJECT_ROOT/HC-Proxies/CG-Pro"
     nohup npm start > "$LOG_DIR/cg-pro.log" 2>&1 &
     echo "CG-Pro (2406): Started (PID: $!)"
 fi
@@ -40,7 +40,7 @@ fi
 if check_port 2408; then
     echo "CC-Claude (2408): Already running"
 else
-    cd "$PROJECT_ROOT/infrastructure/CC-Claude"
+    cd "$PROJECT_ROOT/HC-Proxies/CC-Claude"
     nohup npm start > "$LOG_DIR/cc-claude.log" 2>&1 &
     echo "CC-Claude (2408): Started (PID: $!)"
 fi

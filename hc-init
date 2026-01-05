@@ -5,6 +5,7 @@
 # Usage: hc-init [OPTIONS]
 #
 # Options:
+#   --init          Initialize project (prompt for name, setup files)
 #   --check         Run health checks only (default)
 #   --fix           Attempt to fix issues found
 #   --start-proxies Start proxy servers if not running
@@ -18,7 +19,7 @@ set -euo pipefail
 # CONSTANTS
 # =============================================================================
 
-readonly VERSION="1.1.0"
+readonly VERSION="1.2.0"
 readonly SCRIPT_NAME="hc-init"
 
 # Required folders (project-local)
@@ -33,8 +34,8 @@ readonly REQUIRED_FOLDERS=(
     ".claude/PM/SSoT/ADRs"
 )
 
-# Global infrastructure path
-readonly GLOBAL_INFRASTRUCTURE="$HOME/.claude/infrastructure"
+# Global HC-Proxies path
+readonly GLOBAL_HC_PROXIES="$HOME/.claude/HC-Proxies"
 
 # Proxy endpoints
 declare -A PROXY_ENDPOINTS=(
@@ -176,6 +177,7 @@ ${SCRIPT_NAME} v${VERSION} - H-Claude Project Initialization & Health Check
 Usage: ${SCRIPT_NAME} [OPTIONS]
 
 Options:
+  --init          Initialize project (prompt for name, setup files)
   --check         Run health checks only (default)
   --fix           Attempt to fix issues found
   --start-proxies Start proxy servers if not running
@@ -183,6 +185,7 @@ Options:
   --help          Show this help message
 
 Examples:
+  ${SCRIPT_NAME} --init             # Initialize new project with name
   ${SCRIPT_NAME}                    # Run health checks
   ${SCRIPT_NAME} --fix              # Check and fix issues
   ${SCRIPT_NAME} --start-proxies    # Start proxy servers
@@ -207,10 +210,15 @@ MODE="check"
 VERBOSE="false"
 START_PROXIES="false"
 FIX_ISSUES="false"
+INIT_PROJECT="false"
 
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
+            --init)
+                INIT_PROJECT="true"
+                shift
+                ;;
             --check)
                 MODE="check"
                 shift
@@ -301,22 +309,22 @@ check_dependencies() {
     return $missing
 }
 
-check_global_infrastructure() {
+check_global_hc_proxies() {
     local issues=0
-    log_info "Checking global infrastructure (~/.claude/infrastructure/)..."
+    log_info "Checking global HC-Proxies (~/.claude/HC-Proxies/)..."
 
-    if [[ ! -d "$GLOBAL_INFRASTRUCTURE" ]]; then
-        log_error "Global infrastructure not found: $GLOBAL_INFRASTRUCTURE"
+    if [[ ! -d "$GLOBAL_HC_PROXIES" ]]; then
+        log_error "HC-Proxies not found: $GLOBAL_HC_PROXIES"
         log_info "Run: curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | bash"
         return 1
     fi
 
     local proxies=("CG-Flash" "CG-Pro" "CC-Claude")
     for proxy in "${proxies[@]}"; do
-        if [[ -d "$GLOBAL_INFRASTRUCTURE/$proxy" ]]; then
+        if [[ -d "$GLOBAL_HC_PROXIES/$proxy" ]]; then
             log_ok "$proxy installed"
         else
-            log_warn "Missing: $GLOBAL_INFRASTRUCTURE/$proxy"
+            log_warn "Missing: $GLOBAL_HC_PROXIES/$proxy"
             ((issues++))
         fi
     done
@@ -328,9 +336,9 @@ check_configs() {
     local issues=0
     log_info "Checking config files..."
 
-    # Infrastructure .env files to check (GLOBAL path)
-    local config_dirs=("$GLOBAL_INFRASTRUCTURE/CG-Flash" "$GLOBAL_INFRASTRUCTURE/CG-Pro")
-    local optional_dirs=("$GLOBAL_INFRASTRUCTURE/CC-Claude")
+    # HC-Proxies .env files to check (GLOBAL path)
+    local config_dirs=("$GLOBAL_HC_PROXIES/CG-Flash" "$GLOBAL_HC_PROXIES/CG-Pro")
+    local optional_dirs=("$GLOBAL_HC_PROXIES/CC-Claude")
 
     # Check required config dirs
     for dir in "${config_dirs[@]}"; do
@@ -436,6 +444,91 @@ check_context_yaml() {
 }
 
 # =============================================================================
+# PROJECT INITIALIZATION
+# =============================================================================
+
+init_project() {
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " H-Claude Project Initialization"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    # Check if already initialized
+    if [[ -f "CLAUDE.md" ]] && ! grep -q '\[PROJECT_NAME\]' "CLAUDE.md" 2>/dev/null; then
+        log_warn "Project appears to be already initialized."
+        read -rp "Continue anyway? [y/N]: " confirm
+        if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+            log_info "Initialization cancelled."
+            return 0
+        fi
+    fi
+
+    # Prompt for project name
+    local project_name=""
+    while [[ -z "$project_name" ]]; do
+        read -rp "Project name: " project_name
+        if [[ -z "$project_name" ]]; then
+            log_warn "Project name cannot be empty."
+        fi
+    done
+
+    log_info "Initializing project: $project_name"
+    echo ""
+
+    # Update CLAUDE.md
+    if [[ -f "CLAUDE.md" ]]; then
+        log_info "Updating CLAUDE.md..."
+        # Replace [PROJECT_NAME] with actual project name
+        sed -i "s/\[PROJECT_NAME\]/$project_name/g" "CLAUDE.md"
+        log_ok "CLAUDE.md updated with project name"
+    else
+        log_warn "CLAUDE.md not found - skipping"
+    fi
+
+    # Update context.yaml if it exists
+    if [[ -f ".claude/context.yaml" ]]; then
+        log_info "Updating context.yaml..."
+        sed -i "s/\[PROJECT_NAME\]/$project_name/g" ".claude/context.yaml"
+        log_ok "context.yaml updated with project name"
+    fi
+
+    # Show project structure guidance
+    echo ""
+    echo "┌─────────────────────────────────────────┐"
+    echo "│ Project Structure                       │"
+    echo "├─────────────────────────────────────────┤"
+    echo "│ .claude/       → Workflow (H-Claude)    │"
+    echo "│ src/           → Your code goes here    │"
+    echo "│ CLAUDE.md      → Project instructions   │"
+    echo "└─────────────────────────────────────────┘"
+    echo ""
+    log_info "Your project deliverables (code, assets) go in src/ or similar."
+    log_info "The .claude/ folder is for H-Claude workflow only."
+    echo ""
+
+    # Create src/ if it doesn't exist
+    if [[ ! -d "src" ]]; then
+        read -rp "Create src/ folder for project code? [Y/n]: " create_src
+        if [[ ! "$create_src" =~ ^[Nn]$ ]]; then
+            mkdir -p "src"
+            log_ok "Created src/ folder"
+        fi
+    else
+        log_ok "src/ folder already exists"
+    fi
+
+    echo ""
+    log_ok "Project '$project_name' initialized!"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Fill out .claude/PM/SSoT/NORTHSTAR.md with your goals"
+    echo "  2. Run: /think-tank --roadmap to create development phases"
+    echo "  3. Start building!"
+    echo ""
+}
+
+# =============================================================================
 # STATUS SUMMARY TABLE
 # =============================================================================
 
@@ -460,15 +553,15 @@ print_status_table() {
     esac
     printf "│ Folders      %b %-24s│\n" "$folders_icon" "$folders_text"
 
-    # Infrastructure status (global)
-    local infra_status="${STATUS_RESULTS[infrastructure]:-unknown}"
-    local infra_icon infra_text
-    case "$infra_status" in
-        ok)      infra_icon="${COLOR_OK}✓${COLOR_RESET}"; infra_text="OK (~/.claude/)" ;;
-        warn)    infra_icon="${COLOR_WARN}⚠${COLOR_RESET}"; infra_text="Run install.sh" ;;
-        *)       infra_icon="${COLOR_ERROR}✗${COLOR_RESET}"; infra_text="Not installed" ;;
+    # HC-Proxies status (global)
+    local proxies_status="${STATUS_RESULTS[hc_proxies]:-unknown}"
+    local proxies_icon proxies_text
+    case "$proxies_status" in
+        ok)      proxies_icon="${COLOR_OK}✓${COLOR_RESET}"; proxies_text="OK (~/.claude/)" ;;
+        warn)    proxies_icon="${COLOR_WARN}⚠${COLOR_RESET}"; proxies_text="Run install.sh" ;;
+        *)       proxies_icon="${COLOR_ERROR}✗${COLOR_RESET}"; proxies_text="Not installed" ;;
     esac
-    printf "│ Infra        %b %-24s│\n" "$infra_icon" "$infra_text"
+    printf "│ HC-Proxies   %b %-24s│\n" "$proxies_icon" "$proxies_text"
 
     # Configs status
     local configs_status="${STATUS_RESULTS[configs]:-unknown}"
@@ -526,6 +619,12 @@ print_status_table() {
 main() {
     parse_args "$@"
 
+    # Handle --init mode separately
+    if [[ "$INIT_PROJECT" == "true" ]]; then
+        init_project
+        return $?
+    fi
+
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo " ${SCRIPT_NAME} v${VERSION}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -558,18 +657,18 @@ main() {
     fi
     echo ""
 
-    # Check global infrastructure
+    # Check global HC-Proxies
     check_result=0
-    check_global_infrastructure || check_result=$?
+    check_global_hc_proxies || check_result=$?
     if [[ $check_result -eq 0 ]]; then
-        STATUS_RESULTS[infrastructure]="ok"
+        STATUS_RESULTS[hc_proxies]="ok"
     else
-        STATUS_RESULTS[infrastructure]="warn"
+        STATUS_RESULTS[hc_proxies]="warn"
         ((total_issues+=check_result))
     fi
     echo ""
 
-    # Check config files (.env) in global infrastructure
+    # Check config files (.env) in global HC-Proxies
     check_result=0
     check_configs || check_result=$?
     if [[ $check_result -eq 0 ]]; then
@@ -577,9 +676,9 @@ main() {
     else
         STATUS_RESULTS[configs]="warn"
         # Try to identify which config is problematic
-        if [[ ! -f "$GLOBAL_INFRASTRUCTURE/CG-Flash/.env" ]]; then
+        if [[ ! -f "$GLOBAL_HC_PROXIES/CG-Flash/.env" ]]; then
             STATUS_RESULTS[configs_note]="Missing CG-Flash .env"
-        elif [[ ! -f "$GLOBAL_INFRASTRUCTURE/CG-Pro/.env" ]]; then
+        elif [[ ! -f "$GLOBAL_HC_PROXIES/CG-Pro/.env" ]]; then
             STATUS_RESULTS[configs_note]="Missing CG-Pro .env"
         else
             STATUS_RESULTS[configs_note]="Placeholder values"

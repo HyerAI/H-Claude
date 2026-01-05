@@ -1,5 +1,5 @@
 # API Keys and secrets
-infrastructure/*/.env
+HC-Proxies/*/.env
 .env
 
 # Local settings (user-specific)

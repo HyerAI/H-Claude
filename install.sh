@@ -7,13 +7,13 @@
 #
 # What it does:
 #   1. Creates ~/.claude/ directory structure
-#   2. Clones proxy infrastructure to ~/.claude/infrastructure/
+#   2. Clones HC-Proxies to ~/.claude/HC-Proxies/
 #   3. Installs proxy dependencies (npm install)
 #   4. Creates helper scripts in ~/.claude/bin/
 #   5. Caches workflow templates for /hc-init
 #
 # After install:
-#   1. Add API keys to ~/.claude/infrastructure/*/.env
+#   1. Add API keys to ~/.claude/HC-Proxies/*/.env
 #   2. Run: ~/.claude/bin/start-proxies.sh
 #   3. In your project: claude → /hc-init
 #
@@ -27,7 +27,7 @@ set -e
 GITHUB_REPO="HyerAI/H-Claude"
 GITHUB_BRANCH="main"
 INSTALL_DIR="$HOME/.claude"
-INFRASTRUCTURE_DIR="$INSTALL_DIR/infrastructure"
+HC_PROXIES_DIR="$INSTALL_DIR/HC-Proxies"
 BIN_DIR="$INSTALL_DIR/bin"
 TEMPLATE_DIR="$INSTALL_DIR/h-claude-template"
 TEMP_DIR=$(mktemp -d)
@@ -134,7 +134,7 @@ check_prerequisites() {
 create_directories() {
     log_info "Creating directory structure..."
 
-    mkdir -p "$INFRASTRUCTURE_DIR"
+    mkdir -p "$HC_PROXIES_DIR"
     mkdir -p "$BIN_DIR"
     mkdir -p "$TEMPLATE_DIR"
 
@@ -157,14 +157,14 @@ download_repository() {
     log_success "Downloaded H-Claude"
 }
 
-install_infrastructure() {
-    log_info "Installing proxy infrastructure..."
+install_hc_proxies() {
+    log_info "Installing HC-Proxies..."
 
     local proxies=("CG-Flash" "CG-Pro" "CC-Claude")
 
     for proxy in "${proxies[@]}"; do
-        local src="$TEMP_DIR/h-claude/infrastructure/$proxy"
-        local dest="$INFRASTRUCTURE_DIR/$proxy"
+        local src="$TEMP_DIR/h-claude/HC-Proxies/$proxy"
+        local dest="$HC_PROXIES_DIR/$proxy"
 
         if [ -d "$src" ]; then
             # Copy proxy
@@ -235,7 +235,7 @@ create_bin_scripts() {
 #!/bin/bash
 # Start H-Claude proxy servers (global)
 
-INFRASTRUCTURE_DIR="$HOME/.claude/infrastructure"
+HC_PROXIES_DIR="$HOME/.claude/HC-Proxies"
 LOG_DIR="/tmp/h-claude"
 
 mkdir -p "$LOG_DIR"
@@ -251,7 +251,7 @@ check_port() {
 if check_port 2405; then
     echo "CG-Flash (2405): Already running"
 else
-    cd "$INFRASTRUCTURE_DIR/CG-Flash"
+    cd "$HC_PROXIES_DIR/CG-Flash"
     nohup npm start > "$LOG_DIR/cg-flash.log" 2>&1 &
     echo "CG-Flash (2405): Started (PID: $!)"
 fi
@@ -260,7 +260,7 @@ fi
 if check_port 2406; then
     echo "CG-Pro (2406): Already running"
 else
-    cd "$INFRASTRUCTURE_DIR/CG-Pro"
+    cd "$HC_PROXIES_DIR/CG-Pro"
     nohup npm start > "$LOG_DIR/cg-pro.log" 2>&1 &
     echo "CG-Pro (2406): Started (PID: $!)"
 fi
@@ -269,7 +269,7 @@ fi
 if check_port 2408; then
     echo "CC-Claude (2408): Already running"
 else
-    cd "$INFRASTRUCTURE_DIR/CC-Claude"
+    cd "$HC_PROXIES_DIR/CC-Claude"
     nohup npm start > "$LOG_DIR/cc-claude.log" 2>&1 &
     echo "CC-Claude (2408): Started (PID: $!)"
 fi
@@ -392,8 +392,8 @@ show_completion() {
     echo "Next steps:"
     echo ""
     echo "  1. Add your Google AI API key:"
-    echo "     Edit: ~/.claude/infrastructure/CG-Flash/.env"
-    echo "     Edit: ~/.claude/infrastructure/CG-Pro/.env"
+    echo "     Edit: ~/.claude/HC-Proxies/CG-Flash/.env"
+    echo "     Edit: ~/.claude/HC-Proxies/CG-Pro/.env"
     echo ""
     echo "  2. Start the proxies:"
     echo "     ~/.claude/bin/start-proxies.sh"
@@ -430,7 +430,7 @@ main() {
     check_prerequisites
     create_directories
     download_repository
-    install_infrastructure
+    install_hc_proxies
     install_workflow_templates
     create_bin_scripts
     show_completion

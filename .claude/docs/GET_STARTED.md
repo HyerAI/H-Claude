@@ -28,7 +28,7 @@ This installs H-Claude globally to `~/.claude/`:
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| Proxies | `~/.claude/infrastructure/` | CG-Flash, CG-Pro, CC-Claude |
+| Proxies | `~/.claude/HC-Proxies/` | CG-Flash, CG-Pro, CC-Claude |
 | Scripts | `~/.claude/bin/` | start-proxies.sh, stop-proxies.sh |
 | Templates | `~/.claude/h-claude-template/` | Workflow files for /hc-init |
 
@@ -57,8 +57,8 @@ cd my-project
 
 ```bash
 # Edit these files:
-~/.claude/infrastructure/CG-Flash/.env
-~/.claude/infrastructure/CG-Pro/.env
+~/.claude/HC-Proxies/CG-Flash/.env
+~/.claude/HC-Proxies/CG-Pro/.env
 
 # Add your Google AI API key:
 GOOGLE_AI_API_KEY=your-key-here
@@ -68,8 +68,8 @@ GOOGLE_AI_API_KEY=your-key-here
 
 ```bash
 # Edit these files:
-infrastructure/CG-Flash/.env
-infrastructure/CG-Pro/.env
+HC-Proxies/CG-Flash/.env
+HC-Proxies/CG-Pro/.env
 ```
 
 Get your Google AI API key at: https://aistudio.google.com/apikey
@@ -276,7 +276,7 @@ If error: regenerate at https://aistudio.google.com/apikey
 
 ```
 ~/.claude/
-├── infrastructure/         # Proxy servers (shared)
+├── HC-Proxies/             # Proxy servers (shared)
 │   ├── CG-Flash/
 │   ├── CG-Pro/
 │   └── CC-Claude/

@@ -8,7 +8,7 @@ CG-Pro routes Claude Code requests to Google AI's Gemini Pro, translating betwee
 
 1. **Install dependencies:**
    ```bash
-   cd infrastructure/CG-Pro
+   cd HC-Proxies/CG-Pro
    npm install
    ```
 

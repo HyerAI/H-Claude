@@ -26,8 +26,8 @@ This installs H-Claude globally to `~/.claude/`:
 
 ```bash
 # Edit these files and add your Google AI API key:
-~/.claude/infrastructure/CG-Flash/.env
-~/.claude/infrastructure/CG-Pro/.env
+~/.claude/HC-Proxies/CG-Flash/.env
+~/.claude/HC-Proxies/CG-Pro/.env
 ```
 
 Get your API key at: https://aistudio.google.com/apikey

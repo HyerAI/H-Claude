@@ -67,9 +67,9 @@ Each Gemini proxy requires a Google AI API key:
 
 ```bash
 # Edit the .env file for each proxy
-~/.claude/infrastructure/CG-Flash/.env
-~/.claude/infrastructure/CG-Pro/.env
-~/.claude/infrastructure/CG-Image/.env
+~/.claude/HC-Proxies/CG-Flash/.env
+~/.claude/HC-Proxies/CG-Pro/.env
+~/.claude/HC-Proxies/CG-Image/.env
 
 # Content:
 GOOGLE_AI_API_KEY=your-key-here
@@ -100,7 +100,7 @@ To use a different model, edit the proxy's `.env` file:
 ### Option 1: Change Gemini Model
 
 ```bash
-# In ~/.claude/infrastructure/CG-Flash/.env
+# In ~/.claude/HC-Proxies/CG-Flash/.env
 GOOGLE_AI_API_KEY=your-key
 KS_PROXY_MODEL=gemini-2.0-flash-exp  # or gemini-1.5-flash, etc.
 ```
@@ -123,7 +123,7 @@ To use a different LLM provider (e.g., OpenAI, Anthropic direct), you would need
 2. Update the port mapping
 3. Set `ANTHROPIC_API_BASE_URL` to your new proxy
 
-The proxy code is in `infrastructure/CG-Flash/server.js` - use it as a template.
+The proxy code is in `HC-Proxies/CG-Flash/server.js` - use it as a template.
 
 ---
 

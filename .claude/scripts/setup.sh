@@ -27,7 +27,7 @@ echo ""
 
 # Install proxy dependencies
 echo "Installing proxy dependencies..."
-for dir in infrastructure/CG-Flash infrastructure/CG-Pro infrastructure/CC-Claude infrastructure/CG-Image; do
+for dir in HC-Proxies/CG-Flash HC-Proxies/CG-Pro HC-Proxies/CC-Claude HC-Proxies/CG-Image; do
     if [ -d "$dir" ]; then
         echo "  $dir..."
         (cd "$dir" && npm install --silent 2>/dev/null || npm install)
@@ -38,7 +38,7 @@ echo ""
 
 # Copy .env.example files if .env doesn't exist
 echo "Checking .env files..."
-for dir in infrastructure/CG-Flash infrastructure/CG-Pro infrastructure/CC-Claude infrastructure/CG-Image; do
+for dir in HC-Proxies/CG-Flash HC-Proxies/CG-Pro HC-Proxies/CC-Claude HC-Proxies/CG-Image; do
     if [ -f "$dir/.env.example" ] && [ ! -f "$dir/.env" ]; then
         cp "$dir/.env.example" "$dir/.env"
         echo "  Created $dir/.env (needs API key)"
@@ -61,8 +61,8 @@ echo ""
 echo "=== Setup Complete ==="
 echo ""
 echo "Next steps:"
-echo "  1. Edit infrastructure/CG-Flash/.env - add GOOGLE_AI_API_KEY"
-echo "  2. Edit infrastructure/CG-Pro/.env - add GOOGLE_AI_API_KEY"
+echo "  1. Edit HC-Proxies/CG-Flash/.env - add GOOGLE_AI_API_KEY"
+echo "  2. Edit HC-Proxies/CG-Pro/.env - add GOOGLE_AI_API_KEY"
 echo "  3. Run: .claude/scripts/start-proxies.sh"
 echo "  4. Run: claude"
 echo ""

@@ -4,6 +4,18 @@ All notable changes to H-Claude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.1] - 2026-01-04
+
+### Changed
+- **infrastructure/ → HC-Proxies/** - Renamed folder to avoid system naming conflicts
+- **hc-init V1.2.0** - Added `--init` flag for project initialization with name prompt
+- **Global install path** - Now `~/.claude/HC-Proxies/` instead of `~/.claude/infrastructure/`
+
+### Added
+- **hc-init --init** - Prompts for project name, updates CLAUDE.md, offers src/ creation
+
+---
+
 ## [0.7.2] - 2026-01-04
 
 ### Changed
