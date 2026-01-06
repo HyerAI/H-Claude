@@ -24,16 +24,11 @@ Learned preferences from sessions. $SCOUT updates after commands (triage).
 
 ## Communication
 
-- Prefers direct correction over diplomatic hedging
-- Wants decisions surfaced via Decision Brief format
-- No excessive praise or sycophancy
+- [to be populated]
 
 ## Workflow
 
-- Friction in validation is intentional ("friction is the feature")
-- Quality over speed - never rush planning
-- Use think-tank for substantial decisions, not inline
-- Route 3+ file changes through commands
+- [to be populated]
 
 ## Code Style
 
@@ -45,4 +40,4 @@ Learned preferences from sessions. $SCOUT updates after commands (triage).
 
 ---
 
-Last updated: 2026-01-05
+Last updated: YYYY-MM-DD

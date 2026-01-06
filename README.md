@@ -67,12 +67,41 @@ ROADMAP.yaml (HOW)      →  Development phases, execution order
 /hc-execute        →  Parallel workers implement with QA
 ```
 
+## File Structure
+
+### Template Files (`*.example`)
+
+Files ending in `.example` are templates. Copy them (removing `.example`) to create your live files:
+
+| Template | Live File | Purpose |
+|----------|-----------|---------|
+| `context.yaml.example` | `context.yaml` | Session state |
+| `CHANGELOG.md.example` | `CHANGELOG.md` | Project changelog |
+| `BACKLOG.yaml.example` | `BACKLOG.yaml` | Work tracking |
+| `.env.example` | `.env` | API keys |
+
+### SSoT Files
+
+Files in `.claude/PM/SSoT/` are YOUR project's single source of truth:
+- `NORTHSTAR.md` - Customize with your project goals
+- `ROADMAP.yaml` - Define your development phases
+
+See `.claude/examples/` for filled-in examples.
+
+### Session Artifacts
+
+When you run commands like `/think-tank` or `/hc-execute`, session folders are created:
+- `.claude/PM/think-tank/your_session_YYYYMMDD/`
+- `.claude/PM/hc-execute/your_session_YYYYMMDD/`
+
+These are **gitignored by default**. Your workflow decisions stay local.
+
 ## Documentation
 
 | Doc | Purpose |
 |-----|---------|
-| [GET_STARTED.md](docs/GET_STARTED.md) | Full installation guide |
-| [WORKFLOW_GUIDE.md](docs/WORKFLOW_GUIDE.md) | How to use the workflow |
+| [GET_STARTED.md](.claude/docs/GET_STARTED.md) | Full installation guide |
+| [WORKFLOW_GUIDE.md](.claude/docs/WORKFLOW_GUIDE.md) | How to use the workflow |
 | [CLAUDE.md](CLAUDE.md) | Project context for Claude |
 
 ## Examples

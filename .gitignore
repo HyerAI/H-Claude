@@ -1,6 +1,11 @@
+# ===========================================
+# H-Claude .gitignore
+# ===========================================
+
 # API Keys and secrets
 HC-Proxies/*/.env
 .env
+*.env.local
 
 # Local settings (user-specific)
 .claude/settings.local.json
@@ -32,19 +37,36 @@ HC-Proxies/*/.env
 # Temp files
 .claude/PM/TEMP/
 
-# PM-View local config (use .env.example as template)
+# ===========================================
+# LIVE STATE FILES (use *.example as template)
+# ===========================================
+
+# Context (use context.yaml.example as template)
+.claude/context.yaml
+
+# Project changelog (use CHANGELOG.md.example as template)
+.claude/PM/CHANGELOG.md
+
+# Backlog (use BACKLOG.yaml.example as template)
+.claude/PM/BACKLOG.yaml
+
+# Git project-specific files (use *.example as template)
+.claude/PM/GIT/GIT_PLAN.md
+.claude/PM/GIT/PROTOCOLS.md
+
+# ===========================================
+# PM-View local config
+# ===========================================
 .claude/PM/PM-View/.env
 
 # MkDocs build output
 _site/
-
-# Project-specific changelog (use CHANGELOG.md.example as template)
-.claude/PM/CHANGELOG.md
-
-# Project-specific context (use context.yaml.example as template)
-.claude/context.yaml
+site/
 
 # ===========================================
+# Standard ignores
+# ===========================================
+
 # Node
 node_modules/
 

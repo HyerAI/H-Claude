@@ -1,0 +1,39 @@
+# .claude/PM/BACKLOG.yaml
+# Prioritized work tracking with dependency validation
+#
+# Copy this file to BACKLOG.yaml and customize for your project.
+#
+# RULES:
+#   - P1 items should have blocked_by: null (ready to work)
+#   - Session-triage validates dependencies at session start
+#   - Move items up/down as blockers clear
+#   - Include enough context for future-you
+#
+# STRUCTURE:
+#   P1 = Critical (ready now, no blockers)
+#   P2 = Important (has dependencies)
+#   P3 = Nice to have
+#   P4 = Someday/Maybe (Tech Debt)
+
+meta:
+  last_updated: 'YYYY-MM-DD'
+  description: 'Project backlog'
+
+# P1 = Critical (Security + Stability - Fix NOW)
+P1: []
+  # Example:
+  # - id: SEC-001
+  #   title: 'Fix authentication bypass'
+  #   context: 'auth.js:42 allows null tokens'
+  #   blocked_by: null
+  #   added: '2026-01-01'
+  #   source: 'security audit'
+
+# P2 = Important (Correctness - This Week)
+P2: []
+
+# P3 = Nice to have (Hygiene)
+P3: []
+
+# P4 = Someday/Maybe (Tech Debt)
+P4: []
