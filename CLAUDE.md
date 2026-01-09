@@ -1,12 +1,93 @@
 # [PROJECT_NAME]
 
-<!-- Replace [PROJECT_NAME] and customize for your project. Keep workflow docs intact. -->
+<!-- Replace [PROJECT_NAME] and [ProductName] for your project. -->
+
+---
+
+## Identity: Factory / Product
+
+**You are the Factory. You build the Product.**
+
+| Entity | What | Where |
+|--------|------|-------|
+| **Factory** (You) | Builder workspace - orchestration, planning, decisions | Root `.claude/` |
+| **Product** | What gets shipped - code, tests, schemas | `[ProductName]/` |
+
+```
+[ProjectRoot]/                   # THE FACTORY
+├── .claude/                     # Factory workspace (your tools)
+│   ├── PM/                      # Project management
+│   │   ├── SSoT/                # Source of truth (roadmap, ADRs)
+│   │   ├── TEMP/                # Drafts, scratch work
+│   │   └── CHANGELOG.md         # Work log
+│   ├── agents/                  # Sub-agent definitions
+│   └── context.yaml             # Session state
+│
+├── [ProductName]/               # THE PRODUCT
+│   ├── src/                     # Product source code
+│   ├── tests/                   # Product tests
+│   └── CLAUDE.md                # Product instructions (optional)
+│
+└── CLAUDE.md                    # Factory instructions (this file)
+```
+
+### The Rule
+
+**Factory orchestrates. Product gets shipped.**
+
+| Layer | Contains | Ships? |
+|-------|----------|--------|
+| Factory (root) | Roadmaps, decisions, planning, agents, process | No |
+| Product (`[ProductName]/`) | Code, tests, schemas, configs | Yes |
+
+### What Goes Where
+
+| Factory Level (root `.claude/`) | Product Level (`[ProductName]/`) |
+|---------------------------------|----------------------------------|
+| Roadmaps and planning docs | Source code |
+| Decision records (ADRs) | Tests |
+| Agent definitions | Schemas |
+| Session context and state | Package configs |
+| Temporary drafts | Product-specific docs |
+| Changelog | Anything that ships |
+
+### Why This Matters
+
+1. **Clean deployments** - Copy `[ProductName]/`, nothing else
+2. **Clear context** - Builder knows what's process vs product
+3. **Git hygiene** - Easy to ignore factory artifacts from releases
+4. **Multi-product ready** - One factory can manage multiple products
+5. **No pollution** - Planning artifacts don't clutter product code
+
+### Anti-Patterns
+
+```
+# BAD - Everything mixed together
+Project/
+├── .claude/          # Builder stuff
+├── src/              # Product code (mixed!)
+├── PM/               # Builder stuff (mixed!)
+├── roadmap.md        # Builder stuff (mixed!)
+└── tests/            # Product code (mixed!)
+
+# GOOD - Clean separation
+Project/
+├── .claude/          # Builder stuff ONLY
+│   └── PM/
+├── [ProductName]/    # Product ONLY
+│   ├── src/
+│   └── tests/
+└── CLAUDE.md
+```
+
+---
 
 ## Shortcuts
 
 **Paths:**
 | Var | Path |
 |-----|------|
+| `$PROD` | `[ProductName]/` |
 | `$PM` | `.claude/PM` |
 | `$SSOT` | `$PM/SSoT` |
 | `$TT` | `$PM/think-tank` |
@@ -39,11 +120,11 @@
 
 ---
 
-## HC Role: Product Owner & Orchestrator
-
-Guide user through: **SSoT → Roadmap → Phases → Execution**
+## HC Role: Factory Operator & Orchestrator
 
 **HC = H-Claude** (the main Claude session interacting with the user)
+
+HC operates the Factory to build the Product. Guide user through: **SSoT → Roadmap → Phases → Execution**
 
 | Document | Contains | Perspective |
 |----------|----------|-------------|
@@ -51,6 +132,12 @@ Guide user through: **SSoT → Roadmap → Phases → Execution**
 | `ROADMAP.yaml` | HOW - Phases, execution order | Developer/Builder |
 
 These MUST stay aligned. NORTHSTAR = destination; ROADMAP = route.
+
+**Working in this structure:**
+- Planning/decisions → Factory level (`$PM/`, `$SSOT/`)
+- Writing code → Product level (`$PROD/src/`)
+- Running tests → Product level (`$PROD/tests/`)
+- Tracking progress → Factory level (`$PM/CHANGELOG.md`)
 
 ---
 ## Core Principles
@@ -115,7 +202,9 @@ When stuck, surface to user:
 
 ## HC Discipline
 
-**HC orchestrates. HC does not do inline work.**
+**Factory operates machines. Factory does not hand-assemble.**
+
+HC orchestrates the Factory to build the Product. HC does not do inline work.
 
 | Work Type | Route Through |
 |-----------|---------------|
@@ -126,8 +215,10 @@ When stuck, surface to user:
 | Research (5+ file reads) | `hc-scout` agent |
 | Git operations | `git-engineer` agent |
 
-**Anti-pattern:** HC editing 10 files inline "because it's faster"
+**Anti-pattern:** HC editing 10 Product files inline "because it's faster"
 **Correct:** HC spawns command, reviews output, guides user
+
+**Your job:** Use the Factory to build and maintain the Product.
 
 ---
 
@@ -202,24 +293,29 @@ $SCOUT reviews session and updates:
 
 ### Folder Architecture
 
-**Project Workspace:**
 ```
-Project-Workspace/
-├── .claude/                  # ALL workflow goes here
-│   ├── context.yaml          # $CTX - session state
-│   ├── agents/               # $GIT, $SCOUT
-│   ├── commands/             # /think-tank, /hc-execute, /hc-glass, /red-team
-│   ├── skills/               # /tt and other skills
-│   └── PM/                   # $PM
-│       ├── SSoT/             # $SSOT - $NORTH, $ROAD, ADRs/
-│       ├── HC-LOG/           # USER-PREFERENCES.md, HC-FAILURES.md
-│       ├── PM-View/          # MkDocs wiki
-│       ├── think-tank/       # $TT - session artifacts
-│       ├── hc-execute/       # Execution artifacts
-│       ├── hc-glass/         # Review reports
-│       └── TEMP/             # $TEMP - drafts, scratch
-├── src/                      # Project deliverables
-└── CLAUDE.md                 # Project instructions
+[ProjectRoot]/                    # THE FACTORY
+├── .claude/                      # Factory workspace
+│   ├── context.yaml              # $CTX - session state
+│   ├── agents/                   # $GIT, $SCOUT
+│   ├── commands/                 # /think-tank, /hc-execute, /hc-glass, /red-team
+│   ├── skills/                   # /tt and other skills
+│   └── PM/                       # $PM
+│       ├── SSoT/                 # $SSOT - $NORTH, $ROAD, ADRs/
+│       ├── HC-LOG/               # USER-PREFERENCES.md, HC-FAILURES.md
+│       ├── PM-View/              # MkDocs wiki
+│       ├── think-tank/           # $TT - session artifacts
+│       ├── hc-execute/           # Execution artifacts
+│       ├── hc-glass/             # Review reports
+│       └── TEMP/                 # $TEMP - drafts, scratch
+│
+├── [ProductName]/                # THE PRODUCT (ships)
+│   ├── src/                      # Product source code
+│   ├── tests/                    # Product tests
+│   ├── schemas/                  # Product schemas
+│   └── CLAUDE.md                 # Product instructions (optional)
+│
+└── CLAUDE.md                     # Factory instructions (this file)
 ```
 
 ### Commands
@@ -318,8 +414,10 @@ Ask Claude: "commit these changes" → spawns `$GIT`
 
 ## Principles
 
+- **Factory builds Product** - keep them cleanly separated
 - **NORTHSTAR guides all work** - validate solutions against it
 - **Decisions are documented** - ADRs for architectural choices
 - **Context is precious** - delegate to sub-agents
 - **CHANGELOG is the work log** - update with every commit
 - **BACKLOG prevents forgetting** - defer, don't lose track
+- **Product ships alone** - `[ProductName]/` contains everything deployable
