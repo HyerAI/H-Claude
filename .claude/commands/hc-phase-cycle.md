@@ -1,13 +1,13 @@
 ---
-version: V2.1.0
+version: V3.0.0
 status: current
 timestamp: 2026-01-10
-description: "Phase cycle orchestrator with resilient spawns (ADR-007)"
+description: "Phase cycle orchestrator - HC orchestrates, agents execute"
 ---
 
 # /hc-phase-cycle - Phase Cycle Orchestrator
 
-Delegate to agents, track via todo, checkpoint automatically.
+**HC orchestrates. Agents execute. State is sacred.**
 
 ---
 
@@ -21,28 +21,44 @@ Delegate to agents, track via todo, checkpoint automatically.
 /hc-phase-cycle 3         # 3 phases
 ```
 
-| Param | Default | Description |
-|-------|---------|-------------|
-| N | 1 | Number of phases to run |
-| PHASE | next | Starting phase (or specific PHASE-XXX) |
-| SKIP_AUDIT | false | Skip red-team (not recommended) |
-
 ---
 
 ## The Cycle (Per Phase)
 
 ```text
-┌────────────────────────────────────────────────────┐
-│  1. EXECUTE    /hc-execute --phase=PHASE-XXX       │
-│  2. AUDIT      /red-team AUDIT_SCOPE: core         │
-│  3. FIXES      Apply Kill/Fix list items           │
-│  4. VALIDATE   Tests + /hc-glass DEPTH: quick      │
-│  5. PLAN       /think-tank --phase=PHASE-NEXT      │
-├────────────────────────────────────────────────────┤
-│  [GATE] sync_gate() before next phase              │
-└────────────────────────────────────────────────────┘
-         ↓
-    If N > 1: Loop with next phase
+┌─────────────────────────────────────────────────────────────┐
+│  1. EXECUTE     Spawn /hc-execute (background)              │
+│  2. CHECKPOINT  git commit + update $CTX                    │
+│  3. AUDIT       Spawn /red-team (background)                │
+│  4. FIXES       Spawn FLASH workers (background)            │
+│  5. CHECKPOINT  git commit + update $CTX                    │
+│  6. VALIDATE    Spawn /hc-glass (background)                │
+│  7. PLAN        Spawn /think-tank (background)              │
+│  8. CHECKPOINT  git commit + update $CTX + complete_cycle   │
+├─────────────────────────────────────────────────────────────┤
+│  [GATE] User confirms before next phase                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## HC's Role
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  HC = ORCHESTRATOR + USER LIAISON                           │
+│                                                             │
+│  HC DOES:                                                   │
+│    - Spawn agents (background)                              │
+│    - Review results                                         │
+│    - Update state ($CTX, commits)                           │
+│    - Talk to user while agents work                         │
+│                                                             │
+│  HC DOES NOT:                                               │
+│    - Write code inline                                      │
+│    - Apply fixes directly                                   │
+│    - Block on long operations                               │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -58,7 +74,7 @@ source .claude/lib/agent-spawn.sh
 recover_cycle
 
 # Init session (exports CYCLE_SESSION_PATH)
-init_cycle_session "cycle_$(date +%Y%m%d_%H%M)" "PHASE-001" "PHASE-002"
+init_cycle_session "cycle_$(date +%Y%m%d_%H%M)" "PHASE-001"
 
 # Verify clean state
 sync_gate
@@ -66,146 +82,49 @@ sync_gate
 
 ### STEP 1: Generate ALL Todos Upfront
 
-**CRITICAL:** Generate todos for ALL phases at init, not incrementally.
+**CRITICAL:** Call TodoWrite immediately with ALL steps for ALL phases.
 
 ---
 
-#### Pattern: N=1 (Single Phase)
+#### Pattern: N=1 (Single Phase - 8 steps)
 
-```yaml
-todos:
-  - content: "[1/1] PHASE-001: Execute"
-    status: in_progress
-    activeForm: "Executing PHASE-001"
-  - content: "[1/1] PHASE-001: Audit"
-    status: pending
-    activeForm: "Auditing PHASE-001"
-  - content: "[1/1] PHASE-001: Fixes"
-    status: pending
-    activeForm: "Fixing PHASE-001"
-  - content: "[1/1] PHASE-001: Validate"
-    status: pending
-    activeForm: "Validating PHASE-001"
-  - content: "[1/1] PHASE-001: Plan next"
-    status: pending
-    activeForm: "Planning next phase"
-  - content: "[DONE] Cycle complete"
-    status: pending
-    activeForm: "Completing cycle"
+```json
+[
+  {"content": "[1/8] Execute phase", "status": "in_progress", "activeForm": "Spawning /hc-execute"},
+  {"content": "[2/8] Checkpoint: commit + state", "status": "pending", "activeForm": "Committing execution work"},
+  {"content": "[3/8] Audit phase", "status": "pending", "activeForm": "Spawning /red-team"},
+  {"content": "[4/8] Fixes: spawn FLASH workers", "status": "pending", "activeForm": "Spawning fix workers"},
+  {"content": "[5/8] Checkpoint: commit + state", "status": "pending", "activeForm": "Committing fixes"},
+  {"content": "[6/8] Validate phase", "status": "pending", "activeForm": "Spawning /hc-glass"},
+  {"content": "[7/8] Plan next phase", "status": "pending", "activeForm": "Spawning /think-tank"},
+  {"content": "[8/8] Final checkpoint + complete", "status": "pending", "activeForm": "Final commit + complete_cycle"}
+]
 ```
 
 ---
 
-#### Pattern: N=2 (Two Phases)
+#### Pattern: N=2 (Two Phases - 17 steps)
 
-```yaml
-todos:
-  # ═══ PHASE 1 of 2 ═══
-  - content: "[1/2] PHASE-001: Execute"
-    status: in_progress
-    activeForm: "Executing PHASE-001 (1/2)"
-  - content: "[1/2] PHASE-001: Audit"
-    status: pending
-    activeForm: "Auditing PHASE-001"
-  - content: "[1/2] PHASE-001: Fixes"
-    status: pending
-    activeForm: "Fixing PHASE-001"
-  - content: "[1/2] PHASE-001: Validate"
-    status: pending
-    activeForm: "Validating PHASE-001"
-  - content: "[1/2] PHASE-001: Plan PHASE-002"
-    status: pending
-    activeForm: "Planning PHASE-002"
-  - content: "[GATE] sync_gate before PHASE-002"
-    status: pending
-    activeForm: "Sync gate 1→2"
-
-  # ═══ PHASE 2 of 2 ═══
-  - content: "[2/2] PHASE-002: Execute"
-    status: pending
-    activeForm: "Executing PHASE-002 (2/2)"
-  - content: "[2/2] PHASE-002: Audit"
-    status: pending
-    activeForm: "Auditing PHASE-002"
-  - content: "[2/2] PHASE-002: Fixes"
-    status: pending
-    activeForm: "Fixing PHASE-002"
-  - content: "[2/2] PHASE-002: Validate"
-    status: pending
-    activeForm: "Validating PHASE-002"
-  - content: "[2/2] PHASE-002: Plan next"
-    status: pending
-    activeForm: "Planning next phase"
-  - content: "[DONE] Cycle complete"
-    status: pending
-    activeForm: "Final sync gate"
-```
-
----
-
-#### Pattern: N=3 (Three Phases)
-
-```yaml
-todos:
-  # ═══ PHASE 1 of 3 ═══
-  - content: "[1/3] PHASE-001: Execute"
-    status: in_progress
-    activeForm: "Executing PHASE-001 (1/3)"
-  - content: "[1/3] PHASE-001: Audit"
-    status: pending
-    activeForm: "Auditing PHASE-001"
-  - content: "[1/3] PHASE-001: Fixes"
-    status: pending
-    activeForm: "Fixing PHASE-001"
-  - content: "[1/3] PHASE-001: Validate"
-    status: pending
-    activeForm: "Validating PHASE-001"
-  - content: "[1/3] PHASE-001: Plan PHASE-002"
-    status: pending
-    activeForm: "Planning PHASE-002"
-  - content: "[GATE] sync_gate before PHASE-002"
-    status: pending
-    activeForm: "Sync gate 1→2"
-
-  # ═══ PHASE 2 of 3 ═══
-  - content: "[2/3] PHASE-002: Execute"
-    status: pending
-    activeForm: "Executing PHASE-002 (2/3)"
-  - content: "[2/3] PHASE-002: Audit"
-    status: pending
-    activeForm: "Auditing PHASE-002"
-  - content: "[2/3] PHASE-002: Fixes"
-    status: pending
-    activeForm: "Fixing PHASE-002"
-  - content: "[2/3] PHASE-002: Validate"
-    status: pending
-    activeForm: "Validating PHASE-002"
-  - content: "[2/3] PHASE-002: Plan PHASE-003"
-    status: pending
-    activeForm: "Planning PHASE-003"
-  - content: "[GATE] sync_gate before PHASE-003"
-    status: pending
-    activeForm: "Sync gate 2→3"
-
-  # ═══ PHASE 3 of 3 ═══
-  - content: "[3/3] PHASE-003: Execute"
-    status: pending
-    activeForm: "Executing PHASE-003 (3/3)"
-  - content: "[3/3] PHASE-003: Audit"
-    status: pending
-    activeForm: "Auditing PHASE-003"
-  - content: "[3/3] PHASE-003: Fixes"
-    status: pending
-    activeForm: "Fixing PHASE-003"
-  - content: "[3/3] PHASE-003: Validate"
-    status: pending
-    activeForm: "Validating PHASE-003"
-  - content: "[3/3] PHASE-003: Plan next"
-    status: pending
-    activeForm: "Planning next phase"
-  - content: "[DONE] Cycle complete"
-    status: pending
-    activeForm: "Final sync gate"
+```json
+[
+  {"content": "[P1 1/8] Execute phase", "status": "in_progress", "activeForm": "Spawning /hc-execute (P1)"},
+  {"content": "[P1 2/8] Checkpoint", "status": "pending", "activeForm": "Committing P1 execution"},
+  {"content": "[P1 3/8] Audit phase", "status": "pending", "activeForm": "Spawning /red-team (P1)"},
+  {"content": "[P1 4/8] Fixes: FLASH workers", "status": "pending", "activeForm": "Spawning fix workers (P1)"},
+  {"content": "[P1 5/8] Checkpoint", "status": "pending", "activeForm": "Committing P1 fixes"},
+  {"content": "[P1 6/8] Validate phase", "status": "pending", "activeForm": "Spawning /hc-glass (P1)"},
+  {"content": "[P1 7/8] Plan next phase", "status": "pending", "activeForm": "Spawning /think-tank (P1)"},
+  {"content": "[P1 8/8] Checkpoint", "status": "pending", "activeForm": "Committing P1 complete"},
+  {"content": "[GATE] Confirm before P2", "status": "pending", "activeForm": "User gate: continue to P2?"},
+  {"content": "[P2 1/8] Execute phase", "status": "pending", "activeForm": "Spawning /hc-execute (P2)"},
+  {"content": "[P2 2/8] Checkpoint", "status": "pending", "activeForm": "Committing P2 execution"},
+  {"content": "[P2 3/8] Audit phase", "status": "pending", "activeForm": "Spawning /red-team (P2)"},
+  {"content": "[P2 4/8] Fixes: FLASH workers", "status": "pending", "activeForm": "Spawning fix workers (P2)"},
+  {"content": "[P2 5/8] Checkpoint", "status": "pending", "activeForm": "Committing P2 fixes"},
+  {"content": "[P2 6/8] Validate phase", "status": "pending", "activeForm": "Spawning /hc-glass (P2)"},
+  {"content": "[P2 7/8] Plan next phase", "status": "pending", "activeForm": "Spawning /think-tank (P2)"},
+  {"content": "[P2 8/8] Final checkpoint + complete", "status": "pending", "activeForm": "Final commit + complete_cycle"}
+]
 ```
 
 ---
@@ -216,38 +135,73 @@ todos:
 |------|-------------|
 | **Full upfront** | Generate ALL todos for ALL phases at init |
 | **One active** | Exactly one todo `in_progress` at a time |
-| **Immediate completion** | Mark done right after finishing, don't batch |
-| **[X/N] prefix** | Shows phase progress (e.g., [2/3]) |
-| **[GATE] checkpoint** | Run `sync_gate()`, user confirms before next phase |
-| **[DONE] final** | Last todo marks cycle complete |
+| **Immediate completion** | Mark done right after step completes |
+| **Background spawns** | Heavy work runs async, HC stays available |
+| **Checkpoints** | Commit after Execute, after Fixes, after Plan |
 
 ---
 
 ### STEP 2: Execute Each Todo
 
+#### For SPAWN steps (Execute, Audit, Fixes, Validate, Plan):
+
+```bash
+# Run in background - HC stays available to user
+ANTHROPIC_API_BASE_URL=http://localhost:$PORT claude --dangerously-skip-permissions -p "PROMPT" &
+
+# Or use spawn_agent with run_in_background
+spawn_agent "name" "prompt" "http://localhost:$PORT" &
+```
+
+**Check progress:** Read agent log or use `tail -f`
+**HC stays available:** Can answer user questions while agents work
+
+#### For CHECKPOINT steps:
+
+```bash
+# HC does this directly (quick, no delegation needed)
+git add -A && git commit -m "checkpoint: [step description]"
+update_cycle_state "$PHASE" "$STEP" "complete"
+
+# Update context.yaml with current focus
+```
+
+#### For FIXES step (CRITICAL):
+
 ```text
-For each todo:
-1. Mark in_progress
-2. spawn_agent_resilient() with PHASE and STEP
-   └── AUTO: pre-checkpoint, run agent, post-checkpoint
-3. Review output
-4. Mark completed
-5. Next todo
+┌─────────────────────────────────────────────────────────────┐
+│  FIXES = DELEGATE TO FLASH WORKERS                          │
+│                                                             │
+│  HC reads the audit report (Kill/Fix list)                  │
+│  HC spawns FLASH workers for EACH fix                       │
+│  HC does NOT apply fixes inline                             │
+│                                                             │
+│  Why: Protect HC context window for orchestration           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+```bash
+# For each fix item, spawn a FLASH worker:
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
+WORKSPACE: $(pwd)
+FIX: [description from audit report]
+FILE: [target file]
+
+Apply this fix. Use TDD if applicable.
+" &
 ```
 
 ---
 
-## Command Templates
+## Spawn Templates
 
-| Step | Command | Proxy | Timeout |
-|------|---------|-------|---------|
-| Execute | `spawn_agent_resilient "executor" "Run /hc-execute..." 2414 PHASE execute 960` | HC-Orca | 16m |
-| Audit | `spawn_agent_resilient "auditor" "Run /red-team..." 2414 PHASE audit 960` | HC-Orca | 16m |
-| Fixes | `spawn_agent_resilient "fixer" "Apply fixes..." 2412 PHASE fixes 480` | HC-Work | 8m |
-| Validate | `spawn_agent_resilient "validator" "Run /hc-glass..." 2414 PHASE validation 960` | HC-Orca | 16m |
-| Plan | `spawn_agent_resilient "planner" "Run /think-tank..." 2415 PHASE planning 960` | HC-Orca-R | 16m |
-
-Full templates: `.claude/docs/hc-phase-cycle-reference.md`
+| Step | Port | Agent | Command |
+|------|------|-------|---------|
+| Execute | 2414 | HC-Orca | `/hc-execute` |
+| Audit | 2414 | HC-Orca | `/red-team` |
+| Fixes | 2412 | HC-Work (FLASH) | Individual fix tasks |
+| Validate | 2414 | HC-Orca | `/hc-glass` |
+| Plan | 2415 | HC-Orca-R | `/think-tank` |
 
 ---
 
@@ -263,44 +217,54 @@ cycle_status     # Show progress
 Ask user: **CONTINUE | PAUSE | ABORT**
 
 - CONTINUE → Proceed to next phase
-- PAUSE → Save state, exit (resume later with `recover_cycle`)
+- PAUSE → Save state, exit (resume with `recover_cycle`)
 - ABORT → Stop, keep completed work
 
 ---
 
-## Integration
+## Checkpoint Template
 
-| Command | Role |
-|---------|------|
-| `/hc-execute` | Step 1: Execute phase |
-| `/red-team` | Step 2: Audit |
-| `/hc-glass` | Step 4: Validation |
-| `/think-tank` | Step 5: Plan next |
+```bash
+# After each major work block
+git add -A
+git commit -m "$(cat <<'EOF'
+checkpoint: [PHASE] [STEP] complete
+
+- [Brief description of work done]
+- State: $CTX updated
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+EOF
+)"
+
+# Update context.yaml
+# - recent_actions: add this step
+# - focus: update if changed
+```
 
 ---
 
 ## Mantra
 
 ```
-Generate ALL todos upfront.
-One in_progress at a time.
-Mark complete immediately.
-[GATE] = user confirms.
-spawn_agent_resilient() handles state.
+HC orchestrates. Agents execute.
+Background spawns. HC stays available.
+Checkpoint after every work block.
+FIXES = FLASH workers, never inline.
+State is sacred.
 ```
 
 ---
 
 ## Related
 
-| Instead | When |
+| Command | When |
 |---------|------|
 | `/hc-execute` | Single phase, no cycle |
-| `/think-tank --phase` | Plan only, no execute |
+| `/think-tank --phase` | Plan only |
 | `/red-team` | Audit only |
-
-Reference: `.claude/docs/hc-phase-cycle-reference.md`
+| `/hc-glass` | Validate only |
 
 ---
 
-**V2.1.0** | Multi-phase todo fix, trimmed to ~250 lines
+**V3.0.0** | Background execution, checkpoint steps, FLASH fixes
