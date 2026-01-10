@@ -56,6 +56,22 @@ HC-Proxies/*/.env
 .claude/PM/GIT/PROTOCOLS.md
 
 # ===========================================
+# PROJECT-SPECIFIC SSoT (not part of template)
+# ===========================================
+
+# ADRs - project decisions (see examples/ADR-example.md for format)
+.claude/PM/SSoT/ADRs/ADR-*.md
+
+# Session status
+.claude/PM/SESSION_STATUS.md
+
+# HC learning logs
+.claude/PM/HC-LOG/*.md
+
+# User vision docs
+.claude/PM/SSoT/User_Vision.md
+
+# ===========================================
 # PM-View local config
 # ===========================================
 .claude/PM/PM-View/.env
