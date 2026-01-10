@@ -1,17 +1,42 @@
 ---
-version: V2.4.0
+version: V3.0.1
 status: current
-timestamp: 2026-01-02
-tags: [command, validation, quality-assurance, audit]
+timestamp: 2026-01-10
+tags: [command, validation, quality-assurance, audit, adversarial]
 description: "Quality Seals Audit - Multi-layer deep-dive audit with configurable sectors"
 templates: .claude/templates/template-prompts/red-team/
+
+# Scope options
+scopes:
+  full: { sectors: [1,2,3,4,5,6], desc: "Comprehensive audit" }
+  core: { sectors: [1,2,3], desc: "Quick health check" }
+  custom: { sectors: [], desc: "User-specified" }
+
+# Proxy configuration
+proxies:
+  specialists: { port: 2412, model: "Flash" }
+  commanders: { port: 2411, model: "Pro" }
+  orchestrator: { port: 2414, model: "Flash" }
+
+# Timeouts (seconds)
+timeouts: { orchestrator: 3600, sector_commander: 1200, specialist: 600, kill_after: 60 }
+
+# Session folder
+session_root: ".claude/PM/red-team/${session-slug}/"
+
+# Templates
+templates_list:
+  - { file: orchestrator.md, model: Flash, role: "Main coordination" }
+  - { file: sector_commander.md, model: Pro, role: "Sector investigation" }
+  - { file: specialist_librarian.md, model: Flash, role: "Doc cross-ref" }
+  - { file: specialist_engineer.md, model: Flash, role: "Doc vs code" }
+  - { file: specialist_auditor.md, model: Flash, role: "Zombie detection" }
+  - { file: synthesizer_sector.md, model: Pro, role: "Cross-sector synthesis" }
 ---
 
 # /red-team - Quality Seals Audit
 
 **Philosophy:** Trust but Verify. Assume 20% of work and documentation doesn't match reality.
-
-**Purpose:** Execute a multi-layer audit of any codebase, comparing SSoT documentation against actual implementation to find gaps, contradictions, and zombie artifacts.
 
 ---
 
@@ -22,32 +47,32 @@ templates: .claude/templates/template-prompts/red-team/
 
 AUDIT_SCOPE: [full|core|custom]
 SECTORS: [1,2,3,4,5,6]           # Only if custom scope
-OUTPUT_NAME: [AUDIT_REPORT.md]   # Optional, defaults to AUDIT_REPORT.md
+OUTPUT_NAME: [AUDIT_REPORT.md]   # Optional
 
 FOCUS:
 - [Optional: specific concerns to investigate]
 ```
 
-This command spawns a background Flash orchestrator that runs the full audit workflow. You'll be notified when complete.
-
 ---
 
-## Architecture Overview
+## Architecture
 
 ```
 HC invokes /red-team
-     ↓
+     │
+     v
 Spawn Flash Orchestrator (BACKGROUND)
-     ↓
+     │
+     v
 ┌────────────────────────────────────────────────────────────────────────┐
 │  PHASE 0: SETUP & PATH VALIDATION                                      │
 │  Flash validates sector paths exist, creates session folder            │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 1: SECTOR EXECUTION (Pro Commanders, batched)                   │
-│  Each Commander spawns Flash specialists → SECTOR_REPORTS/             │
+│  Each Commander spawns Flash specialists -> SECTOR_REPORTS/            │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 2: SECTOR SYNTHESIS (Pro agent)                                 │
-│  Pro curates sector reports → ANALYSIS/SECTOR_SYNTHESIS.md             │
+│  Pro curates sector reports -> ANALYSIS/SECTOR_SYNTHESIS.md            │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 3: FINAL AUDIT                                                  │
 │  Opus writes AUDIT_REPORT.md with Kill List, Fix List, Gap Table       │
@@ -56,157 +81,56 @@ Spawn Flash Orchestrator (BACKGROUND)
 
 ---
 
-## Session Folder Structure
+## Session Folder
 
 ```
-.claude/PM/red-team/${session-slug}/
+${session_root}
 ├── ORCHESTRATOR_LOG.md          # Flight Recorder
-├── PATH_VALIDATION.md           # Phase 0: Which paths exist/missing
-├── SECTOR_REPORTS/              # Phase 1: Commander reports
-│   ├── SECTOR_01_HIERARCHY.md
-│   ├── SECTOR_02_WORKFLOW.md
-│   └── ...
+├── PATH_VALIDATION.md           # Phase 0 output
+├── SECTOR_REPORTS/              # Phase 1 output
+│   └── SECTOR_0X_*.md
 ├── ANALYSIS/
-│   └── SECTOR_SYNTHESIS.md      # Phase 2: Cross-sector patterns
+│   └── SECTOR_SYNTHESIS.md      # Phase 2 output
 └── ${OUTPUT_NAME}               # Final deliverable
 ```
 
 ---
 
-## Scope Selection
-
-| Scope | Sectors | Use Case |
-|-------|---------|----------|
-| **full** | All 6 sectors | Comprehensive audit |
-| **core** | Sectors 1-3 | Quick health check |
-| **custom** | User-specified | Targeted investigation |
-
----
-
-## Proxy Configuration
-
-```bash
-# Specialists (HC-Work - workers)
-ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions
-
-# Sector Commanders, Synthesizer (HC-Reas-B - challenger reasoning)
-ANTHROPIC_API_BASE_URL=http://localhost:2411 claude --dangerously-skip-permissions
-
-# Orchestrator (HC-Orca - light coordination)
-ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions
-```
-
----
-
-## Timeout Configuration
-
-Background orchestrators MUST use timeout wrapper to prevent zombie processes.
-
-```bash
-# Default: 60 minutes for audit workflow
-TIMEOUT=${TIMEOUT:-3600}
-
-# Spawn pattern with timeout
-timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "..."'
-
-# Check exit code
-EXIT_CODE=$?
-if [ $EXIT_CODE -eq 124 ]; then
-  echo "[CRITICAL] Orchestrator killed after timeout ($TIMEOUT seconds)"
-  echo "status: TIMEOUT_KILLED" > "${SESSION_PATH}/TIMEOUT_INTERRUPTED.md"
-fi
-```
-
-**Timeout Values:**
-| Context | Default | Override |
-|---------|---------|----------|
-| Full orchestrator | 60 min | `--timeout=N` |
-| Sector Commander | 20 min | (inside orchestrator) |
-| Flash Specialist | 10 min | (inside orchestrator) |
-
----
-
-## Orchestrator Protocol
-
-Spawn background Flash orchestrator using template `orchestrator.md` with timeout wrapper:
-
-| Variable | Value |
-|----------|-------|
-| AUDIT_SCOPE | full, core, or custom |
-| SECTORS | List of sector numbers |
-| OUTPUT_NAME | Report filename |
-| WORKSPACE | $(pwd) |
-
----
-
 ## The 6 Audit Sectors
 
-### SECTOR 1: SSoT Integrity (Documentation vs Reality)
+| # | Sector | Focus | Target Paths |
+|---|--------|-------|--------------|
+| 1 | SSoT Integrity | Doc vs Reality | `docs/adr/`, `.claude/SSoT/ADRs/` ↔ `src/`, `lib/` |
+| 2 | Agent Architecture | Constitution Compliance | Agent ADRs ↔ `.claude/agents/`, `.claude/skills/` |
+| 3 | API/Tool Contracts | Interface Check | `README.md`, `docs/api/` ↔ `src/` |
+| 4 | Workflow Mechanics | State Machine | Workflow ADRs ↔ State machine code |
+| 5 | Skills & Commands | Interface Check | `.claude/commands/`, `.claude/skills/` ↔ Implementations |
+| 6 | Template Fitness | Artifact Check | `.claude/templates/` ↔ Commands using them |
 
-**Target Paths:**
-- Docs: `docs/adr/` or `.claude/SSoT/ADRs/`
-- Code: `src/`, `lib/`
+**Sector Questions (all sectors ask):**
+- Does documentation match implementation?
+- Are there zombies (defined but unused)?
+- Are there ghosts (referenced but undefined)?
 
-**Crucial Questions:**
-- Do ADR decisions match actual implementation?
-- Are there features described in ADRs that don't exist in code?
-- Are there code features not documented in ADRs?
+---
 
-### SECTOR 2: Agent Architecture (Constitution Compliance)
+## Issue Classifications
 
-**Target Paths:**
-- Docs: Agent constitution ADR (if exists)
-- Code: `.claude/agents/`, `.claude/skills/`
+| Class | Meaning | Action |
+|-------|---------|--------|
+| **KILL** | Zombie artifacts, orphan files, dead code | Delete file |
+| **FIX** | Documented but not implemented, broken refs | Implement |
+| **NOTE** | Doc/code mismatches, outdated references | Update |
 
-**Crucial Questions:**
-- Do agents follow defined hierarchies?
-- Are role boundaries enforced?
-- Do agent definitions match their implementations?
+---
 
-### SECTOR 3: API/Tool Contracts (Interface Check)
+## Timeout Wrapper
 
-**Target Paths:**
-- Docs: `README.md`, `docs/api/`
-- Code: `src/`, API implementation files
-
-**Crucial Questions:**
-- Do API/tool signatures match documentation?
-- Are there functions defined but not implemented?
-- Are there implemented functions not documented?
-
-### SECTOR 4: Workflow Mechanics (State Machine)
-
-**Target Paths:**
-- Docs: Workflow/state machine ADRs
-- Code: State machine or workflow implementation files
-
-**Crucial Questions:**
-- Is the state machine implemented as documented?
-- Are state transitions validated?
-- Are there dead states or unreachable transitions?
-
-### SECTOR 5: Skills & Commands (Interface Check)
-
-**Target Paths:**
-- Docs: `.claude/commands/`, `.claude/skills/`
-- Code: Corresponding implementation files
-
-**Crucial Questions:**
-- Are there zombie skills (defined but not used)?
-- Are there ghost commands (referenced but not defined)?
-- Do skill prompts match actual behavior?
-
-### SECTOR 6: Template Fitness (Artifact Check)
-
-**Target Paths:**
-- Docs: `.claude/templates/`
-- Code: Commands/skills that use them
-
-**Crucial Questions:**
-- Are templates actually used by commands?
-- Are there orphan templates?
-- Do template outputs match expected formats?
+```bash
+TIMEOUT=${TIMEOUT:-3600}
+timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "..."'
+```
 
 ---
 
@@ -222,42 +146,22 @@ health_score: [0-100]%
 ---
 
 ## Executive Summary
-[2-3 sentences: Overall system health assessment]
+[2-3 sentences]
 
 ## Health Score: [X]%
+| Sector | Status | Issues |
+|--------|--------|--------|
+| 1-6... | PASS/WARN/FAIL | count |
 
-| Sector | Status | Issues Found |
-|--------|--------|--------------|
-| 1. SSoT Integrity | [PASS/WARN/FAIL] | [count] |
-| ... | ... | ... |
-
-## Kill List (Files to Delete)
+## Kill List
 | File | Reason | Sector |
-|------|--------|--------|
 
-## Fix List (Missing Implementations)
-| What's Missing | Where Documented | Priority |
-|----------------|------------------|----------|
+## Fix List
+| Missing | Where Documented | Priority |
 
 ## Gap Table
-| Gap ID | Description | Doc Reference | Code Reference |
-|--------|-------------|---------------|----------------|
+| Gap ID | Description | Doc Ref | Code Ref |
 ```
-
----
-
-## Template Reference
-
-All prompts in: `.claude/templates/template-prompts/red-team/`
-
-| Template | Model | Purpose |
-|----------|-------|---------|
-| `orchestrator.md` | Flash | Main coordination |
-| `sector_commander.md` | Pro | Sector investigation lead |
-| `specialist_librarian.md` | Flash | Doc cross-reference check |
-| `specialist_engineer.md` | Flash | Doc vs code comparison |
-| `specialist_auditor.md` | Flash | Zombie/ghost detection |
-| `synthesizer_sector.md` | Pro | Cross-sector synthesis |
 
 ---
 
@@ -275,12 +179,12 @@ Trust but Verify.
 
 ## Related
 
-| Related | When to Use Instead |
+| Command | When to Use Instead |
 |---------|---------------------|
 | `/think-tank` | Research, decisions, planning |
 | `/hc-execute` | Implementing approved plans |
-| Direct code review | Single file investigation |
+| `/hc-glass` | Quick code review (less deep) |
 
 ---
 
-**Version:** V2.4.0 | Added timeout wrapper for zombie prevention (BUG-001)
+**V3.0.1** | Trimmed bloat from V3.0.0 YAML conversion.

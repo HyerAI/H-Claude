@@ -1,11 +1,50 @@
 ---
-version: V2.10.0
+version: V3.0.1
 status: current
-timestamp: 2026-01-04
+timestamp: 2026-01-10
 tags: [command, execution, orchestration, plan, oraca, think-tank]
 description: "SWEEP & VERIFY plan execution protocol with Oraca Phase Orchestrators"
-templates: .claude/templates/template-prompts/hc-execute/
+templates_path: .claude/templates/template-prompts/hc-execute/
 adr: ADR-004-hc-execute-improvements.md
+session_base: .claude/PM/hc-execute/
+
+# Execution Modes
+modes:
+  standard: { parallel: 3, qa_rigor: normal }
+  careful: { parallel: 2, qa_rigor: enhanced }
+
+# Proxies (port → role)
+proxies:
+  2414: orchestrator  # HC-Orca, light coordination
+  2413: oraca         # HC-Work-R, phase execution with reasoning
+  2412: worker        # HC-Work, task execution, git-engineer
+  2411: qa            # HC-Reas-B, Phase QA, QA Synthesis, Sweeper
+
+# Timeouts (seconds)
+timeouts: { orchestrator: 3600, oraca: 1200, worker: 600, qa: 900 }
+
+# Rules
+rules:
+  parallel_limit: 3
+  dependency_lock: "Task B waits for Task A VERIFIED"
+  done_definition: "QA APPROVED (not worker claim)"
+  micro_retry_limit: 3
+
+# Templates (all in templates_path except noted)
+templates:
+  - orchestrator.md      # Flash - Main coordination
+  - oraca_phase.md       # Flash - Phase orchestration
+  - worker_task.md       # Flash - Task execution (triangulated context)
+  - qa_phase.md          # Pro - Phase QA review
+  - synthesizer_qa.md    # Pro - Cross-phase analysis
+  - sweeper.md           # Pro - 20% gap hunting
+  - validator_lookahead.md  # Flash - Track B horizon (in think-tank/)
+
+# Recovery options
+recovery:
+  retry_failed: "Re-run failed tasks only, re-sweep after"
+  rollback: "git reset --hard to checkpoint via git-engineer"
+  manual: "Preserve state, user fixes, re-run continues"
 ---
 
 # /hc-execute - SWEEP & VERIFY Execution
@@ -40,6 +79,9 @@ HC invokes /hc-execute
 Spawn Flash Orchestrator (BACKGROUND)
      ↓
 ┌────────────────────────────────────────────────────────────────────────┐
+│  PHASE 0: PRE-EXECUTION CHECKPOINT                                      │
+│  → Create rollback point                                                │
+├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 1: PARSE, BATCH & CONTRACT                                      │
 │  → INTERFACES.md                                                       │
 ├────────────────────────────────────────────────────────────────────────┤
@@ -51,6 +93,8 @@ Spawn Flash Orchestrator (BACKGROUND)
 │  PHASE 4: SWEEP (Pro - "20% Hunter") → SWEEP_REPORT.md                 │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 5: VALIDATION & REPORT → COMPLETION_REPORT.md                   │
+├────────────────────────────────────────────────────────────────────────┤
+│  PHASE 6: ROADMAP SYNC → Update ROADMAP.yaml on success                │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -85,12 +129,7 @@ Attempt 3: Errors + context + "Last attempt - simplify"
 Attempt 4+: ESCALATE to Orchestrator
 ```
 
-**Key principle:** Worker retries at Oraca level (cheap, fast) before escalating to Orchestrator (expensive, context-heavy).
-
-**Variables passed on retry:**
-- `PREVIOUS_ERROR`: Error message from failed attempt
-- `ATTEMPT_NUMBER`: Current attempt (1, 2, 3)
-- `RETRY_GUIDANCE`: Specific guidance for retry approach
+**Variables passed on retry:** `PREVIOUS_ERROR`, `ATTEMPT_NUMBER`, `RETRY_GUIDANCE`
 
 **Logged in:** `ORACA_LOG.md` with attempt number, error, and adjustment made
 
@@ -126,7 +165,6 @@ Attempt 4+: ESCALATE to Orchestrator
 ### EXECUTION_STATE.md Schema
 
 ```yaml
-# Current execution status - updated after each phase
 session:
   plan_slug: workflow_fixes_20260102
   plan_path: .claude/PM/think-tank/.../execution-plan.yaml
@@ -139,8 +177,7 @@ checkpoint:
   rollback_cmd: 'git reset --hard abc123'
 
 status: executing  # initializing | executing | paused | complete | failed | rolled_back
-
-current_phase: 2  # Which phase is currently active
+current_phase: 2
 total_phases: 6
 
 phases:
@@ -152,27 +189,17 @@ phases:
     tasks_total: 2
     tasks_complete: 2
     tasks_failed: 0
-  - id: 2
-    title: 'Checkpoint Integration'
-    status: executing
-    started: '2026-01-02T14:35:30Z'
-    tasks_total: 2
-    tasks_complete: 1
-    tasks_failed: 0
 
-# For crash recovery
 last_action:
   timestamp: '2026-01-02T14:36:00Z'
   action: 'Task 2.1 completed'
   next: 'Task 2.2'
 
-# Ticket-level tracking (Diffusion Development)
 tickets:
   current_ticket: 'TICKET-2.1.3'
-  completed: ['TICKET-1.1.1', 'TICKET-1.1.2', 'TICKET-2.1.1', 'TICKET-2.1.2']
+  completed: ['TICKET-1.1.1', 'TICKET-1.1.2']
   failed: []
 
-# Lookahead status (Track B)
 lookahead:
   last_check: '2026-01-02T14:35:00Z'
   status: PASS  # PASS | WARN | FAIL
@@ -182,72 +209,9 @@ lookahead:
 
 ---
 
-## Mode Selection
-
-| Mode | Parallel Workers | QA Rigor | Use Case |
-|------|------------------|----------|----------|
-| **Standard** | 3 | Normal | Most executions |
-| **Careful** | 2 | Enhanced | High-risk, critical |
-
----
-
-## Execution Rules
-
-| Rule | Requirement |
-|------|-------------|
-| Parallel Limit | Max 3 workers simultaneously |
-| State Isolation | Each worker gets clean context |
-| Dependency Lock | Task B waits for Task A VERIFIED |
-| Done Definition | Done = QA APPROVED (not worker claim) |
-| Evidence Required | Every worker produces artifacts |
-
----
-
-## Proxy Configuration
-
-```bash
-# HC-Orca (2414) - Orchestrator (light coordination)
-# HC-Work (2412) - Workers, git-engineer
-# HC-Work-R (2413) - Oraca (execution with reasoning)
-# HC-Reas-B (2411) - Phase QA, QA Synthesis, Sweeper
-ANTHROPIC_API_BASE_URL=http://localhost:241X claude --dangerously-skip-permissions -p "PROMPT"
-```
-
----
-
-## Timeout Configuration
-
-Background orchestrators MUST use timeout wrapper to prevent zombie processes.
-
-```bash
-# Default: 60 minutes for execution workflow
-TIMEOUT=${TIMEOUT:-3600}
-
-# Spawn pattern with timeout
-timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "..."'
-
-# Check exit code
-EXIT_CODE=$?
-if [ $EXIT_CODE -eq 124 ]; then
-  echo "[CRITICAL] Orchestrator killed after timeout ($TIMEOUT seconds)"
-  echo "status: TIMEOUT_KILLED" > "${SESSION_PATH}/TIMEOUT_INTERRUPTED.md"
-fi
-```
-
-**Timeout Values:**
-| Context | Default | Override |
-|---------|---------|----------|
-| Full orchestrator | 60 min | `--timeout=N` |
-| Oraca (phase) | 20 min | (inside orchestrator) |
-| Flash Worker | 10 min | (inside orchestrator) |
-| Pro QA/Synth | 15 min | (inside orchestrator) |
-
----
-
 ## Orchestrator Protocol
 
-Spawn background Flash orchestrator using template `orchestrator.md` with timeout wrapper:
+Spawn background Flash orchestrator using template `orchestrator.md`:
 
 | Variable | Value |
 |----------|-------|
@@ -255,11 +219,23 @@ Spawn background Flash orchestrator using template `orchestrator.md` with timeou
 | MODE | standard or careful |
 | WORKSPACE | $(pwd) |
 
+### Spawn Pattern with Timeout
+
+```bash
+TIMEOUT=${TIMEOUT:-3600}
+timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2414 claude --dangerously-skip-permissions -p "..."'
+
+EXIT_CODE=$?
+if [ $EXIT_CODE -eq 124 ]; then
+  echo "[CRITICAL] Orchestrator killed after timeout"
+  echo "status: TIMEOUT_KILLED" > "${SESSION_PATH}/TIMEOUT_INTERRUPTED.md"
+fi
+```
+
 ---
 
 ## Phase 0: PRE-EXECUTION CHECKPOINT
-
-BEFORE any execution begins:
 
 1. Check `git status` - if dirty, prompt to commit first
 2. Spawn git-engineer with operation: `checkpoint`
@@ -272,13 +248,7 @@ BEFORE any execution begins:
    WORKSPACE: $(pwd)
    "
    ```
-3. Store `ROLLBACK_HASH` in EXECUTION_STATE.md:
-   ```yaml
-   checkpoint:
-     hash: ${COMMIT_HASH}
-     timestamp: ${ISO_TIMESTAMP}
-     plan_slug: ${PLAN_SLUG}
-   ```
+3. Store `ROLLBACK_HASH` in EXECUTION_STATE.md
 4. Log: `[CHECKPOINT] Created at ${COMMIT_HASH}. Rollback: git reset --hard ${COMMIT_HASH}`
 
 ---
@@ -308,72 +278,42 @@ For each phase, spawn Oraca[X] using template `oraca_phase.md`:
 | BEDROCK_FILES | Foundational context files |
 | WORKSPACE | Current working directory |
 
-Oraca spawns:
-- Workers using `worker_task.md` (with triangulated context)
-- Phase QA using `qa_phase.md`
+Oraca spawns workers (`worker_task.md`) and Phase QA (`qa_phase.md`).
 
 **Wait for each Oraca before proceeding.**
 
 ### Triangulated Context for Workers
-
-Workers receive context via the ticket's `triangulated_context`:
 
 ```yaml
 triangulated_context:
   goal: "The specific outcome from NS/Phase"
   bedrock:
     - "path/to/file1.md"  # Worker MUST read before executing
-    - "path/to/file2.ts"
   instruction: "The specific action to take"
 ```
 
-Workers read bedrock files first, then execute instruction to achieve goal.
-
 ### Lookahead Loop (Dual-Track Execution)
 
-After each ticket completion, run `validator_lookahead.md`:
+After each ticket, run `validator_lookahead.md` (in think-tank/):
 
 | Track A: Reality | Track B: Horizon |
 |------------------|------------------|
 | WR builds code | VA checks NS alignment |
 | QA tests output | VA checks future blocking |
 
-**Process:**
-1. Worker completes ticket → writes evidence
-2. QA validates ticket requirements (Track A)
-3. Spawn `validator_lookahead.md` (Track B):
-   - Does this code block future NS features?
-   - Does this create conflicting technical debt?
-4. **PASS** → proceed to next ticket
-5. **WARN** → document, proceed with caution
-6. **FAIL** → pause, escalate to Orchestrator
-
-**Lookahead Template:** `.claude/templates/template-prompts/think-tank/validator_lookahead.md`
+**PASS** → proceed | **WARN** → document, proceed | **FAIL** → pause, escalate
 
 ---
 
 ## Phase 3: QA Synthesis
 
-Spawn Pro agent with `synthesizer_qa.md`:
-
-| Variable | Value |
-|----------|-------|
-| SESSION_PATH | Session folder path |
-
-Analyzes all phase QA reports, identifies patterns.
+Spawn Pro agent with `synthesizer_qa.md`. Analyzes all phase QA reports, identifies patterns.
 
 ---
 
 ## Phase 4: Sweep
 
-Spawn Pro agent with `sweeper.md`:
-
-| Variable | Value |
-|----------|-------|
-| SESSION_PATH | Session folder path |
-| PLAN_PATH | Original plan path |
-
-If GAPS_FOUND → create fix tasks → Oraca[FIX] → re-sweep.
+Spawn Pro agent with `sweeper.md`. If GAPS_FOUND → create fix tasks → Oraca[FIX] → re-sweep.
 
 ---
 
@@ -388,167 +328,58 @@ If GAPS_FOUND → create fix tasks → Oraca[FIX] → re-sweep.
 
 ## Phase 6: ROADMAP SYNC
 
-On successful completion (all phases PASS):
-
+**On Success:**
 1. Read ROADMAP.yaml from `.claude/PM/SSoT/ROADMAP.yaml`
-2. Find phase by matching `plan_path` to current execution plan
+2. Find phase by matching `plan_path`
 3. Update `phase.status` → `'complete'`
-4. Scan dependencies: unlock any phases where all deps are complete
-5. Update `active_phases[]` array (remove completed, add newly unblocked)
-6. Write ROADMAP.yaml
-7. Log: `[ROADMAP] Phase PHASE-XXX marked complete. N phases unlocked.`
+4. Unlock phases where all deps are complete
+5. Log: `[ROADMAP] Phase PHASE-XXX marked complete. N phases unlocked.`
 
-**On Failure (SWEEP finds critical gaps or QA fails):**
-
+**On Failure:**
 1. Do NOT update ROADMAP.yaml status
-2. Log: `[ROADMAP] Phase PHASE-XXX execution incomplete. Status unchanged.`
-3. Present COMPLETION_REPORT.md with failures
-4. Offer recovery options:
-   - `RETRY_FAILED` - Re-run only failed tasks
-   - `ROLLBACK` - Restore to pre-execution checkpoint
-   - `MANUAL` - User fixes issues, runs again
+2. Present COMPLETION_REPORT.md with failures
+3. Offer recovery options: `RETRY_FAILED` | `ROLLBACK` | `MANUAL`
 
-**If ROLLBACK selected:**
-
-1. Spawn git-engineer with rollback operation:
-   ```bash
-   ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
-   You are git-engineer. Perform rollback.
-   Read: .claude/agents/git-engineer.md for your protocol.
-   OPERATION: rollback
-   ROLLBACK_HASH: ${ROLLBACK_HASH}
-   WORKSPACE: $(pwd)
-   "
-   ```
-2. Log: `[ROLLBACK] Restored to checkpoint ${ROLLBACK_HASH}`
-3. Update EXECUTION_STATE.md: `status: rolled_back`
+**ROLLBACK:** Spawn git-engineer with `OPERATION: rollback, ROLLBACK_HASH: ${ROLLBACK_HASH}`
 
 ---
 
 ## Edge Cases
 
 ### Parallel Phase Execution
-
-If multiple phases have no blocking dependencies:
-- Execute sequentially by default (safer, predictable)
-- Future: Add `--parallel` flag for concurrent execution
+Execute sequentially by default (safer). Future: `--parallel` flag.
 
 ### Execution Failure Recovery
-
-If execution fails mid-phase:
-
 1. COMPLETION_REPORT shows partial status
-2. Offer recovery options:
-   - `RETRY_FAILED` - Re-run only failed tasks
-   - `ROLLBACK` - Restore to checkpoint
-   - `MANUAL` - User fixes issues, runs `/hc-execute` again
-3. `RETRY_FAILED`:
-   - Reads EXECUTION_STATE.md for failed task list
-   - Re-spawns workers for those tasks only
-   - Re-runs SWEEP after
-4. `ROLLBACK`:
-   - Spawns git-engineer with rollback operation
-   - Restores to pre-execution checkpoint
-5. `MANUAL`:
-   - Preserves EXECUTION_STATE.md
-   - User fixes issues manually
-   - Re-run with same PLAN_PATH continues from last state
+2. `RETRY_FAILED`: Re-spawns failed tasks only, re-runs SWEEP
+3. `ROLLBACK`: Restores to checkpoint via git-engineer
+4. `MANUAL`: Preserves state, user fixes, re-run continues
 
 ### Session Crash Recovery
-
-If session crashes during execution:
-
-1. EXECUTION_STATE.md shows last known state:
-   ```yaml
-   status: in_progress
-   current_phase: 2
-   completed_tasks: [TASK-1.1, TASK-1.2, TASK-2.1]
-   failed_tasks: []
-   checkpoint:
-     hash: abc123
-   ```
+1. EXECUTION_STATE.md shows last known state
 2. Resume: `/hc-execute --resume ${SESSION_SLUG}`
-3. System reads state, continues from last checkpoint
-4. Already-completed tasks are skipped
+3. Already-completed tasks are skipped
 
 ### Hotfix During Execution
-
-If urgent fix needed while executing:
-
-1. Complete current task (don't interrupt mid-task)
-2. Create hotfix commit outside execution flow
-3. Resume execution - state is preserved
-4. Hotfix changes won't be rolled back if execution fails
+1. Complete current task (don't interrupt)
+2. Create hotfix commit outside flow
+3. Resume - hotfix won't be rolled back
 
 ---
 
 ## RETRY_FAILED Test Procedure (ADR-004)
 
-To validate the RETRY_FAILED recovery path works correctly:
-
 ### Test Steps
-
-1. **Create synthetic failure:**
-   - Modify one worker task to intentionally fail (e.g., reference non-existent file)
-   - Run `/hc-execute` on a small test plan
-
-2. **Verify failure capture:**
-   - Check EXECUTION_STATE.md shows the failed task in `failed_tasks[]`
-   - Check ORACA_LOG.md shows retry attempts (3 attempts before failure)
-   - Check PHASE_REPORT.md shows status: PARTIAL or BLOCKED
-
-3. **Run RETRY_FAILED:**
-   - Invoke recovery option when presented
-   - Verify ONLY the failed task is re-spawned
-   - Verify previously successful tasks are NOT re-run
-
-4. **Verify re-sweep:**
-   - After retry completes, SWEEP runs again
-   - SWEEP_REPORT.md shows fresh audit
-
-### Expected Behavior
-
-```yaml
-# Before RETRY_FAILED
-failed_tasks: [TASK-2.3]
-completed_tasks: [TASK-1.1, TASK-1.2, TASK-2.1, TASK-2.2]
-
-# RETRY_FAILED spawns worker for TASK-2.3 only
-
-# After successful retry
-failed_tasks: []
-completed_tasks: [TASK-1.1, TASK-1.2, TASK-2.1, TASK-2.2, TASK-2.3]
-```
+1. Create synthetic failure (reference non-existent file)
+2. Verify failure capture in EXECUTION_STATE.md, ORACA_LOG.md, PHASE_REPORT.md
+3. Run RETRY_FAILED - verify ONLY failed task re-spawns
+4. Verify SWEEP re-runs after
 
 ### Success Criteria
-
 - [ ] Failed task identified correctly
 - [ ] Only failed task re-runs
 - [ ] SWEEP re-runs after retry
 - [ ] State updates correctly
-
----
-
-## Template Reference
-
-All prompts in: `.claude/templates/template-prompts/hc-execute/`
-
-| Template | Model | Purpose |
-|----------|-------|---------|
-| `orchestrator.md` | Flash | Main coordination |
-| `oraca_phase.md` | Flash | Phase orchestration |
-| `worker_task.md` | Flash | Task execution (with triangulated context) |
-| `qa_phase.md` | Pro | Phase QA review |
-| `synthesizer_qa.md` | Pro | Cross-phase analysis |
-| `sweeper.md` | Pro | 20% gap hunting |
-
-### Diffusion Validation (Lookahead Loop)
-
-| Template | Model | Purpose |
-|----------|-------|---------|
-| `validator_lookahead.md` | Flash | Track B horizon check after each ticket |
-
-**Location:** `.claude/templates/template-prompts/think-tank/validator_lookahead.md`
 
 ---
 
@@ -573,7 +404,7 @@ Trust but Verify.
                            ↓
 /hc-execute TOPIC: {topic}
                            ↓
-                COMPLETION_REPORT.md
+            COMPLETION_REPORT.md
 ```
 
 ---
@@ -588,4 +419,4 @@ Trust but Verify.
 
 ---
 
-**Version:** V2.10.0 | Added timeout wrapper for zombie prevention (BUG-001)
+**V3.0.1** | Trimmed YAML bloat, consolidated from V3.0.0
