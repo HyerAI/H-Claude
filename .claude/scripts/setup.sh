@@ -52,10 +52,35 @@ echo ""
 # Get script directory and project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CLAUDE_DIR="$SCRIPT_DIR/.."
 
 # Make scripts executable
 chmod +x "$SCRIPT_DIR/start-proxies.sh" "$SCRIPT_DIR/stop-proxies.sh" 2>/dev/null || true
-chmod +x "$PROJECT_ROOT/hc-init" 2>/dev/null || true
+
+echo ""
+
+# Install global commands to ~/.claude/commands/
+echo "Installing global commands..."
+mkdir -p "$HOME/.claude/commands"
+if [ -d "$CLAUDE_DIR/global-commands" ]; then
+    for cmd in "$CLAUDE_DIR/global-commands"/*.md; do
+        if [ -f "$cmd" ]; then
+            cmdname=$(basename "$cmd")
+            cp "$cmd" "$HOME/.claude/commands/$cmdname"
+            echo "  Installed: /$cmdname"
+        fi
+    done
+fi
+
+# Create symlink to H-Claude template (for /hc-init to find it)
+if [ ! -e "$HOME/.claude/H-Claude" ]; then
+    ln -sf "$PROJECT_ROOT" "$HOME/.claude/H-Claude"
+    echo "  Linked: ~/.claude/H-Claude -> $PROJECT_ROOT"
+elif [ -L "$HOME/.claude/H-Claude" ]; then
+    echo "  ~/.claude/H-Claude symlink exists"
+else
+    echo "  WARNING: ~/.claude/H-Claude exists but is not a symlink"
+fi
 
 echo ""
 echo "=== Setup Complete ==="

@@ -39,14 +39,23 @@ This installs H-Claude globally to `~/.claude/`:
 
 ---
 
-### Method 2: Clone Template Directly
-
-If you prefer everything in one project folder:
+### Method 2: Clone to ~/.claude/H-Claude (Recommended for Dev)
 
 ```bash
-git clone https://github.com/HyerAI/H-Claude.git my-project
-cd my-project
+git clone https://github.com/HyerAI/H-Claude.git ~/.claude/H-Claude
+cd ~/.claude/H-Claude
 .claude/scripts/setup.sh
+```
+
+The setup script will:
+- Install proxy dependencies
+- Copy `/hc-init` command to `~/.claude/commands/`
+- Create symlink `~/.claude/H-Claude` (for template access)
+
+**After setup**, in any project run:
+```bash
+claude
+/hc-init
 ```
 
 ---
@@ -252,11 +261,14 @@ lsof -ti:2405 | xargs kill -9
 ### /hc-init Not Working
 
 ```bash
-# Verify global install
-ls ~/.claude/h-claude-template/
+# Verify command exists
+ls ~/.claude/commands/hc-init.md
 
-# If missing, re-run installer
-curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | bash
+# Verify template exists
+ls ~/.claude/H-Claude/.claude/
+
+# If missing, run setup again
+cd ~/.claude/H-Claude && .claude/scripts/setup.sh
 ```
 
 ### Invalid Google API Key
@@ -276,14 +288,12 @@ If error: regenerate at https://aistudio.google.com/apikey
 
 ```
 ~/.claude/
-├── HC-Proxies/             # Proxy servers (shared)
-│   ├── CG-Flash/
-│   ├── CG-Pro/
-│   └── CC-Claude/
-├── bin/                    # Helper scripts
-│   ├── start-proxies.sh
-│   └── stop-proxies.sh
-└── h-claude-template/      # Workflow templates for /hc-init
+├── commands/               # Global slash commands
+│   └── hc-init.md          # Project initialization command
+├── H-Claude/               # Template source (symlink or clone)
+│   └── .claude/            # Template files copied by /hc-init
+├── HC-Proxies/             # Proxy servers (if installed globally)
+└── CLAUDE.md               # User's global instructions
 ```
 
 ### Per-Project (after /hc-init)
@@ -329,4 +339,4 @@ curl -fsSL https://raw.githubusercontent.com/HyerAI/H-Claude/main/install.sh | b
 
 ---
 
-*Version: 0.1.0 | Updated: 2026-01-02*
+*Version: 0.5.0 | Updated: 2026-01-09*
