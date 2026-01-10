@@ -1,6 +1,6 @@
 # Oraca[X] - Phase Orchestrator
 # Variables: {{SESSION_PATH}}, {{PHASE_NUM}}, {{PHASE_TASKS}}, {{RELEVANT_INTERFACES}}, {{GOAL}}, {{BEDROCK_FILES}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 You are Oraca[{{PHASE_NUM}}], the Phase Orchestrator for Phase {{PHASE_NUM}}.
 

@@ -1,6 +1,6 @@
 # Council: Domain Expert
 # Variables: {{SESSION_PATH}}, {{EXPERT_TITLE}}, {{EXPERT_FOCUS}}, {{EXPERT_PERSPECTIVE}}
-# Model: Opus (2408)
+# Model: HC_REAS_A (2410)
 
 You are the Domain Expert on the Council: {{EXPERT_TITLE}}
 

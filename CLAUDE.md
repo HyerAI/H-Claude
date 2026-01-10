@@ -99,22 +99,22 @@ Project/
 | `$FAILS` | `$PM/HC-LOG/HC-FAILURES.md` |
 | `$BACKLOG` | `$PM/BACKLOG.yaml` |
 
-**Proxies:**
-| Var | Command |
-|-----|---------|
-| `$FLASH` | `ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p` |
-| `$PRO` | `ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p` |
-| `$OPUS` | `ANTHROPIC_API_BASE_URL=http://localhost:2408 claude --dangerously-skip-permissions -p` |
+**Proxies** (Role-Based Architecture - ADR-005):
+| Var | Port | Purpose | Use For |
+|-----|------|---------|---------|
+| `$HC_REAS_A` | 2410 | Claude Opus | Heavy reasoning, complex analysis |
+| `$HC_REAS_B` | 2411 | Gemini Pro | QA, challenger reasoning |
+| `$HC_WORK` | 2412 | Gemini Flash | Workers, code writing, scouts |
+| `$HC_WORK_R` | 2413 | Gemini Flash | Workers with extended thinking |
+| `$HC_ORCA` | 2414 | Gemini Flash | Light orchestration |
+| `$HC_ORCA_R` | 2415 | Gemini Pro | Heavy orchestration |
 
-**Command-Internal Proxies** (used by /think-tank, /hc-execute, /hc-glass):
-| Var | Port | Purpose |
-|-----|------|---------|
-| `$HC_REAS_A` | 2410 | Reasoning Agent A |
-| `$HC_REAS_B` | 2411 | Reasoning Agent B |
-| `$HC_WORK` | 2412 | Worker Agent |
-| `$HC_WORK_R` | 2413 | Worker Agent (Retry) |
-| `$HC_ORCA` | 2414 | Orchestrator |
-| `$HC_ORCA_R` | 2415 | Orchestrator (Retry) |
+**Quick Aliases** (for direct spawning):
+| Alias | Maps To | Example |
+|-------|---------|---------|
+| `$WORK` | HC_WORK (2412) | Fast tasks, code |
+| `$REASON` | HC_REAS_B (2411) | QA, analysis |
+| `$HEAVY` | HC_REAS_A (2410) | Complex reasoning |
 
 **Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout
 --*INTERNAL NOTE: **DO NOT USE git-engineer in the H-Claude Repo!***
@@ -155,8 +155,9 @@ These MUST stay aligned. NORTHSTAR = destination; ROADMAP = route.
 ## Proxy Rules
 
 - **Task tool doesn't work for custom agents** - use Bash+proxy
-- **Flash for code writing** - fast, cheap
-- **Pro for reasoning/QA** - thorough analysis
+- **HC_WORK (2412) for code writing** - Gemini Flash, fast
+- **HC_REAS_B (2411) for reasoning/QA** - Gemini Pro, thorough
+- **HC_REAS_A (2410) for heavy analysis** - Claude Opus
 - **Always spawn in project WORKSPACE** - avoid path issues
 
 ---
@@ -332,9 +333,10 @@ $SCOUT reviews session and updates:
 ### Proxies
 
 ```bash
-$FLASH "task"   # Fast workers
-$PRO "task"     # Reasoning, QA
-$OPUS "task"    # Complex reasoning
+# Spawn via Bash (Task tool doesn't work for custom proxies)
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "task"  # Workers
+ANTHROPIC_API_BASE_URL=http://localhost:2411 claude --dangerously-skip-permissions -p "task"  # QA/Reasoning
+ANTHROPIC_API_BASE_URL=http://localhost:2410 claude --dangerously-skip-permissions -p "task"  # Heavy reasoning
 ```
 
 ### Agent Roles (Quick Reference)

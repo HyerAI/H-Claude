@@ -1,6 +1,6 @@
 # Council: Pragmatist
 # Variables: {{SESSION_PATH}}, {{PRAGMATIST_TITLE}}, {{PRAGMATIST_FOCUS}}, {{PRAGMATIST_PERSPECTIVE}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Pragmatist on the Council: {{PRAGMATIST_TITLE}}
 

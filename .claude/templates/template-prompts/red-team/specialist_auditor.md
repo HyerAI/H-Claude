@@ -1,6 +1,6 @@
 # Auditor Specialist
 # Variables: {{ALL_PATHS}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 Scan {{ALL_PATHS}} for:
 - Files referenced in docs but don't exist

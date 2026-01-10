@@ -1,6 +1,6 @@
 # Synthesizer: Consensus
 # Variables: {{SESSION_PATH}}, {{ROUND_NUM}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 You are the Consensus Synthesizer.
 

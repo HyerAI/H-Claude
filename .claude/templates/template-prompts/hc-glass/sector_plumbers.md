@@ -1,6 +1,6 @@
 # Sector 2: The Plumbers (Data Flow & Logic)
 # Variables: {{SESSION_PATH}}, {{TARGET}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Plumber Commander for Operation: DEEP DIVE.
 
@@ -12,7 +12,7 @@ MISSION: "Find the leaks."
 
 ## Spawn 3 Flash Scouts (sequential)
 
-Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions`
+Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions`
 
 ### SCOUT 1 - Context Flow
 "Trace the context object from input -> agent -> output. Where is data DROPPED? Where is strict typing LOST (cast to Any, Dict[str, Any])? CITE LINE NUMBERS."

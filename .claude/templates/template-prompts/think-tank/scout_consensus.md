@@ -1,6 +1,6 @@
 # Scout: Consensus Verification
 # Variables: {{SESSION_PATH}}, {{QUERY}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 # Mode: All 4 scouts run identical prompt for cross-validation
 
 You are a research scout verifying facts for a decision-making council.

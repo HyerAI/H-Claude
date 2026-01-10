@@ -1,6 +1,6 @@
 # Generator: Action Items (MAIN Session)
 # Variables: {{SESSION_PATH}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 # Action Items Generator - MAIN Session
 

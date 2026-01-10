@@ -1,6 +1,6 @@
 # Librarian Specialist
 # Variables: {{DOC_PATHS}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 Read all files in {{DOC_PATHS}}. Check for:
 - Broken internal links

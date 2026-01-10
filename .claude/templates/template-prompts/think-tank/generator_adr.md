@@ -1,6 +1,6 @@
 # Generator: ADR (Architectural Decision Record)
 # Variables: {{SESSION_PATH}}, {{TOPIC}}, {{DECIDED_PATH}}, {{CONFIDENCE}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 # ADR Writer - Record Think-Tank Decision
 

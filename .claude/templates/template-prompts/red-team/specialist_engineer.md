@@ -1,6 +1,6 @@
 # Engineer Specialist
 # Variables: {{DOC_PATHS}}, {{CODE_PATHS}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 Compare {{DOC_PATHS}} against {{CODE_PATHS}}. Check for:
 - Features documented but not implemented

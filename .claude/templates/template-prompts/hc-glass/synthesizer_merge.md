@@ -1,6 +1,6 @@
 # Merge Gate Synthesizer
 # Variables: {{SESSION_PATH}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Synthesizer for Operation: DEEP DIVE.
 

@@ -1,6 +1,6 @@
 # Deletion Consensus Gate
 # Variables: {{SESSION_PATH}}, {{ITEM_PATH}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 You are the Consensus Gate for deletion verification.
 

@@ -1,6 +1,6 @@
 # Task Worker
 # Variables: {{SESSION_PATH}}, {{PHASE_NUM}}, {{TASK_ID}}, {{TASK_DESCRIPTION}}, {{SUCCESS_CRITERIA}}, {{FILES}}, {{RELEVANT_INTERFACES}}, {{GOAL}}, {{BEDROCK_FILES}}, {{PREVIOUS_ERROR}}, {{ATTEMPT_NUMBER}}, {{RETRY_GUIDANCE}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 # Task Worker
 

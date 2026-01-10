@@ -1,6 +1,6 @@
 # Sector Commander
 # Variables: {{SECTOR_ID}}, {{SECTOR_NAME}}, {{SESSION_PATH}}, {{TARGET_DOCS}}, {{TARGET_CODE}}, {{CRUCIAL_QUESTIONS}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are leading the investigation for one sector of the Quality Seals Audit.
 

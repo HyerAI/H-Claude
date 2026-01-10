@@ -10,7 +10,7 @@ AI agent orchestration template for Claude Code projects. Provides structured wo
 |-------------|-------|
 | **Claude CLI** | Installed and authenticated (`claude --version`) |
 | **Node.js** | >= 18.0.0 |
-| **Google AI API Key** | For Gemini proxies (CG-Flash, CG-Pro) |
+| **Google AI API Key** | For Gemini proxies (HC-Work, HC-Reas-B, etc.) |
 | **git** | For version control |
 | **curl** | For installer script |
 
@@ -28,7 +28,7 @@ This installs H-Claude globally to `~/.claude/`:
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| Proxies | `~/.claude/HC-Proxies/` | CG-Flash, CG-Pro, CC-Claude |
+| Proxies | `~/.claude/HC-Proxies/` | HC-Work, HC-Reas-A/B, HC-Orca |
 | Scripts | `~/.claude/bin/` | start-proxies.sh, stop-proxies.sh |
 | Templates | `~/.claude/h-claude-template/` | Workflow files for /hc-init |
 
@@ -135,14 +135,16 @@ This copies workflow files to your project:
 
 ---
 
-## Proxy Reference
+## Proxy Reference (Role-Based Architecture)
 
 | Proxy | Port | Backend | Use Case |
 |-------|------|---------|----------|
-| CG-Flash | 2405 | Gemini Flash | Fast workers, code writing |
-| CG-Pro | 2406 | Gemini Pro | Reasoning, QA, analysis |
-| CG-Image | 2407 | Gemini Image | Image generation |
-| CC-Claude | 2408 | Claude CLI | Complex reasoning |
+| HC-Reas-A | 2410 | Claude Opus | Heavy reasoning, complex orchestration |
+| HC-Reas-B | 2411 | Gemini Pro | Challenger reasoning, QA |
+| HC-Work | 2412 | Gemini Flash | Workers, code writing, scouts |
+| HC-Work-R | 2413 | Gemini Flash | Workers with extended thinking |
+| HC-Orca | 2414 | Gemini Flash | Light orchestration |
+| HC-Orca-R | 2415 | Gemini Pro | Heavy orchestration |
 
 ---
 
@@ -151,9 +153,9 @@ This copies workflow files to your project:
 Check proxy health:
 
 ```bash
-curl http://localhost:2405/health  # Flash
-curl http://localhost:2406/health  # Pro
-curl http://localhost:2408/health  # Claude
+curl http://localhost:2410/health  # HC-Reas-A (Claude)
+curl http://localhost:2411/health  # HC-Reas-B (Pro)
+curl http://localhost:2412/health  # HC-Work (Flash)
 ```
 
 Expected response: `{"status":"ok"}`
@@ -161,7 +163,7 @@ Expected response: `{"status":"ok"}`
 Test a sub-agent spawn:
 
 ```bash
-ANTHROPIC_API_BASE_URL=http://localhost:2405 claude -p "echo 'Hello from Flash proxy'"
+ANTHROPIC_API_BASE_URL=http://localhost:2412 claude -p "echo 'Hello from HC-Work proxy'"
 ```
 
 ---
@@ -239,13 +241,13 @@ bash -x install.sh
 
 ```bash
 # Check if proxies are running
-curl http://localhost:2405/health
+curl http://localhost:2412/health  # HC-Work
 
 # Start proxies (global install)
 ~/.claude/bin/start-proxies.sh
 
 # Check logs
-cat /tmp/h-claude/cg-flash.log
+cat /tmp/h-claude/hc-work.log
 ```
 
 ### Port Already in Use
@@ -255,7 +257,7 @@ cat /tmp/h-claude/cg-flash.log
 ~/.claude/bin/stop-proxies.sh
 
 # Or kill by port
-lsof -ti:2405 | xargs kill -9
+lsof -ti:2412 | xargs kill -9
 ```
 
 ### /hc-init Not Working

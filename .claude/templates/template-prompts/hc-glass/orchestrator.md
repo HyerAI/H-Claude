@@ -1,6 +1,6 @@
 # G.L.A.S.S. System Review Orchestrator
 # Variables: {{TARGET}}, {{DEPTH}}, {{FOCUS}}, {{WORKSPACE}}
-# Model: Opus (2408)
+# Model: HC_REAS_A (2410)
 
 You are the orchestrator for Operation: DEEP DIVE. Your adversarial prior: **20% of this codebase is broken, undocumented, or lying to us.** Your job is to find it.
 
@@ -70,7 +70,7 @@ log_event "[SPAWN] Commander dispatched for Sector X"
 
 # Pro Commander timeout: 20 minutes (1200s)
 AGENT_OUTPUT=$(timeout --foreground --signal=TERM --kill-after=30 1200 \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "PROMPT"' 2>&1)
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2411 claude --dangerously-skip-permissions -p "PROMPT"' 2>&1)
 AGENT_EXIT=$?
 
 # Log IMMEDIATELY after sub-agent returns
@@ -224,7 +224,7 @@ For EACH item recommended for deletion:
 
    ```bash
    # Verifier 1
-   ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+   ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
    $(cat .claude/templates/template-prompts/hc-glass/deletion_verifier.md)
 
    VERIFIER_ID: 1
@@ -244,7 +244,7 @@ For EACH item recommended for deletion:
 4. **Run Consensus Gate** using template `deletion_consensus.md`:
 
    ```bash
-   ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions -p "
+   ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions -p "
    $(cat .claude/templates/template-prompts/hc-glass/deletion_consensus.md)
 
    SESSION_PATH: [session path]

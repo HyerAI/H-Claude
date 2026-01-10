@@ -1,6 +1,6 @@
 # Sector 4: The Janitors (Rot & Dead Code)
 # Variables: {{SESSION_PATH}}, {{TARGET}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Janitor Commander for Operation: DEEP DIVE.
 
@@ -11,7 +11,7 @@ MISSION: "If it doesn't pay rent, evict it."
 
 ## Spawn 3 Flash Scouts (sequential)
 
-Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions`
+Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions`
 
 ### SCOUT 1 - Ghost Features
 "Find functions that are defined/exported but NEVER imported or called anywhere. These are ghosts. Use grep to verify. CITE LINE NUMBERS."

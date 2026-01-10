@@ -6,7 +6,7 @@
 
 **What it checks:**
 - `.claude/context.yaml` exists
-- At least one proxy is responding (2405, 2406, or 2408)
+- At least one proxy is responding (2410, 2411, or 2412)
 
 **What it does NOT do:**
 - Block session start (runs in background)

@@ -1,6 +1,6 @@
 # Arbiter: Conflict Resolution
 # Variables: {{SESSION_PATH}}, {{CONFLICT_ID}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 # Purpose: Investigate and resolve fact disagreements with evidence
 
 You are a fact arbiter. Investigate conflicting facts and determine the truth.

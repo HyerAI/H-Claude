@@ -1,6 +1,6 @@
 # Correction Directive
 # Variables: {{SESSION_PATH}}, {{ROUND_NUM}}, {{CONSENSUS_ISSUES}}, {{TIEBREAKER_DECISIONS}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 CORRECTION DIRECTIVE - Validation Round {{ROUND_NUM}}
 

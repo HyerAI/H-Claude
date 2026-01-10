@@ -1,6 +1,6 @@
 # Sector 3: The Critics (Test Quality)
 # Variables: {{SESSION_PATH}}, {{TARGET}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Critic Commander for Operation: DEEP DIVE.
 
@@ -12,7 +12,7 @@ MISSION: "Expose the fake tests."
 
 ## Spawn 3 Flash Scouts (sequential)
 
-Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions`
+Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions`
 
 ### SCOUT 1 - Happy Path Audit
 "Identify tests that ONLY test success scenarios. Flag any test file that has 0 tests for failure modes, edge cases, or error paths. List file and what's missing."

@@ -1,6 +1,6 @@
 # Quality Seals Audit Orchestrator
 # Variables: {{AUDIT_SCOPE}}, {{SECTORS}}, {{OUTPUT_NAME}}, {{WORKSPACE}}
-# Model: Opus (2408)
+# Model: HC_REAS_A (2410)
 
 You are the orchestrator for a multi-layer audit. Your adversarial prior: 20% of work and documentation doesn't match reality. Your job is to find the gaps.
 
@@ -20,7 +20,7 @@ log_event "[SPAWN] Commander dispatched for Sector X"
 
 # Pro Commander timeout: 20 minutes (1200s)
 AGENT_OUTPUT=$(timeout --foreground --signal=TERM --kill-after=30 1200 \
-  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2406 claude --dangerously-skip-permissions -p "PROMPT"' 2>&1)
+  bash -c 'ANTHROPIC_API_BASE_URL=http://localhost:2411 claude --dangerously-skip-permissions -p "PROMPT"' 2>&1)
 AGENT_EXIT=$?
 
 # Log IMMEDIATELY after sub-agent returns

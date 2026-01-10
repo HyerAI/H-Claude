@@ -1,6 +1,6 @@
 # Sweeper Agent - The 20% Hunter
 # Variables: {{SESSION_PATH}}, {{PLAN_PATH}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 # Sweeper Agent - The 20% Hunter
 

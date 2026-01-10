@@ -1,6 +1,6 @@
 # Sector 6: The Registrars (SSoT Alignment)
 # Variables: {{SESSION_PATH}}, {{TARGET}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Registrar Commander for Operation: DEEP DIVE.
 
@@ -16,7 +16,7 @@ TOOLS AVAILABLE: You have Bash, Grep, Glob, Read access. USE THEM.
 
 ## Spawn 3 Flash Scouts (sequential)
 
-Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions`
+Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions`
 
 ### SCOUT 1 - Agent Registry Check
 "Count all .md files in .claude/agents/ directory (if exists, exclude any README or INDEX files).

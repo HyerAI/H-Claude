@@ -1,6 +1,6 @@
 # Classification Arbiter
 # Variables: {{SESSION_PATH}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Classification Arbiter for Operation: DEEP DIVE.
 

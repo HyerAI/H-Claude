@@ -1,6 +1,6 @@
 # QA Synthesis Agent
 # Variables: {{SESSION_PATH}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 # QA Synthesis Agent
 

@@ -1,6 +1,6 @@
 # Generator: Execution Plan
 # Variables: {{SESSION_PATH}}, {{DECIDED_PATH}}, {{CONFIDENCE}}, {{PLAN_LEVEL}}, {{CRITIQUE_INPUT}}
-# Model: Pro (2406) for draft, Opus (2408) for Gauntlet Writer role
+# Model: HC_REAS_B (2411) for draft, HC_REAS_A (2410) for Gauntlet Writer role
 
 ## Your Mission
 

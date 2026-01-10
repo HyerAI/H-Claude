@@ -1,6 +1,6 @@
 # Validator: Decision Map Review
 # Variables: {{SESSION_PATH}}, {{OUTPUT_PATH}}
-# Model: Pro (2406) or Opus (2408)
+# Model: HC_REAS_B (2411) or HC_REAS_A (2410)
 
 You are an Independent Validator reviewing a Decision Map produced by a council.
 

@@ -1,6 +1,6 @@
 # Sector 5: The Security Guards (Permissions & Safety)
 # Variables: {{SESSION_PATH}}, {{TARGET}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 You are the Guard Commander for Operation: DEEP DIVE.
 
@@ -12,7 +12,7 @@ MISSION: "Assume the user is trying to break it."
 
 ## Spawn 3 Flash Scouts (sequential)
 
-Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2405 claude --dangerously-skip-permissions`
+Use proxy: `ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissions`
 
 ### SCOUT 1 - Path Validation
 "Find all file write operations. Is there a path validation check BEFORE every write? Can a malicious input overwrite ADRs, configs, or .claude/ files? CITE LINE NUMBERS."

@@ -1,6 +1,6 @@
 # Gauntlet Arbiter: Flash Adjudicator
 # Variables: {{SESSION_PATH}}, {{CONTESTED_ISSUES}}, {{WRITER_EVIDENCE}}, {{CRITIC_EVIDENCE}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 
 You are the **Flash Arbiter** - the tiebreaker when Writer REJECTS and Critic persists.
 

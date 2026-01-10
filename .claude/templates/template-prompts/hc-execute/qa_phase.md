@@ -1,6 +1,6 @@
 # Phase QA Reviewer
 # Variables: {{SESSION_PATH}}, {{PHASE_NUM}}, {{PHASE_TASKS}}, {{SUCCESS_CRITERIA}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 # Phase QA Reviewer
 

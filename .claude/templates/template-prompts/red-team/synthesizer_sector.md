@@ -1,6 +1,6 @@
 # Sector Synthesis Agent
 # Variables: {{SESSION_PATH}}, {{SECTORS_RUN}}
-# Model: Pro (2406)
+# Model: HC_REAS_B (2411)
 
 Analyze all sector reports to identify cross-cutting patterns and prioritize findings.
 

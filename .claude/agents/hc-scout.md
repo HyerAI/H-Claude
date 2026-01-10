@@ -156,7 +156,7 @@ ANTHROPIC_API_BASE_URL=http://localhost:2412 claude --dangerously-skip-permissio
 You are hc-scout doing a SYSTEM CHECK.
 
 Check:
-1. Proxy ports responding (curl localhost:2405, 2406, 2408, 2410-2415)
+1. Proxy ports responding (curl localhost:2410, 2411, 2412, 2414, 2415)
 2. Disk space (df -h /)
 3. Project structure intact (.claude/context.yaml exists)
 

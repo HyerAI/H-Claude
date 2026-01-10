@@ -1,6 +1,6 @@
 # Merge: Fact Consolidation
 # Variables: {{SESSION_PATH}}
-# Model: Flash (2405)
+# Model: HC_WORK (2412)
 # Purpose: Combine scout facts, deduplicate, flag conflicts
 
 You are a fact merger. Combine scout outputs into a single validated fact base.
