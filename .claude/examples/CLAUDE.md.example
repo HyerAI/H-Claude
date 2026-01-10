@@ -1,83 +1,97 @@
 # [PROJECT_NAME]
 
-## SSoT (Single Source of Truth)
+---
 
-| Doc | Purpose | Path |
-|-----|---------|------|
-| NORTHSTAR | Vision, goals, constraints | `$NORTH` |
-| ROADMAP | Phases, dependencies | `$ROAD` |
-| CHANGELOG | Work history | `$PM/CHANGELOG.md` |
-| Context | Session state | `.claude/context.yaml` |
+## H-Claude Framework
 
-## Shortcuts
+```yaml
+# SSoT (Single Source of Truth)
+ssot:
+  northstar: .claude/PM/SSoT/NORTHSTAR.md    # Vision, goals, constraints
+  roadmap: .claude/PM/SSoT/ROADMAP.yaml      # Phases, dependencies
+  changelog: .claude/PM/CHANGELOG.md          # Work history
+  context: .claude/context.yaml               # Session state
+  adrs: .claude/PM/SSoT/ADRs/                 # Decision records
 
-| Var | Path |
-|-----|------|
-| `$PM` | `.claude/PM` |
-| `$SSOT` | `$PM/SSoT` |
-| `$NORTH` | `$SSOT/NORTHSTAR.md` |
-| `$ROAD` | `$SSOT/ROADMAP.yaml` |
-| `$TEMP` | `$PM/TEMP` |
+# Shortcuts
+paths:
+  $PM: .claude/PM
+  $SSOT: $PM/SSoT
+  $NORTH: $SSOT/NORTHSTAR.md
+  $ROAD: $SSOT/ROADMAP.yaml
+  $TEMP: $PM/TEMP
+  $LIB: .claude/lib
 
-## Commands
+# Commands
+commands:
+  /think-tank --roadmap: Create development phases from NORTHSTAR
+  /think-tank --phase=X: Plan specific phase execution
+  /think-tank "topic": Ad-hoc research/decision session
+  /hc-execute: Execute approved plan
+  /hc-glass: Code/system review
+  /red-team: Deep investigation audit
+  /hc-phase-cycle: Full cycle - Execute, Audit, Fix, Validate
 
-| Command | Purpose |
-|---------|---------|
-| `/think-tank --roadmap` | Create development phases from NORTHSTAR |
-| `/think-tank --phase=X` | Plan specific phase execution |
-| `/think-tank "topic"` | Ad-hoc research/decision session |
-| `/hc-execute` | Execute approved plan |
-| `/hc-glass` | Code/system review |
-| `/red-team` | Deep investigation audit |
-| `/hc-phase-cycle` | Full cycle: Execute → Audit → Fix → Validate |
+# Workflow
+workflow:
+  1_vision: Define goals in $NORTH
+  2_roadmap: /think-tank --roadmap → $ROAD
+  3_plan: /think-tank --phase=X → execution-plan.yaml
+  4_execute: /hc-execute → Implementation
+  5_review: /hc-glass → Quality check
+  6_commit: Git commit → CHANGELOG update
 
-## Workflow
+# Session Protocol
+session:
+  start:
+    - Read context.yaml for current focus
+    - Check ROADMAP for active phase
+  during:
+    - Update context.yaml after significant work
+    - Delegate to sub-agents to preserve context
+    - Use $TEMP for drafts and scratch work
+  end:
+    - Update CHANGELOG
+    - Commit with descriptive message
 
+# Rules
+rules:
+  - SSoT First: Read NORTHSTAR before major decisions
+  - No Assumptions: Ask for clarification when unclear
+  - Fix Dont Workaround: Address root causes
+  - Context is Precious: Delegate to preserve main context
+  - Document Decisions: ADRs for architectural choices
+  - Changelog is Worklog: Update after every commit
 ```
-NORTHSTAR (vision) → /think-tank --roadmap → ROADMAP (phases)
-                            ↓
-              /think-tank --phase=X → execution-plan.yaml
-                            ↓
-                     /hc-execute → Implementation
-                            ↓
-                      /hc-glass → Review & Fix
-                            ↓
-                    Git commit → CHANGELOG update
-```
 
-## Session Protocol
+---
 
-**Start:**
-1. Read `context.yaml` for current focus
-2. Check ROADMAP for active phase
+## Project
 
-**During:**
-- Update context.yaml after significant work
-- Delegate to sub-agents to preserve context
-- Use `$TEMP` for drafts and scratch work
+### Overview
 
-**End:**
-- Update CHANGELOG
-- Commit with descriptive message
-
-## Rules
-
-1. **SSoT First** - Read NORTHSTAR before major decisions
-2. **No Assumptions** - Ask for clarification when unclear
-3. **Fix, Don't Workaround** - Address root causes
-4. **Context is Precious** - Delegate to preserve main context
-5. **Document Decisions** - ADRs for architectural choices
-6. **CHANGELOG = Work Log** - Update after every commit
-
-## Project-Specific
-
-<!-- Add project constraints, tech stack, conventions below -->
+<!-- One paragraph: what this project does and why -->
 
 ### Tech Stack
+
+<!-- Languages, frameworks, key dependencies -->
+
 -
 
 ### Conventions
+
+<!-- Code style, naming, patterns used in this project -->
+
 -
 
 ### Constraints
+
+<!-- Technical limitations, scope boundaries, non-goals -->
+
+-
+
+### Notes
+
+<!-- Project-specific instructions for Claude -->
+
 -
