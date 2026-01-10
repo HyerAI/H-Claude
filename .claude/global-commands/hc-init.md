@@ -104,51 +104,17 @@ H_CLAUDE_TEMPLATE: ~/.claude/H-Claude
    cp "$TEMPLATE/.claude/PM/GIT/GIT_PLAN.md.example" "$TARGET/.claude/PM/GIT/GIT_PLAN.md"
    cp "$TEMPLATE/.claude/PM/GIT/PROTOCOLS.md.example" "$TARGET/.claude/PM/GIT/PROTOCOLS.md"
 
-   # Initialize empty HC-LOG files
-   cat > "$TARGET/.claude/PM/HC-LOG/HC-FAILURES.md" << 'EOF'
-   # HC Failures Log
-
-   Notable failures and learnings from this project.
-   EOF
-
-   cat > "$TARGET/.claude/PM/HC-LOG/USER-PREFERENCES.md" << 'EOF'
-   # User Preferences
-
-   Preferences discovered during sessions.
-   EOF
+   # Initialize HC-LOG files from examples
+   cp "$TEMPLATE/.claude/PM/HC-LOG/HC-FAILURES.md.example" "$TARGET/.claude/PM/HC-LOG/HC-FAILURES.md"
+   cp "$TEMPLATE/.claude/PM/HC-LOG/USER-PREFERENCES.md.example" "$TARGET/.claude/PM/HC-LOG/USER-PREFERENCES.md"
    ```
 
 5. **Create root files (DO NOT copy H-Claude's root files):**
 
-   **CLAUDE.md** - Generate a fresh project CLAUDE.md:
-   ```markdown
-   # [PROJECT_NAME]
-
-   ## Project Info
-   - **NORTHSTAR:** `.claude/PM/SSoT/NORTHSTAR.md`
-   - **ROADMAP:** `.claude/PM/SSoT/ROADMAP.yaml`
-   - **CHANGELOG:** `.claude/PM/CHANGELOG.md`
-
-   ## Shortcuts
-   | Var | Path |
-   |-----|------|
-   | `$PM` | `.claude/PM` |
-   | `$SSOT` | `$PM/SSoT` |
-   | `$NORTH` | `$SSOT/NORTHSTAR.md` |
-   | `$ROAD` | `$SSOT/ROADMAP.yaml` |
-   | `$TEMP` | `$PM/TEMP` |
-
-   ## Workflow
-   1. Define vision in `$NORTH`
-   2. Create roadmap: `/think-tank --roadmap`
-   3. Plan phase: `/think-tank --phase=X`
-   4. Execute: `/hc-execute`
-   5. Review: `/hc-glass`
-
-   ## Rules
-   - Fix issues, don't create workarounds
-   - Don't assume - ask for clarification
-   - Update CHANGELOG after commits
+   **CLAUDE.md** - Copy from template and customize:
+   ```bash
+   cp "$TEMPLATE/.claude/examples/CLAUDE.md.example" "$TARGET/CLAUDE.md"
+   # Then update [PROJECT_NAME] placeholder during discovery phase
    ```
 
    **.gitignore** - Append H-Claude patterns if .gitignore exists, else create:

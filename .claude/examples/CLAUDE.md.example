@@ -1,0 +1,83 @@
+# [PROJECT_NAME]
+
+## SSoT (Single Source of Truth)
+
+| Doc | Purpose | Path |
+|-----|---------|------|
+| NORTHSTAR | Vision, goals, constraints | `$NORTH` |
+| ROADMAP | Phases, dependencies | `$ROAD` |
+| CHANGELOG | Work history | `$PM/CHANGELOG.md` |
+| Context | Session state | `.claude/context.yaml` |
+
+## Shortcuts
+
+| Var | Path |
+|-----|------|
+| `$PM` | `.claude/PM` |
+| `$SSOT` | `$PM/SSoT` |
+| `$NORTH` | `$SSOT/NORTHSTAR.md` |
+| `$ROAD` | `$SSOT/ROADMAP.yaml` |
+| `$TEMP` | `$PM/TEMP` |
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/think-tank --roadmap` | Create development phases from NORTHSTAR |
+| `/think-tank --phase=X` | Plan specific phase execution |
+| `/think-tank "topic"` | Ad-hoc research/decision session |
+| `/hc-execute` | Execute approved plan |
+| `/hc-glass` | Code/system review |
+| `/red-team` | Deep investigation audit |
+| `/hc-phase-cycle` | Full cycle: Execute → Audit → Fix → Validate |
+
+## Workflow
+
+```
+NORTHSTAR (vision) → /think-tank --roadmap → ROADMAP (phases)
+                            ↓
+              /think-tank --phase=X → execution-plan.yaml
+                            ↓
+                     /hc-execute → Implementation
+                            ↓
+                      /hc-glass → Review & Fix
+                            ↓
+                    Git commit → CHANGELOG update
+```
+
+## Session Protocol
+
+**Start:**
+1. Read `context.yaml` for current focus
+2. Check ROADMAP for active phase
+
+**During:**
+- Update context.yaml after significant work
+- Delegate to sub-agents to preserve context
+- Use `$TEMP` for drafts and scratch work
+
+**End:**
+- Update CHANGELOG
+- Commit with descriptive message
+
+## Rules
+
+1. **SSoT First** - Read NORTHSTAR before major decisions
+2. **No Assumptions** - Ask for clarification when unclear
+3. **Fix, Don't Workaround** - Address root causes
+4. **Context is Precious** - Delegate to preserve main context
+5. **Document Decisions** - ADRs for architectural choices
+6. **CHANGELOG = Work Log** - Update after every commit
+
+## Project-Specific
+
+<!-- Add project constraints, tech stack, conventions below -->
+
+### Tech Stack
+-
+
+### Conventions
+-
+
+### Constraints
+-
