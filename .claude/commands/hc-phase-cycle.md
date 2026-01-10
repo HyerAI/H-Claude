@@ -1,11 +1,22 @@
 ---
 version: V3.0.0
-status: current
+status: DEPRECATED
 timestamp: 2026-01-10
 description: "Phase cycle orchestrator - HC orchestrates, agents execute"
+deprecated: true
+superseded_by: /hc-cy
 ---
 
-# /hc-phase-cycle - Phase Cycle Orchestrator
+# /hc-phase-cycle - DEPRECATED
+
+> **DEPRECATED:** This command has been superseded by `/hc-cy`.
+> Use `/hc-cy` instead. This file will be removed in a future version.
+>
+> Migration: Replace `/hc-phase-cycle` with `/hc-cy` - identical functionality.
+
+---
+
+# /hc-phase-cycle - Phase Cycle Orchestrator (DEPRECATED)
 
 **HC orchestrates. Agents execute. State is sacred.**
 

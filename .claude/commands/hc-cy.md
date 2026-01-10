@@ -211,6 +211,45 @@ Ask user: **CONTINUE | PAUSE | ABORT**
 
 ---
 
+## /hc-glass Output Consumption (Step 6 → Step 7)
+
+After Step 6 (Validate), `/hc-glass` produces `SYSTEM_REVIEW_GLASS.md` with four lists:
+
+| List | Severity | What HC Does |
+|------|----------|--------------|
+| **PANIC** | Critical | **IMMEDIATE.** Pause cycle, spawn FLASH workers to fix before Step 7 |
+| **LIE** | Major | Document in AUDIT_REPORT, feed to next cycle's /red-team |
+| **KILL** | Minor | Spawn FLASH worker to delete dead code |
+| **DEBT** | Info | Add to `$BACKLOG` for future phases |
+
+**HC's Responsibilities Between Step 6 and Step 7:**
+
+1. **Read** `SYSTEM_REVIEW_GLASS.md`
+2. **Triage:**
+   - PANIC? → Spawn fix workers NOW, do NOT proceed to Step 7 until resolved
+   - KILL? → Spawn FLASH worker to delete the files
+   - LIE/DEBT? → Log for downstream (LIE → next audit, DEBT → backlog)
+3. **Update $CTX** with glass_findings summary
+4. **Proceed to Step 7** (Plan) only when PANIC list is empty
+
+```bash
+# Example: Step 6 complete, reviewing GLASS output
+# Check PANIC list
+PANIC_COUNT=$(grep -c "## PANIC" "${GLASS_SESSION}/SYSTEM_REVIEW_GLASS.md" || echo 0)
+
+if [[ $PANIC_COUNT -gt 0 ]]; then
+  echo "[CRITICAL] PANIC findings - must fix before proceeding"
+  # Spawn FLASH workers for each PANIC item
+  # ... then revalidate
+else
+  echo "[OK] No PANIC findings - proceeding to Step 7"
+fi
+```
+
+**Note:** GLASS output is NOT consumed by `/think-tank` directly. HC reviews and triages, ensuring PANIC items are resolved before planning begins.
+
+---
+
 ## Key Rules
 
 | Rule | Why |

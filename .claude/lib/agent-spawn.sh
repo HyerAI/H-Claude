@@ -686,11 +686,15 @@ EOF
     title: 'Phase $IDX'
     status: pending
     steps:
-      execute: { status: pending }
-      audit: { status: pending }
-      fixes: { status: pending }
-      validation: { status: pending }
-      planning: { status: pending }
+      # 8-step cycle (aligned with documentation)
+      execute: { status: pending }       # Step 1: Spawn /hc-execute
+      checkpoint_1: { status: pending }  # Step 2: git commit + state update
+      audit: { status: pending }         # Step 3: Spawn /red-team
+      fixes: { status: pending }         # Step 4: Spawn FLASH workers
+      checkpoint_2: { status: pending }  # Step 5: git commit + state update
+      validation: { status: pending }    # Step 6: Spawn /hc-glass
+      planning: { status: pending }      # Step 7: Spawn /think-tank
+      checkpoint_3: { status: pending }  # Step 8: git commit + complete_cycle
 
 EOF
     ((IDX++))
