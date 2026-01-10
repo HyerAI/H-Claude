@@ -1,5 +1,5 @@
 ---
-version: V3.0.1
+version: V3.1.0
 status: current
 timestamp: 2026-01-10
 tags: [command, execution, orchestration, plan, oraca, think-tank]
@@ -15,10 +15,10 @@ modes:
 
 # Proxies (port → role)
 proxies:
-  2414: orchestrator  # HC-Orca, light coordination
-  2413: oraca         # HC-Work-R, phase execution with reasoning
-  2412: worker        # HC-Work, task execution, git-engineer
-  2411: qa            # HC-Reas-B, Phase QA, QA Synthesis, Sweeper
+  2414: orchestrator  # HC-Orca (Flash), light coordination
+  2415: oraca         # HC-Orca-R (Pro), phase execution - upgraded for complex coordination
+  2412: worker        # HC-Work (Flash), task execution, git-engineer
+  2411: qa            # HC-Reas-B (Pro), Phase QA, QA Synthesis, Sweeper
 
 # Timeouts (seconds)
 timeouts: { orchestrator: 3600, oraca: 1200, worker: 600, qa: 900 }
@@ -33,7 +33,7 @@ rules:
 # Templates (all in templates_path except noted)
 templates:
   - orchestrator.md      # Flash - Main coordination
-  - oraca_phase.md       # Flash - Phase orchestration
+  - oraca_phase.md       # Pro - Phase orchestration (upgraded for complex coordination)
   - worker_task.md       # Flash - Task execution (triangulated context)
   - qa_phase.md          # Pro - Phase QA review
   - synthesizer_qa.md    # Pro - Cross-phase analysis
@@ -86,7 +86,7 @@ Spawn Flash Orchestrator (BACKGROUND)
 │  → INTERFACES.md                                                       │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 2: PHASED EXECUTION (via Oraca[X] Phase Orchestrators)          │
-│    Oraca[X] (Flash) → Workers (Flash) → Phase QA (Pro) → Report        │
+│    Oraca[X] (Pro) → Workers (Flash) → Phase QA (Pro) → Report          │
 ├────────────────────────────────────────────────────────────────────────┤
 │  PHASE 3: QA SYNTHESIS (Pro) → QA_SYNTHESIS.md                         │
 ├────────────────────────────────────────────────────────────────────────┤
@@ -102,7 +102,7 @@ Spawn Flash Orchestrator (BACKGROUND)
 
 ## Oraca[X]: Phase Orchestrators
 
-**Oraca** = **Ora**cle + **Ca**ptain. Flash agents that own one phase.
+**Oraca** = **Ora**cle + **Ca**ptain. Pro agents that own one phase (upgraded from Flash for complex coordination).
 
 **Why Oraca:**
 - Context Protection - Opus stays clean

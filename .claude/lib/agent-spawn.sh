@@ -337,7 +337,7 @@ spawn_agent() {
   local AGENT_NAME="$1"
   local PROMPT="$2"
   local PROXY_URL="$3"
-  local STALL_THRESHOLD="${4:-480}"   # 8 min default (Pro-level)
+  local STALL_THRESHOLD="${4:-300}"   # 5 min default (faster stall detection)
   local MAX_RUNTIME="${5:-14400}"     # 4 hour safety cap
 
   # Validate SESSION_PATH is set
@@ -543,7 +543,7 @@ spawn_agent_resilient() {
   local PROXY_URL="$3"
   local PHASE="$4"
   local STEP="$5"
-  local STALL_THRESHOLD="${6:-480}"
+  local STALL_THRESHOLD="${6:-300}"
 
   # Validate required params
   if [[ -z "$PHASE" || -z "$STEP" ]]; then
@@ -642,6 +642,89 @@ exit_to_status() {
 }
 
 # ============================================================================
+# PRE-CYCLE VALIDATION
+# ============================================================================
+
+# Check proxy health before starting cycle
+# Usage: check_proxy_health [PORTS...]
+# Default ports: 2410-2415
+# Returns: 0 if all healthy, 1 if any failed
+check_proxy_health() {
+  local PORTS=("${@:-2410 2411 2412 2413 2414 2415}")
+  local FAILED=0
+  local HEALTHY=0
+
+  echo "[PROXY] Checking proxy health..."
+
+  for port in "${PORTS[@]}"; do
+    # Try to connect - proxies should respond to basic request
+    if curl -s --connect-timeout 2 "http://localhost:${port}" >/dev/null 2>&1; then
+      echo "  ✓ Port $port: UP"
+      ((HEALTHY++))
+    else
+      echo "  ✗ Port $port: DOWN"
+      ((FAILED++))
+    fi
+  done
+
+  if [[ $FAILED -gt 0 ]]; then
+    echo "[PROXY] WARNING: $FAILED proxy(s) not responding"
+    echo "[PROXY] Run: claude-proxy start (or check proxy configuration)"
+    return 1
+  fi
+
+  echo "[PROXY] All $HEALTHY proxies healthy"
+  return 0
+}
+
+# Validate NORTHSTAR and ROADMAP before cycle
+# Usage: validate_cycle_prereqs [PHASES...]
+# Returns: 0 if valid, 1 if issues found
+validate_cycle_prereqs() {
+  local PHASES=("$@")
+  local ERRORS=0
+
+  local NORTH=".claude/PM/SSoT/NORTHSTAR.md"
+  local ROAD=".claude/PM/SSoT/ROADMAP.yaml"
+
+  echo "[VALIDATE] Checking cycle prerequisites..."
+
+  # Check NORTHSTAR for placeholders
+  if [[ -f "$NORTH" ]]; then
+    if grep -qiE '\[PLACEHOLDER\]|\[TODO\]|\[TBD\]|Purpose goes here|Vision goes here' "$NORTH" 2>/dev/null; then
+      echo "  ✗ NORTHSTAR.md contains placeholder text"
+      ((ERRORS++))
+    else
+      echo "  ✓ NORTHSTAR.md looks complete"
+    fi
+  else
+    echo "  ⚠ NORTHSTAR.md not found (optional)"
+  fi
+
+  # Check ROADMAP exists and has requested phases
+  if [[ -f "$ROAD" ]]; then
+    for phase in "${PHASES[@]}"; do
+      if grep -q "id: $phase" "$ROAD" 2>/dev/null; then
+        echo "  ✓ Phase $phase exists in ROADMAP"
+      else
+        echo "  ✗ Phase $phase NOT FOUND in ROADMAP.yaml"
+        ((ERRORS++))
+      fi
+    done
+  else
+    echo "  ⚠ ROADMAP.yaml not found (will create during cycle)"
+  fi
+
+  if [[ $ERRORS -gt 0 ]]; then
+    echo "[VALIDATE] Found $ERRORS issue(s) - fix before proceeding"
+    return 1
+  fi
+
+  echo "[VALIDATE] All prerequisites passed"
+  return 0
+}
+
+# ============================================================================
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
@@ -652,6 +735,18 @@ init_cycle_session() {
   local CYCLE_NAME="$1"
   shift
   local PHASES=("$@")
+
+  echo ""
+  echo "╔══════════════════════════════════════════════════════════════╗"
+  echo "║  INITIALIZING CYCLE: $CYCLE_NAME"
+  echo "╚══════════════════════════════════════════════════════════════╝"
+  echo ""
+
+  # Pre-cycle validation (P0 reliability improvements)
+  check_proxy_health || echo "[WARN] Proceeding despite proxy issues"
+  validate_cycle_prereqs "${PHASES[@]}" || echo "[WARN] Proceeding despite prereq issues"
+
+  echo ""
 
   local CYCLE_PATH=".claude/PM/phase-cycles/${CYCLE_NAME}"
   mkdir -p "$CYCLE_PATH"
@@ -686,15 +781,14 @@ EOF
     title: 'Phase $IDX'
     status: pending
     steps:
-      # 8-step cycle (aligned with documentation)
+      # 7-step cycle (V2.2.0 - removed redundant post-execute checkpoint)
       execute: { status: pending }       # Step 1: Spawn /hc-execute
-      checkpoint_1: { status: pending }  # Step 2: git commit + state update
-      audit: { status: pending }         # Step 3: Spawn /red-team
-      fixes: { status: pending }         # Step 4: Spawn FLASH workers
-      checkpoint_2: { status: pending }  # Step 5: git commit + state update
-      validation: { status: pending }    # Step 6: Spawn /hc-glass
-      planning: { status: pending }      # Step 7: Spawn /think-tank
-      checkpoint_3: { status: pending }  # Step 8: git commit + complete_cycle
+      audit: { status: pending }         # Step 2: Spawn /red-team
+      fixes: { status: pending }         # Step 3: Spawn FLASH workers
+      checkpoint_1: { status: pending }  # Step 4: git commit (after validated fixes)
+      validation: { status: pending }    # Step 5: Spawn /hc-glass
+      planning: { status: pending }      # Step 6: Spawn /think-tank
+      checkpoint_2: { status: pending }  # Step 7: git commit + complete_cycle
 
 EOF
     ((IDX++))

@@ -1,5 +1,5 @@
 ---
-version: V2.1.0
+version: V2.2.0
 description: "Phase Cycle Orchestrator - HC orchestrates, agents execute"
 ---
 
@@ -20,22 +20,26 @@ description: "Phase Cycle Orchestrator - HC orchestrates, agents execute"
 
 ---
 
-## The Cycle (8 Steps Per Phase)
+## The Cycle (7 Core Steps Per Phase)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  1. EXECUTE     Spawn /hc-execute (background)              │
-│  2. CHECKPOINT  git commit + update $CTX                    │
-│  3. AUDIT       Spawn /red-team (background)                │
-│  4. FIXES       Spawn FLASH workers (background)            │
-│  5. CHECKPOINT  git commit + update $CTX                    │
-│  6. VALIDATE    Spawn /hc-glass (background)                │
-│  7. PLAN        Spawn /think-tank (background)              │
-│  8. CHECKPOINT  git commit + complete_cycle                 │
+│  2. AUDIT       Spawn /red-team (background)                │
+│  3. FIXES       Spawn FLASH workers (background)            │
+│  4. CHECKPOINT  git commit + update $CTX                    │
+│  5. VALIDATE    Spawn /hc-glass (background)                │
+│  6. PLAN        Spawn /think-tank (background)              │
+│  7. CHECKPOINT  git commit + complete_cycle                 │
 ├─────────────────────────────────────────────────────────────┤
 │  [GATE] User confirms before next phase (if N > 1)          │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+> **Note:** Step 2 checkpoint (after execute) was removed in V2.2.0.
+> Execute output isn't validated until Audit completes - checkpointing
+> incomplete work has no recovery value. First meaningful recovery
+> point is Step 4 (after fixes are applied and verified).
 
 ---
 
@@ -76,24 +80,23 @@ sync_gate
 #### Formula: Total Steps
 
 ```
-N = 1:  8 steps
-N = 2:  8 + 1 (gate) + 8 = 17 steps
-N = 3:  8 + 1 + 8 + 1 + 8 = 26 steps
-N:      8*N + (N-1) gates
+N = 1:  7 steps
+N = 2:  7 + 1 (gate) + 7 = 15 steps
+N = 3:  7 + 1 + 7 + 1 + 7 = 23 steps
+N:      7*N + (N-1) gates
 ```
 
 #### Pattern: Single Phase (N=1)
 
 ```json
 [
-  {"content": "[1/8] Execute phase", "status": "in_progress", "activeForm": "Spawning /hc-execute"},
-  {"content": "[2/8] Checkpoint: commit + state", "status": "pending", "activeForm": "Committing execution"},
-  {"content": "[3/8] Audit phase", "status": "pending", "activeForm": "Spawning /red-team"},
-  {"content": "[4/8] Fixes: spawn FLASH workers", "status": "pending", "activeForm": "Spawning fix workers"},
-  {"content": "[5/8] Checkpoint: commit + state", "status": "pending", "activeForm": "Committing fixes"},
-  {"content": "[6/8] Validate phase", "status": "pending", "activeForm": "Spawning /hc-glass"},
-  {"content": "[7/8] Plan next phase", "status": "pending", "activeForm": "Spawning /think-tank"},
-  {"content": "[8/8] Final checkpoint + complete", "status": "pending", "activeForm": "Final commit + complete_cycle"}
+  {"content": "[1/7] Execute phase", "status": "in_progress", "activeForm": "Spawning /hc-execute"},
+  {"content": "[2/7] Audit phase", "status": "pending", "activeForm": "Spawning /red-team"},
+  {"content": "[3/7] Fixes: spawn FLASH workers", "status": "pending", "activeForm": "Spawning fix workers"},
+  {"content": "[4/7] Checkpoint: commit + state", "status": "pending", "activeForm": "Committing fixes"},
+  {"content": "[5/7] Validate phase", "status": "pending", "activeForm": "Spawning /hc-glass"},
+  {"content": "[6/7] Plan next phase", "status": "pending", "activeForm": "Spawning /think-tank"},
+  {"content": "[7/7] Final checkpoint + complete", "status": "pending", "activeForm": "Final commit + complete_cycle"}
 ]
 ```
 
@@ -103,49 +106,45 @@ For N phases, generate todos following this structure:
 
 ```
 For phase P in 1..N:
-  [P{P} 1/8] Execute phase
-  [P{P} 2/8] Checkpoint
-  [P{P} 3/8] Audit phase
-  [P{P} 4/8] Fixes: FLASH workers
-  [P{P} 5/8] Checkpoint
-  [P{P} 6/8] Validate phase
-  [P{P} 7/8] Plan next phase
-  [P{P} 8/8] Checkpoint (or "Final checkpoint + complete" if last phase)
+  [P{P} 1/7] Execute phase
+  [P{P} 2/7] Audit phase
+  [P{P} 3/7] Fixes: FLASH workers
+  [P{P} 4/7] Checkpoint
+  [P{P} 5/7] Validate phase
+  [P{P} 6/7] Plan next phase
+  [P{P} 7/7] Checkpoint (or "Final checkpoint + complete" if last phase)
 
   If P < N:
     [GATE] Confirm before P{P+1}
 ```
 
-**Example: N=3 (26 steps)**
+**Example: N=3 (23 steps)**
 
 ```json
 [
-  {"content": "[P1 1/8] Execute", "status": "in_progress", "activeForm": "Spawning /hc-execute (P1)"},
-  {"content": "[P1 2/8] Checkpoint", "status": "pending", "activeForm": "Committing P1 execution"},
-  {"content": "[P1 3/8] Audit", "status": "pending", "activeForm": "Spawning /red-team (P1)"},
-  {"content": "[P1 4/8] Fixes", "status": "pending", "activeForm": "Spawning fix workers (P1)"},
-  {"content": "[P1 5/8] Checkpoint", "status": "pending", "activeForm": "Committing P1 fixes"},
-  {"content": "[P1 6/8] Validate", "status": "pending", "activeForm": "Spawning /hc-glass (P1)"},
-  {"content": "[P1 7/8] Plan", "status": "pending", "activeForm": "Spawning /think-tank (P1)"},
-  {"content": "[P1 8/8] Checkpoint", "status": "pending", "activeForm": "Committing P1 complete"},
+  {"content": "[P1 1/7] Execute", "status": "in_progress", "activeForm": "Spawning /hc-execute (P1)"},
+  {"content": "[P1 2/7] Audit", "status": "pending", "activeForm": "Spawning /red-team (P1)"},
+  {"content": "[P1 3/7] Fixes", "status": "pending", "activeForm": "Spawning fix workers (P1)"},
+  {"content": "[P1 4/7] Checkpoint", "status": "pending", "activeForm": "Committing P1 fixes"},
+  {"content": "[P1 5/7] Validate", "status": "pending", "activeForm": "Spawning /hc-glass (P1)"},
+  {"content": "[P1 6/7] Plan", "status": "pending", "activeForm": "Spawning /think-tank (P1)"},
+  {"content": "[P1 7/7] Checkpoint", "status": "pending", "activeForm": "Committing P1 complete"},
   {"content": "[GATE] Confirm P2", "status": "pending", "activeForm": "User gate: continue to P2?"},
-  {"content": "[P2 1/8] Execute", "status": "pending", "activeForm": "Spawning /hc-execute (P2)"},
-  {"content": "[P2 2/8] Checkpoint", "status": "pending", "activeForm": "Committing P2 execution"},
-  {"content": "[P2 3/8] Audit", "status": "pending", "activeForm": "Spawning /red-team (P2)"},
-  {"content": "[P2 4/8] Fixes", "status": "pending", "activeForm": "Spawning fix workers (P2)"},
-  {"content": "[P2 5/8] Checkpoint", "status": "pending", "activeForm": "Committing P2 fixes"},
-  {"content": "[P2 6/8] Validate", "status": "pending", "activeForm": "Spawning /hc-glass (P2)"},
-  {"content": "[P2 7/8] Plan", "status": "pending", "activeForm": "Spawning /think-tank (P2)"},
-  {"content": "[P2 8/8] Checkpoint", "status": "pending", "activeForm": "Committing P2 complete"},
+  {"content": "[P2 1/7] Execute", "status": "pending", "activeForm": "Spawning /hc-execute (P2)"},
+  {"content": "[P2 2/7] Audit", "status": "pending", "activeForm": "Spawning /red-team (P2)"},
+  {"content": "[P2 3/7] Fixes", "status": "pending", "activeForm": "Spawning fix workers (P2)"},
+  {"content": "[P2 4/7] Checkpoint", "status": "pending", "activeForm": "Committing P2 fixes"},
+  {"content": "[P2 5/7] Validate", "status": "pending", "activeForm": "Spawning /hc-glass (P2)"},
+  {"content": "[P2 6/7] Plan", "status": "pending", "activeForm": "Spawning /think-tank (P2)"},
+  {"content": "[P2 7/7] Checkpoint", "status": "pending", "activeForm": "Committing P2 complete"},
   {"content": "[GATE] Confirm P3", "status": "pending", "activeForm": "User gate: continue to P3?"},
-  {"content": "[P3 1/8] Execute", "status": "pending", "activeForm": "Spawning /hc-execute (P3)"},
-  {"content": "[P3 2/8] Checkpoint", "status": "pending", "activeForm": "Committing P3 execution"},
-  {"content": "[P3 3/8] Audit", "status": "pending", "activeForm": "Spawning /red-team (P3)"},
-  {"content": "[P3 4/8] Fixes", "status": "pending", "activeForm": "Spawning fix workers (P3)"},
-  {"content": "[P3 5/8] Checkpoint", "status": "pending", "activeForm": "Committing P3 fixes"},
-  {"content": "[P3 6/8] Validate", "status": "pending", "activeForm": "Spawning /hc-glass (P3)"},
-  {"content": "[P3 7/8] Plan", "status": "pending", "activeForm": "Spawning /think-tank (P3)"},
-  {"content": "[P3 8/8] Final checkpoint + complete", "status": "pending", "activeForm": "Final commit + complete_cycle"}
+  {"content": "[P3 1/7] Execute", "status": "pending", "activeForm": "Spawning /hc-execute (P3)"},
+  {"content": "[P3 2/7] Audit", "status": "pending", "activeForm": "Spawning /red-team (P3)"},
+  {"content": "[P3 3/7] Fixes", "status": "pending", "activeForm": "Spawning fix workers (P3)"},
+  {"content": "[P3 4/7] Checkpoint", "status": "pending", "activeForm": "Committing P3 fixes"},
+  {"content": "[P3 5/7] Validate", "status": "pending", "activeForm": "Spawning /hc-glass (P3)"},
+  {"content": "[P3 6/7] Plan", "status": "pending", "activeForm": "Spawning /think-tank (P3)"},
+  {"content": "[P3 7/7] Final checkpoint + complete", "status": "pending", "activeForm": "Final commit + complete_cycle"}
 ]
 ```
 
@@ -256,9 +255,10 @@ fi
 |------|-----|
 | **Background spawns** | HC stays available for user |
 | **FLASH for fixes** | Protect HC context window |
-| **Checkpoints** | Commit after execute, fixes, final |
+| **Checkpoints** | Commit after fixes (validated work), and final |
 | **Gates between phases** | User controls pace |
 | **Full todos upfront** | Clear progress visibility |
+| **Pre-cycle validation** | Check proxies + prereqs before starting |
 
 ---
 
@@ -267,12 +267,12 @@ fi
 ```
 HC orchestrates. Agents execute.
 Background spawns. HC stays available.
-Checkpoint after every work block.
+Checkpoint after validated work (fixes + final).
 FIXES = FLASH workers, never inline.
-State is sacred.
+State is sacred. Pre-validate always.
 ```
 
 ---
 
-**V2.1.0** | Multi-phase support, clear todo generation, background execution
+**V2.2.0** | Removed redundant checkpoint, added pre-cycle validation, 7-step cycle
 
