@@ -119,6 +119,61 @@ log_orchestrator() {
   fi
 }
 
+# Mark the entire cycle as complete
+# Usage: complete_cycle [STATUS] [PHASES_COMPLETED] [PHASES_FAILED]
+# Example: complete_cycle "complete" 3 0
+complete_cycle() {
+  local STATUS="${1:-complete}"
+  local COMPLETED="${2:-1}"
+  local FAILED="${3:-0}"
+
+  local CYCLE_STATE="${CYCLE_SESSION_PATH:-$SESSION_PATH}/CYCLE_STATE.yaml"
+
+  if [[ ! -f "$CYCLE_STATE" ]]; then
+    echo "[WARN] CYCLE_STATE.yaml not found"
+    return 1
+  fi
+
+  local TIMESTAMP=$(date -Iseconds)
+
+  python3 << EOF
+import yaml
+
+cycle_state_path = "$CYCLE_STATE"
+status = "$STATUS"
+completed = $COMPLETED
+failed = $FAILED
+timestamp = "$TIMESTAMP"
+
+try:
+    with open(cycle_state_path, 'r') as f:
+        state = yaml.safe_load(f)
+
+    # Update outcome
+    state['outcome'] = {
+        'status': status,
+        'phases_completed': completed,
+        'phases_failed': failed,
+        'completed_at': timestamp
+    }
+
+    # Update current_step to show completion
+    state['current_step']['status'] = status
+    state['current_step']['updated_at'] = timestamp
+
+    with open(cycle_state_path, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+
+    print(f"[CYCLE] Marked as {status} ({completed} completed, {failed} failed)")
+
+except Exception as e:
+    print(f"[ERROR] Failed to complete cycle: {e}")
+    exit(1)
+EOF
+
+  return $?
+}
+
 # Create a git checkpoint commit for state changes
 # Usage: git_checkpoint MESSAGE [FILES...]
 # If no files specified, commits all state files in .claude/PM/
@@ -183,14 +238,28 @@ EOF
 # Check for interrupted cycles and offer recovery
 # Usage: recover_cycle [CYCLE_PATH]
 # Returns: 0 if clean, 1 if interrupted cycle found
+#
+# A cycle is "interrupted" if:
+#   - outcome.status is NOT "complete" (cycle didn't finish)
+#   - AND current_step.status is "in_progress" (was mid-step when stopped)
 recover_cycle() {
   local CYCLE_PATH="${1:-.claude/PM/phase-cycles}"
 
-  # Find cycles with in_progress status
+  # Find cycles that are truly interrupted (not just have in_progress somewhere)
   local INTERRUPTED=()
 
   while IFS= read -r -d '' STATE_FILE; do
-    if grep -q "status: in_progress" "$STATE_FILE" 2>/dev/null; then
+    # Check outcome.status - if complete, cycle finished successfully
+    local OUTCOME_STATUS=$(grep -A2 "^outcome:" "$STATE_FILE" 2>/dev/null | grep "status:" | head -1 | sed 's/.*status: *//')
+
+    if [[ "$OUTCOME_STATUS" == "complete" ]]; then
+      continue  # Cycle finished, not interrupted
+    fi
+
+    # Check current_step.status - if in_progress, was mid-step when stopped
+    local CURRENT_STATUS=$(grep -A4 "^current_step:" "$STATE_FILE" 2>/dev/null | grep "status:" | head -1 | sed 's/.*status: *//')
+
+    if [[ "$CURRENT_STATUS" == "in_progress" ]]; then
       INTERRUPTED+=("$STATE_FILE")
     fi
   done < <(find "$CYCLE_PATH" -name "CYCLE_STATE.yaml" -print0 2>/dev/null)
@@ -206,8 +275,8 @@ recover_cycle() {
     local CYCLE_NAME=$(basename "$CYCLE_DIR")
 
     # Extract current step info
-    local CURRENT_PHASE=$(grep -A4 "current_step:" "$state_file" | grep "phase:" | head -1 | sed 's/.*phase: *//')
-    local CURRENT_STEP=$(grep -A4 "current_step:" "$state_file" | grep "step:" | head -1 | sed 's/.*step: *//')
+    local CURRENT_PHASE=$(grep -A4 "^current_step:" "$state_file" | grep "phase:" | head -1 | sed 's/.*phase: *//')
+    local CURRENT_STEP=$(grep -A4 "^current_step:" "$state_file" | grep "step:" | head -1 | sed 's/.*step: *//')
 
     echo "  - $CYCLE_NAME: Interrupted at $CURRENT_PHASE / $CURRENT_STEP"
     echo "    State: $state_file"
