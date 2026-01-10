@@ -7,6 +7,7 @@ MkDocs Material wiki viewer for PM folder observability.
 ```
 PM-View/
 ├── mkdocs.yml          # MkDocs config
+├── .env                # Local host/port config
 ├── assets/
 │   └── logo.png        # Project logo
 ├── stylesheets/
@@ -14,14 +15,26 @@ PM-View/
 └── README.md           # This file
 ```
 
+## Configuration
+
+Host and port are configured via `.env` file:
+
+```bash
+PM_VIEW_HOST=127.0.0.1
+PM_VIEW_PORT=8003
+```
+
+Modify port if running multiple H-Claude projects simultaneously.
+
 ## Usage
 
 ```bash
 cd .claude/PM/PM-View
-mkdocs serve --dev-addr 127.0.0.1:8003
+source .env
+mkdocs serve --dev-addr ${PM_VIEW_HOST}:${PM_VIEW_PORT}
 ```
 
-Open http://127.0.0.1:8003
+Open http://127.0.0.1:8003 (or your configured port)
 
 ## Adding to Another Project
 
@@ -47,10 +60,13 @@ Open http://127.0.0.1:8003
 
 5. Replace `assets/logo.png` with your project logo
 
-6. Run: `cd .claude/PM/PM-View && mkdocs serve`
+6. Configure `.env` with desired host/port (change port if conflicts exist)
+
+7. Run: `cd .claude/PM/PM-View && source .env && mkdocs serve --dev-addr ${PM_VIEW_HOST}:${PM_VIEW_PORT}`
 
 ## Customization
 
+- **Host/Port**: Edit `.env`
 - **Colors**: Edit `stylesheets/custom.css`
 - **Logo**: Replace `assets/logo.png`
 - **Site name**: Edit `site_name` in `mkdocs.yml`

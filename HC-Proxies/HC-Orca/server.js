@@ -10,27 +10,34 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const envPath = path.join(__dirname, '.env');
-if (fs.existsSync(envPath)) {
-    const envContent = fs.readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
-        const [key, ...valueParts] = line.split('=');
-        if (key && valueParts.length > 0) {
-            const value = valueParts.join('=').trim();
-            if (!process.env[key.trim()]) {
-                process.env[key.trim()] = value;
+// Load env files: shared first, then local for overrides
+function loadEnv(envPath) {
+    if (fs.existsSync(envPath)) {
+        fs.readFileSync(envPath, 'utf-8').split('\n').forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith('#')) return;
+            const [key, ...valueParts] = trimmed.split('=');
+            if (key && valueParts.length > 0) {
+                const value = valueParts.join('=').trim();
+                if (!process.env[key.trim()]) {
+                    process.env[key.trim()] = value;
+                }
             }
-        }
-    });
+        });
+    }
 }
 
-const GOOGLE_AI_API_KEY = process.env.GOOGLE_AI_API_KEY;
+loadEnv(path.join(__dirname, '..', '.env'));  // Shared config
+loadEnv(path.join(__dirname, '.env'));         // Local overrides
+
+// Use primary key (Flash orchestrators use primary)
+const GOOGLE_AI_API_KEY = process.env.GOOGLE_AI_API_KEY_PRIMARY || process.env.GOOGLE_AI_API_KEY;
 if (!GOOGLE_AI_API_KEY) {
-    console.error('ERROR: GOOGLE_AI_API_KEY not set.');
+    console.error('ERROR: GOOGLE_AI_API_KEY_PRIMARY not set in HC-Proxies/.env');
     process.exit(1);
 }
 
-const DEFAULT_MODEL = process.env.HC_ORCA_MODEL || 'gemini-3-flash-preview';
+const DEFAULT_MODEL = process.env.MODEL_FLASH || process.env.HC_ORCA_MODEL || 'gemini-2.5-flash-preview-05-20';
 const PORT = process.env.HC_ORCA_PORT || 2414;
 
 const app = express();
@@ -68,7 +75,8 @@ async function handleCompletionRequest(req, res, style) {
 
     try {
         const googleRequest = translateToGoogleAI(messages, max_tokens, temperature);
-        const targetModel = model || DEFAULT_MODEL;
+        // Always use our configured Gemini model, ignore Claude model name from client
+        const targetModel = DEFAULT_MODEL;
         const googleResponse = await callGoogleAI(targetModel, googleRequest);
         const response = style === 'anthropic'
             ? translateToAnthropicFormat(googleResponse, targetModel)

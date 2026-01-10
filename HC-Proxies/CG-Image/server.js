@@ -10,32 +10,34 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-// Load .env file if exists
-const envPath = path.join(__dirname, '.env');
-if (fs.existsSync(envPath)) {
-    const envContent = fs.readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) return;
-        const [key, ...valueParts] = trimmed.split('=');
-        if (key && valueParts.length > 0) {
-            const value = valueParts.join('=').trim();
-            if (!process.env[key.trim()]) {
-                process.env[key.trim()] = value;
+// Load env files: shared first, then local for overrides
+function loadEnv(envPath) {
+    if (fs.existsSync(envPath)) {
+        fs.readFileSync(envPath, 'utf-8').split('\n').forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith('#')) return;
+            const [key, ...valueParts] = trimmed.split('=');
+            if (key && valueParts.length > 0) {
+                const value = valueParts.join('=').trim();
+                if (!process.env[key.trim()]) {
+                    process.env[key.trim()] = value;
+                }
             }
-        }
-    });
+        });
+    }
 }
 
-// Configuration
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+loadEnv(path.join(__dirname, '..', '.env'));  // Shared config
+loadEnv(path.join(__dirname, '.env'));         // Local overrides
+
+// Configuration - Image uses dedicated key
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY_IMAGE || process.env.GOOGLE_API_KEY;
 if (!GOOGLE_API_KEY) {
-    console.error('ERROR: GOOGLE_API_KEY not set.');
-    console.error('  Set in .env file or export GOOGLE_API_KEY=your-key');
+    console.error('ERROR: GOOGLE_API_KEY_IMAGE not set in HC-Proxies/.env');
     process.exit(1);
 }
 
-const PORT = process.env.IMAGE_PROXY_PORT || 2407;
+const PORT = process.env.CG_IMAGE_PORT || process.env.IMAGE_PROXY_PORT || 2407;
 const GEMINI_MODEL = 'gemini-3-pro';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 

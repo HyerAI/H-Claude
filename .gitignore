@@ -3,6 +3,7 @@
 # ===========================================
 
 # API Keys and secrets
+HC-Proxies/.env
 HC-Proxies/*/.env
 .env
 *.env.local

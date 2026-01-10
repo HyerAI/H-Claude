@@ -117,7 +117,7 @@ Project/
 | `$HC_ORCA_R` | 2415 | Orchestrator (Retry) |
 
 **Agents:** `$GIT` = git-engineer | `$SCOUT` = hc-scout
-
+--*INTERNAL NOTE: **DO NOT USE git-engineer in the H-Claude Repo!***
 ---
 
 ## HC Role: Factory Operator & Orchestrator
