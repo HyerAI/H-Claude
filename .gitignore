@@ -62,6 +62,9 @@ HC-Proxies/*/.env
 # ADRs - project decisions (see examples/ADR-example.md for format)
 .claude/PM/SSoT/ADRs/ADR-*.md
 
+# User Stories - project requirements (see templates/user-story.md for format)
+.claude/PM/SSoT/UserStories/US-*.md
+
 # Session status
 .claude/PM/SESSION_STATUS.md
 

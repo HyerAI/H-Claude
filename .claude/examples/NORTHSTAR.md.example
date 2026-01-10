@@ -1,0 +1,85 @@
+# Project NORTHSTAR: [Project Name]
+
+**The guiding document for all agents working on this project.**
+
+---
+
+## Purpose
+
+<!-- One paragraph: What does this project do and why does it exist? -->
+
+---
+
+## Vision
+
+<!-- One paragraph: What will success look like? What value will it provide? -->
+
+---
+
+## Target Users
+
+<!-- Who is this for? -->
+
+---
+
+## Goals
+
+<!-- 3-5 key goals. Link to User Stories for details. -->
+
+1. **[Goal 1]** - [Brief description]
+   - User Story: [US-001](UserStories/US-001.md)
+
+2. **[Goal 2]** - [Brief description]
+   - User Story: [US-002](UserStories/US-002.md)
+
+3. **[Goal 3]** - [Brief description]
+
+---
+
+## Constraints
+
+<!-- Technical and scope limitations -->
+
+1. **[Constraint]** - [Reason]
+2. **[Constraint]** - [Reason]
+
+---
+
+## Non-Goals
+
+<!-- What we explicitly will NOT do -->
+
+- [Out of scope item]
+- [Deferred feature]
+
+---
+
+## Quality Standards
+
+| Aspect | Standard |
+|--------|----------|
+| Code | Clean, tested, documented |
+| Docs | Clear, concise, current |
+| Decisions | Documented as ADRs |
+
+---
+
+## References
+
+<!-- Links to detailed documentation -->
+
+### Architectural Decisions
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-001](ADRs/ADR-001.md) | [Title] | Accepted |
+
+### User Stories
+
+| ID | Title | Status | Priority |
+|----|-------|--------|----------|
+| [US-001](UserStories/US-001.md) | [Title] | Draft | P1 |
+
+---
+
+*Last updated: YYYY-MM-DD*
