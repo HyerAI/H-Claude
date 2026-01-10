@@ -2,6 +2,16 @@
 # Agent Spawn Library - ADR-006 + ADR-007 Implementation
 # Source this file: source .claude/lib/agent-spawn.sh
 #
+# V1.2.0 - Added P1-P3 reliability improvements:
+#   - Proxy health checking (check_proxy_health)
+#   - Pre-cycle validation (validate_cycle_prereqs)
+#   - Fix batching by directory (batch_fixes)
+#   - Artifact validation after spawn (validate_spawn_output)
+#   - Tiered worker timeouts (get_tiered_timeout, integrated with spawn_agent_simple)
+#   - Fix deduplication for recovery (dedupe_fixes, mark_fix_applied)
+#   - PANIC auto-routing (extract_panic_items, check_panic_clear, resolve_panic_items)
+#   - Stall threshold reduced from 480s to 300s
+#
 # V1.1.0 - Added resilience features (ADR-007):
 #   - Pre/post spawn checkpointing
 #   - Automatic CYCLE_STATE.yaml updates
@@ -437,12 +447,27 @@ $PROMPT
 }
 
 # Quick spawn without monitoring (for simple tasks)
+# Usage: spawn_agent_simple AGENT_NAME PROMPT PROXY_URL [TIMEOUT|COMPLEXITY]
+# TIMEOUT: explicit seconds, or COMPLEXITY: simple|medium|complex for tiered
 spawn_agent_simple() {
   local AGENT_NAME="$1"
   local PROMPT="$2"
   local PROXY_URL="$3"
-  local TIMEOUT="${4:-300}"
+  local TIMEOUT_ARG="${4:-medium}"
 
+  # Support both explicit timeout and complexity-based tiered timeout
+  local TIMEOUT
+  case "$TIMEOUT_ARG" in
+    simple|medium|complex)
+      TIMEOUT=$(get_tiered_timeout "$TIMEOUT_ARG")
+      ;;
+    *)
+      # Assume numeric timeout
+      TIMEOUT="$TIMEOUT_ARG"
+      ;;
+  esac
+
+  echo "[SPAWN] $AGENT_NAME (timeout: ${TIMEOUT}s)"
   timeout --foreground --signal=TERM --kill-after=30 $TIMEOUT \
     bash -c "ANTHROPIC_API_BASE_URL=$PROXY_URL claude --dangerously-skip-permissions -p \"$PROMPT\"" 2>&1
 }
@@ -519,6 +544,457 @@ cleanup_all_stale_agents() {
   done < <(find "$BASE_PATH" -name "ACTIVE_AGENTS" -print0 2>/dev/null)
 
   echo "[CLEANUP] Stale agent cleanup complete"
+}
+
+# ============================================================================
+# FIX BATCHING & ARTIFACT VALIDATION (P1 Improvements)
+# ============================================================================
+
+# Batch fixes by target directory to reduce spawn overhead
+# Usage: batch_fixes FIXES_YAML_FILE
+# Returns: Creates BATCHED_FIXES.yaml with grouped fixes
+batch_fixes() {
+  local FIXES_FILE="$1"
+  local OUTPUT_FILE="${2:-$(dirname "$FIXES_FILE")/BATCHED_FIXES.yaml}"
+  local MAX_BATCH_EFFORT="${3:-15}"  # Max combined effort (minutes) per batch
+
+  if [[ ! -f "$FIXES_FILE" ]]; then
+    echo "[ERROR] Fixes file not found: $FIXES_FILE"
+    return 1
+  fi
+
+  echo "[BATCH] Grouping fixes from $FIXES_FILE..."
+
+  python3 << EOF
+import yaml
+import os
+from collections import defaultdict
+
+fixes_file = "$FIXES_FILE"
+output_file = "$OUTPUT_FILE"
+max_effort = $MAX_BATCH_EFFORT
+
+with open(fixes_file, 'r') as f:
+    data = yaml.safe_load(f)
+
+fixes = data.get('fixes', [])
+if not fixes:
+    print("[BATCH] No fixes to batch")
+    exit(0)
+
+# Group by directory
+dir_groups = defaultdict(list)
+for fix in fixes:
+    target = fix.get('target', '')
+    dir_path = os.path.dirname(target) or 'root'
+    dir_groups[dir_path].append(fix)
+
+# Create batches respecting max effort
+batches = []
+batch_id = 1
+
+for dir_path, dir_fixes in dir_groups.items():
+    current_batch = []
+    current_effort = 0
+
+    for fix in dir_fixes:
+        effort = fix.get('estimated_effort', 10)
+        if current_effort + effort > max_effort and current_batch:
+            batches.append({
+                'batch_id': f'BATCH-{batch_id:03d}',
+                'directory': dir_path,
+                'fixes': current_batch,
+                'total_effort': current_effort,
+                'fix_count': len(current_batch)
+            })
+            batch_id += 1
+            current_batch = []
+            current_effort = 0
+
+        current_batch.append(fix)
+        current_effort += effort
+
+    if current_batch:
+        batches.append({
+            'batch_id': f'BATCH-{batch_id:03d}',
+            'directory': dir_path,
+            'fixes': current_batch,
+            'total_effort': current_effort,
+            'fix_count': len(current_batch)
+        })
+        batch_id += 1
+
+output = {
+    'meta': {
+        'source': fixes_file,
+        'total_fixes': len(fixes),
+        'total_batches': len(batches),
+        'max_effort_per_batch': max_effort
+    },
+    'batches': batches
+}
+
+with open(output_file, 'w') as f:
+    yaml.dump(output, f, default_flow_style=False, sort_keys=False)
+
+print(f"[BATCH] Created {len(batches)} batches from {len(fixes)} fixes")
+print(f"[BATCH] Output: {output_file}")
+EOF
+
+  return $?
+}
+
+# Validate spawn output contains expected artifacts
+# Usage: validate_spawn_output COMMAND SESSION_PATH
+# Returns: 0 if valid, 1 if missing artifacts
+validate_spawn_output() {
+  local COMMAND="$1"
+  local SESSION="$2"
+  local ERRORS=0
+
+  echo "[VALIDATE] Checking artifacts for $COMMAND in $SESSION..."
+
+  case "$COMMAND" in
+    "hc-execute")
+      local REQUIRED=("COMPLETION_REPORT.md" "EXECUTION_STATE.md")
+      for artifact in "${REQUIRED[@]}"; do
+        if [[ -f "${SESSION}/${artifact}" ]]; then
+          echo "  ✓ $artifact"
+        else
+          echo "  ✗ $artifact MISSING"
+          ((ERRORS++))
+        fi
+      done
+      ;;
+
+    "red-team")
+      local REQUIRED=("AUDIT_REPORT.md" "AUDIT_FIXES.yaml")
+      for artifact in "${REQUIRED[@]}"; do
+        if [[ -f "${SESSION}/${artifact}" ]]; then
+          echo "  ✓ $artifact"
+        else
+          echo "  ✗ $artifact MISSING"
+          ((ERRORS++))
+        fi
+      done
+      ;;
+
+    "hc-glass")
+      local REQUIRED=("SYSTEM_REVIEW_GLASS.md")
+      for artifact in "${REQUIRED[@]}"; do
+        if [[ -f "${SESSION}/${artifact}" ]]; then
+          echo "  ✓ $artifact"
+        else
+          echo "  ✗ $artifact MISSING"
+          ((ERRORS++))
+        fi
+      done
+      ;;
+
+    "think-tank")
+      # Either execution-plan.yaml OR 04_DECISION_MAP.md
+      if [[ -f "${SESSION}/execution-plan.yaml" ]] || [[ -f "${SESSION}/04_DECISION_MAP.md" ]]; then
+        echo "  ✓ Think-tank output found"
+      else
+        echo "  ✗ No execution-plan.yaml or 04_DECISION_MAP.md"
+        ((ERRORS++))
+      fi
+      ;;
+
+    *)
+      echo "  ? Unknown command: $COMMAND (skipping validation)"
+      ;;
+  esac
+
+  if [[ $ERRORS -gt 0 ]]; then
+    echo "[VALIDATE] FAILED: $ERRORS missing artifact(s)"
+    return 1
+  fi
+
+  echo "[VALIDATE] All artifacts present"
+  return 0
+}
+
+# Get tiered timeout based on task complexity
+# Usage: get_tiered_timeout COMPLEXITY
+# COMPLEXITY: simple | medium | complex
+get_tiered_timeout() {
+  local COMPLEXITY="${1:-medium}"
+
+  case "$COMPLEXITY" in
+    simple)  echo 300 ;;   # 5 min
+    medium)  echo 600 ;;   # 10 min (default)
+    complex) echo 900 ;;   # 15 min
+    *)       echo 600 ;;   # default to medium
+  esac
+}
+
+# ============================================================================
+# FIX DEDUPLICATION FOR RECOVERY (P2 Improvement)
+# ============================================================================
+
+# Deduplicate fixes for recovery - identifies what's already applied
+# Usage: dedupe_fixes FIXES_YAML APPLIED_LOG_DIR
+# Returns: Creates REMAINING_FIXES.yaml with only unapplied fixes
+dedupe_fixes() {
+  local FIXES_FILE="$1"
+  local APPLIED_DIR="${2:-$(dirname "$FIXES_FILE")/APPLIED}"
+  local OUTPUT_FILE="${3:-$(dirname "$FIXES_FILE")/REMAINING_FIXES.yaml}"
+
+  if [[ ! -f "$FIXES_FILE" ]]; then
+    echo "[DEDUPE] Fixes file not found: $FIXES_FILE"
+    return 1
+  fi
+
+  echo "[DEDUPE] Checking for already-applied fixes..."
+
+  python3 << EOF
+import yaml
+import os
+import glob
+
+fixes_file = "$FIXES_FILE"
+applied_dir = "$APPLIED_DIR"
+output_file = "$OUTPUT_FILE"
+
+with open(fixes_file, 'r') as f:
+    data = yaml.safe_load(f)
+
+fixes = data.get('fixes', [])
+if not fixes:
+    print("[DEDUPE] No fixes to deduplicate")
+    exit(0)
+
+# Find applied fix IDs from log files
+applied_ids = set()
+if os.path.isdir(applied_dir):
+    for log_file in glob.glob(os.path.join(applied_dir, "*.yaml")):
+        try:
+            with open(log_file, 'r') as f:
+                log = yaml.safe_load(f)
+                if log.get('status') == 'applied':
+                    applied_ids.add(log.get('fix_id'))
+        except:
+            pass
+
+# Also check for successful worker outputs
+worker_outputs = os.path.join(os.path.dirname(fixes_file), "WORKER_OUTPUTS")
+if os.path.isdir(worker_outputs):
+    for evidence in glob.glob(os.path.join(worker_outputs, "*_EVIDENCE.md")):
+        # Extract fix ID from filename (e.g., FIX_001_EVIDENCE.md)
+        basename = os.path.basename(evidence)
+        if basename.startswith("FIX_") and "_EVIDENCE" in basename:
+            fix_id = basename.split("_EVIDENCE")[0].replace("_", "-")
+            applied_ids.add(fix_id)
+
+# Filter to remaining fixes
+remaining = [f for f in fixes if f.get('id') not in applied_ids]
+
+print(f"[DEDUPE] Total fixes: {len(fixes)}")
+print(f"[DEDUPE] Already applied: {len(applied_ids)}")
+print(f"[DEDUPE] Remaining: {len(remaining)}")
+
+if not remaining:
+    print("[DEDUPE] All fixes already applied!")
+    # Write empty remaining file
+    with open(output_file, 'w') as f:
+        yaml.dump({'fixes': [], 'meta': {'source': fixes_file, 'all_applied': True}}, f)
+    exit(0)
+
+# Write remaining fixes
+output = {
+    'meta': {
+        'source': fixes_file,
+        'total_original': len(fixes),
+        'already_applied': len(applied_ids),
+        'remaining': len(remaining),
+        'applied_ids': list(applied_ids)
+    },
+    'fixes': remaining
+}
+
+with open(output_file, 'w') as f:
+    yaml.dump(output, f, default_flow_style=False, sort_keys=False)
+
+print(f"[DEDUPE] Output: {output_file}")
+for fix in remaining:
+    print(f"  - {fix.get('id')}: {fix.get('target')}")
+EOF
+
+  return $?
+}
+
+# Mark a fix as applied (call after successful worker completion)
+# Usage: mark_fix_applied FIX_ID SESSION_PATH [STATUS]
+mark_fix_applied() {
+  local FIX_ID="$1"
+  local SESSION="${2:-${CYCLE_SESSION_PATH:-$SESSION_PATH}}"
+  local STATUS="${3:-applied}"
+
+  local APPLIED_DIR="${SESSION}/APPLIED"
+  mkdir -p "$APPLIED_DIR"
+
+  cat > "${APPLIED_DIR}/${FIX_ID}.yaml" << EOF
+fix_id: $FIX_ID
+status: $STATUS
+applied_at: '$(date -Iseconds)'
+worker_session: '$SESSION'
+EOF
+
+  echo "[APPLIED] Marked $FIX_ID as $STATUS"
+}
+
+# ============================================================================
+# PANIC AUTO-ROUTING (P3 Improvement)
+# ============================================================================
+
+# Parse GLASS output and extract PANIC items for immediate remediation
+# Usage: extract_panic_items GLASS_REPORT_PATH [OUTPUT_PATH]
+# Returns: Creates PANIC_REMEDIATION.yaml with actionable fix tasks
+extract_panic_items() {
+  local GLASS_REPORT="$1"
+  local OUTPUT_FILE="${2:-$(dirname "$GLASS_REPORT")/PANIC_REMEDIATION.yaml}"
+
+  if [[ ! -f "$GLASS_REPORT" ]]; then
+    echo "[PANIC] GLASS report not found: $GLASS_REPORT"
+    return 1
+  fi
+
+  echo "[PANIC] Extracting PANIC items from GLASS report..."
+
+  python3 << EOF
+import yaml
+import re
+import os
+
+glass_report = "$GLASS_REPORT"
+output_file = "$OUTPUT_FILE"
+
+with open(glass_report, 'r') as f:
+    content = f.read()
+
+# Find PANIC section
+panic_section = re.search(r'## PANIC.*?(?=\n## |\Z)', content, re.DOTALL | re.IGNORECASE)
+if not panic_section:
+    print("[PANIC] No PANIC section found - all clear!")
+    # Write empty file
+    with open(output_file, 'w') as f:
+        yaml.dump({'panic_items': [], 'status': 'clear'}, f)
+    exit(0)
+
+panic_text = panic_section.group(0)
+
+# Parse table rows (| File | Issue | Severity |) or list items (- File: issue)
+items = []
+item_id = 1
+
+# Try table format first
+table_rows = re.findall(r'\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|', panic_text)
+for row in table_rows:
+    file_path, issue, severity = [cell.strip() for cell in row]
+    if file_path.lower() in ['file', '---', 'path']:  # Skip headers
+        continue
+    items.append({
+        'id': f'PANIC-{item_id:03d}',
+        'target': file_path,
+        'issue': issue,
+        'severity': severity.upper() if severity else 'CRITICAL',
+        'action': 'investigate_and_fix',
+        'priority': 'immediate'
+    })
+    item_id += 1
+
+# Try list format if no table found
+if not items:
+    list_items = re.findall(r'[-*]\s*\*?\*?([^:*]+)\*?\*?:\s*(.+)', panic_text)
+    for file_path, issue in list_items:
+        items.append({
+            'id': f'PANIC-{item_id:03d}',
+            'target': file_path.strip(),
+            'issue': issue.strip(),
+            'severity': 'CRITICAL',
+            'action': 'investigate_and_fix',
+            'priority': 'immediate'
+        })
+        item_id += 1
+
+if not items:
+    print("[PANIC] PANIC section found but no parseable items")
+    with open(output_file, 'w') as f:
+        yaml.dump({'panic_items': [], 'status': 'unparseable', 'raw_section': panic_text[:500]}, f)
+    exit(0)
+
+# Generate output
+output = {
+    'meta': {
+        'source': glass_report,
+        'extracted_at': '$(date -Iseconds)',
+        'total_items': len(items)
+    },
+    'status': 'requires_immediate_action',
+    'panic_items': items,
+    'recommended_action': 'Spawn FLASH workers for each PANIC item before proceeding'
+}
+
+with open(output_file, 'w') as f:
+    yaml.dump(output, f, default_flow_style=False, sort_keys=False)
+
+print(f"[PANIC] Extracted {len(items)} PANIC item(s)")
+for item in items:
+    print(f"  - {item['id']}: {item['target']} - {item['issue'][:50]}...")
+print(f"[PANIC] Output: {output_file}")
+EOF
+
+  return $?
+}
+
+# Check if PANIC items exist and require action before proceeding
+# Usage: check_panic_clear SESSION_PATH
+# Returns: 0 if clear/resolved, 1 if PANIC items need attention
+check_panic_clear() {
+  local SESSION="${1:-${CYCLE_SESSION_PATH:-$SESSION_PATH}}"
+  local PANIC_FILE="${SESSION}/PANIC_REMEDIATION.yaml"
+
+  if [[ ! -f "$PANIC_FILE" ]]; then
+    echo "[PANIC] No PANIC remediation file found - assuming clear"
+    return 0
+  fi
+
+  local STATUS=$(grep "^status:" "$PANIC_FILE" | head -1 | sed 's/status: *//')
+
+  case "$STATUS" in
+    clear|resolved)
+      echo "[PANIC] Status: $STATUS - OK to proceed"
+      return 0
+      ;;
+    requires_immediate_action)
+      echo "[PANIC] ⚠️  PANIC items require attention before proceeding!"
+      echo "[PANIC] Review: $PANIC_FILE"
+      return 1
+      ;;
+    *)
+      echo "[PANIC] Unknown status: $STATUS - manual review needed"
+      return 1
+      ;;
+  esac
+}
+
+# Mark PANIC items as resolved (call after remediation)
+# Usage: resolve_panic_items SESSION_PATH
+resolve_panic_items() {
+  local SESSION="${1:-${CYCLE_SESSION_PATH:-$SESSION_PATH}}"
+  local PANIC_FILE="${SESSION}/PANIC_REMEDIATION.yaml"
+
+  if [[ ! -f "$PANIC_FILE" ]]; then
+    echo "[PANIC] No PANIC file to resolve"
+    return 0
+  fi
+
+  # Update status to resolved
+  sed -i "s/^status: .*/status: resolved/" "$PANIC_FILE"
+  echo "resolved_at: '$(date -Iseconds)'" >> "$PANIC_FILE"
+
+  echo "[PANIC] Marked as resolved"
 }
 
 # ============================================================================

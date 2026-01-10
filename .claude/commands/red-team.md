@@ -1,5 +1,5 @@
 ---
-version: V3.0.1
+version: V3.1.0
 status: current
 timestamp: 2026-01-10
 tags: [command, validation, quality-assurance, audit, adversarial]
@@ -91,7 +91,8 @@ ${session_root}
 │   └── SECTOR_0X_*.md
 ├── ANALYSIS/
 │   └── SECTOR_SYNTHESIS.md      # Phase 2 output
-└── ${OUTPUT_NAME}               # Final deliverable
+├── AUDIT_FIXES.yaml             # Machine-parseable fixes (NEW)
+└── ${OUTPUT_NAME}               # Final deliverable (human-readable)
 ```
 
 ---
@@ -134,7 +135,67 @@ timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
 
 ---
 
-## Audit Report Format
+## Output Formats
+
+### AUDIT_FIXES.yaml (Machine-Parseable)
+
+For automated fix processing by `/hc-cy` and FLASH workers:
+
+```yaml
+meta:
+  audit_slug: ${AUDIT_SLUG}
+  timestamp: ${ISO-8601}
+  health_score: 85
+
+fixes:
+  - id: FIX-001
+    type: KILL              # KILL | FIX | NOTE
+    priority: high          # high | medium | low
+    sector: 4
+    target: src/deprecated/old_handler.ts
+    action: delete_file
+    reason: "Orphan file - no imports found"
+    confidence: high        # high | medium | low
+    estimated_effort: 5     # minutes
+
+  - id: FIX-002
+    type: FIX
+    priority: high
+    sector: 3
+    target: src/api/auth.ts
+    action: implement_function
+    function: validateToken
+    spec_ref: "docs/api/auth.md#token-validation"
+    reason: "Documented but not implemented"
+    confidence: medium
+    estimated_effort: 30
+
+  - id: FIX-003
+    type: NOTE
+    priority: low
+    sector: 1
+    target: docs/architecture.md
+    action: update_doc
+    reason: "Mentions deprecated v1 API"
+    confidence: high
+    estimated_effort: 10
+
+summary:
+  total: 3
+  by_type: { KILL: 1, FIX: 1, NOTE: 1 }
+  by_priority: { high: 2, medium: 0, low: 1 }
+  total_effort_minutes: 45
+```
+
+**Usage by `/hc-cy`:**
+```bash
+# Parse fixes and spawn workers
+yq '.fixes[] | select(.type == "KILL" or .type == "FIX")' AUDIT_FIXES.yaml | while read fix; do
+  spawn_flash_worker "$fix"
+done
+```
+
+### AUDIT_REPORT.md (Human-Readable)
 
 ```markdown
 ---
@@ -187,4 +248,4 @@ Trust but Verify.
 
 ---
 
-**V3.0.1** | Trimmed bloat from V3.0.0 YAML conversion.
+**V3.1.0** | Added AUDIT_FIXES.yaml machine-parseable output for automated fix processing.
