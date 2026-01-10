@@ -1,0 +1,20 @@
+# HC Failures Log
+
+Notable failures and learnings from this project.
+
+---
+
+## Template
+
+```markdown
+### [Date] - [Brief Description]
+
+**What happened:**
+[Description of the failure]
+
+**Root cause:**
+[Why it happened]
+
+**Lesson learned:**
+[What to do differently]
+```

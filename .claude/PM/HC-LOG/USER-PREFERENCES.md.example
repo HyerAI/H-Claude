@@ -1,0 +1,20 @@
+# User Preferences
+
+Preferences discovered during sessions.
+
+---
+
+## Template
+
+```markdown
+### [Category]
+
+- **[Preference]:** [Details]
+```
+
+## Example Categories
+
+- Code style
+- Communication style
+- Tool preferences
+- Workflow preferences
