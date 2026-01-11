@@ -1,0 +1,96 @@
+# NORTHSTAR: [Project Name]
+
+> The NORTHSTAR is the "WHAT" document - it defines destination, not route.
+> Every piece of code must trace back to this document.
+
+---
+
+## 1. Purpose
+
+> [One-sentence product definition]
+
+## 2. Vision
+
+[Future state. What does the world look like when this exists?]
+
+## 3. Target Users
+
+| Who | Value |
+|-----|-------|
+| [e.g., Solo Developers] | [e.g., Save 20 hours/week on project management] |
+
+## 4. Goals & Metrics
+
+| Goal | Metric | Linked Story |
+|------|--------|--------------|
+| [e.g., No Drift] | [100% of features trace to NS] | [US-001] |
+
+## 5. Constraints
+
+| Type | Constraint |
+|------|------------|
+| **Tech** | [e.g., Python 3.10+, Local execution only] |
+| **Budget** | [e.g., <$10 API cost per run] |
+| **Compliance** | [e.g., GDPR, SOC2] |
+
+## 6. Non-Goals
+
+> Explicit scope exclusions - what we are NOT building.
+
+- [ ] [e.g., We are NOT building a Web UI]
+- [ ] [e.g., We are NOT supporting Java]
+
+## 7. Feature Inventory
+
+> This section signals approval for work. Orchestrator monitors this list.
+> Check the box to approve for development.
+
+### Phase 1: [Phase Name]
+
+- [ ] **[Feature Name]** -> [ADR-XXX] | [US-XXX]
+- [ ] **[Feature Name]** -> [ADR-XXX] | [US-XXX]
+
+### Phase 2: [Phase Name]
+
+- [ ] **[Feature Name]** -> [US-XXX]
+- [ ] **[Feature Name]** -> [US-XXX]
+
+### Hotfix/Bug Queue
+
+> HD & User report issues here for triage by Orchestrator.
+
+- [ ] **[Issue]** - [Description] | Priority: [high/medium/low]
+
+## 8. Quality Standards
+
+| Criteria | Pass/Fail Threshold |
+|----------|---------------------|
+| Test Coverage | >= 80% |
+| Build Time | < 5 minutes |
+| Zero Critical Bugs | 0 P0/P1 open |
+
+## 9. Philosophy & Logic
+
+> Links to supporting documents for detailed guidance.
+
+| Document | Purpose |
+|----------|---------|
+| [Philosophy.md] | Core principles and values |
+| [DataFlow.md] | Input → Process → State Change → Output |
+| [LogicTree.md] | Noun Tree (Entities) + Verb Tree (Actions) |
+
+---
+
+## Relationship to Other SSoT Documents
+
+| Document | Contains | Managed By |
+|----------|----------|------------|
+| **NORTHSTAR** (this) | WHAT - Goals, requirements, constraints | USER + HD |
+| **ROADMAP.yaml** | HOW - Phases, execution order, dependencies | Orchestrator |
+| **ADRs/** | Locked architectural decisions | HD |
+| **UserStories/** | Detailed feature specifications | HD |
+
+---
+
+*Template Version: 1.0.0*
+*Specification: HD_INTERFACE.md*

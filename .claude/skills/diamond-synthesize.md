@@ -320,3 +320,4 @@ To draft artifacts, HD must explicitly load the drafting skill:
 ---
 *Skill Version: 1.0.0*
 *Architecture: ADR-002 HD Composition*
+*Specification: `$SSOT/HD_INTERFACE.md`*

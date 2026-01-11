@@ -252,3 +252,4 @@ HD: Great. Let me summarize what we've captured, then we can prioritize.
 
 *Skill Version: 1.1.0*
 *Architecture: ADR-002 HD Composition*
+*Specification: `$SSOT/HD_INTERFACE.md`*

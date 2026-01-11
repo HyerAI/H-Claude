@@ -316,3 +316,4 @@ HD: Got it. I've created the ADR.
 
 *Skill Version: 1.0.0*
 *Architecture: ADR-002 HD Composition*
+*Specification: `$SSOT/HD_INTERFACE.md`*

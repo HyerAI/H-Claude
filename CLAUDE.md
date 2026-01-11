@@ -122,17 +122,39 @@ Project/
 
 ## Architecture: Orchestrator + HD
 
-H-Claude uses two integrated components:
+H-Claude uses two integrated components. Full specification: `$SSOT/HD_INTERFACE.md`
 
 | Component | Role | Location |
 |-----------|------|----------|
-| **Orchestrator** | Agentic execution engine (Python TDD loop) | `ROOT/orchestrator/` |
-| **HD** | Human-Driven interface (requirements extraction) | `.claude/skills/` |
+| **Orchestrator** | Development engine (Python TDD loop) | `orchestrator/` |
+| **HD** | PO/User-Proxy - manages Orchestrator on user's behalf | `.claude/skills/` |
 
-**Workflow:**
+**The Two Loops:**
 ```
-HD (skills) → Extract requirements → Orchestrator (Python) → Execute via TDD
+┌─────────────────────────────────────────────────────────────┐
+│  DIALOGUE LOOP (HD)           │  WORKFLOW LOOP (Orchestrator)│
+│  User-facing conversation     │  Development execution       │
+│  - Extract requirements       │  - TDD cycles                │
+│  - Lock decisions (ADRs)      │  - Code generation           │
+│  - Approve/reject stories     │  - Quality gates             │
+│  - Guard user focus           │  - Checkpoint/recovery       │
+└─────────────────────────────────────────────────────────────┘
+                    ↓ NORTHSTAR handoff ↓
 ```
+
+**HD is the shield** between user and implementation noise. Development happens in background after HD hands off NORTHSTAR.
+
+**HD Core Goals:**
+| Goal | What HD Does |
+|------|--------------|
+| Soul Extraction | Diamond Interview - "What?" and "Why?" to extract intent |
+| SSoT Creation | Produces requirements (User Stories, ADRs, Logic Trees) |
+| Drift Detection | Catches pivots ("ADR says X, are we changing?") |
+| Question Filter | Checks existing ADRs BEFORE bothering user |
+| Focus Guardian | Keeps user on VISION, not watching agents code |
+
+**HD CAN:** Interview, clarify, lock ADRs, approve/reject stories, update state
+**HD CANNOT:** Edit code directly - MUST use Orchestrator process
 
 **HD Skills:**
 | Skill | Purpose |

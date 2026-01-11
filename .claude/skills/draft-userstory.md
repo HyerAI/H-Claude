@@ -280,4 +280,5 @@ ON completion:
 
 *Skill Version: 1.0.0*
 *Architecture: ADR-002 HD Composition*
+*Specification: `$SSOT/HD_INTERFACE.md`*
 *Requires: interview-session.yaml, UserStory.md.template*
