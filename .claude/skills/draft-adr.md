@@ -32,7 +32,7 @@ ON adr_prompt:
 ### On Entry
 
 1. Read `$TEMP/interview-session.yaml` if exists
-2. Load ADR template: `read_file(".claude/templates/ADR.md.template")`
+2. Load ADR template: `read_file(".claude/templates/documents/ADR.md.template")`
 3. Check existing ADRs in `$SSOT/ADRs/` for conflicts or duplicates
 4. Identify next ADR number (ADR-XXX format)
 
@@ -41,7 +41,7 @@ ON adr_prompt:
 **Template Error Handling:**
 ```
 IF template is NULL or file_not_found:
-  ERROR: "ADR template not found at .claude/templates/ADR.md.template"
+  ERROR: "ADR template not found at .claude/templates/documents/ADR.md.template"
   ABORT: "Cannot proceed without template."
   → Do NOT attempt to generate without template
 ```
@@ -144,7 +144,7 @@ IF no_alternatives:
 
 ### Step 6: Generate ADR
 
-Use template structure from `.claude/templates/ADR.md.template`:
+Use template structure from `.claude/templates/documents/ADR.md.template`:
 
 ```markdown
 # ADR-XXX: [Decision Title]
@@ -309,7 +309,7 @@ HD: Got it. I've created the ADR.
 ## References
 
 - ADR-002: HD Composition Architecture
-- Template: `.claude/templates/ADR.md.template`
+- Template: `.claude/templates/documents/ADR.md.template`
 - DoR: ADR requires Context, Decision, Consequences
 
 ---

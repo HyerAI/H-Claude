@@ -172,10 +172,9 @@ Side-Quests (recorded in ROADMAP.yaml)
 | `/think-tank --roadmap` | Define project phases | `ROADMAP.yaml` |
 | `/think-tank --phase=X` | Plan specific phase | `execution-plan.yaml` |
 | `/think-tank "Topic"` | Side-quest research | `STATE.yaml` |
-| `/hc-execute` | Execute approved plans | Implemented code |
+| `orchestrator/` | Execute approved plans (Python TDD) | Implemented code |
 | `/hc-glass` | Scan for issues | Issue report |
 | `/red-team` | Deep quality review | Root cause analysis |
-| `/hc-cy` | Full phase cycle | Orchestrated execution |
 
 ---
 

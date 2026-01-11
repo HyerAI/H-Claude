@@ -139,7 +139,7 @@ timeout --foreground --signal=TERM --kill-after=60 $TIMEOUT \
 
 ### AUDIT_FIXES.yaml (Machine-Parseable)
 
-For automated fix processing by `/hc-cy` and FLASH workers:
+For automated fix processing by orchestrator and FLASH workers:
 
 ```yaml
 meta:
@@ -187,7 +187,7 @@ summary:
   total_effort_minutes: 45
 ```
 
-**Usage by `/hc-cy`:**
+**Usage by orchestrator:**
 ```bash
 # Parse fixes and spawn workers
 yq '.fixes[] | select(.type == "KILL" or .type == "FIX")' AUDIT_FIXES.yaml | while read fix; do

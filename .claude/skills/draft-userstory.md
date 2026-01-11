@@ -20,13 +20,13 @@ Load this skill when:
    → Load current phase, entities, groups, pending decisions
    → IF file_not_found: Initialize empty session state
 
-2. read_file(".claude/templates/UserStory.md.template")
+2. read_file(".claude/templates/documents/UserStory.md.template")
    → CRITICAL: Load template to ensure DoR-compliant format
    → Without template, agent will hallucinate structure
 
    ERROR HANDLING:
    IF template is NULL or file_not_found:
-     ERROR: "UserStory template not found at .claude/templates/UserStory.md.template"
+     ERROR: "UserStory template not found at .claude/templates/documents/UserStory.md.template"
      ABORT: "Cannot proceed without template. Create it first or use /genesis."
      → Do NOT attempt to generate without template
 
