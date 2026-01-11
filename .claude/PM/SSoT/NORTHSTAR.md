@@ -6,21 +6,43 @@
 
 ## Purpose
 
-<!-- What does this project do and why does it exist? -->
+H-Claude is a **methodology framework** for Claude Code projects. It provides:
+
+1. **Orchestration patterns** for multi-agent workflows
+2. **Command infrastructure** for structured development cycles
+3. **State management** for crash recovery and session continuity
+4. **Quality assurance** through adversarial audit commands
+
+The framework exists because raw Claude Code sessions lack:
+- Persistent state across sessions
+- Coordinated multi-agent workflows
+- Structured planning-to-execution pipelines
+- Systematic quality verification
+
+H-Claude solves this by providing a "Factory" layer that orchestrates work while keeping the "Product" clean and deployable.
 
 ---
 
 ## Vision
 
-<!-- What will this project become? What value will it provide? -->
+H-Claude will become the **standard methodology** for enterprise Claude Code projects, providing:
+
+1. **Predictable workflows** - From idea to implementation with checkpoints
+2. **Crash-resilient execution** - Resume from any failure point
+3. **Quality guarantees** - Multi-layer verification before deployment
+4. **Context protection** - Sub-agent delegation preserves main session context
+
+The framework should feel like having a well-organized development team: plan, execute, verify, repeat.
 
 ---
 
 ## Goals
 
-1. **Goal 1** - Description
-2. **Goal 2** - Description
-3. **Goal 3** - Description
+1. **Reliable Phase Cycles** - Execute multi-phase development with automatic checkpoints, recovery, and quality gates
+2. **Adversarial Quality** - Trust but Verify philosophy: assume 20% of work has gaps, actively hunt for them
+3. **Clean Separation** - Factory (orchestration) never pollutes Product (shipped code)
+4. **Self-Documenting** - ADRs, changelogs, and state files capture all decisions
+5. **Zero-Config Start** - New projects get working infrastructure with `hc-init`
 
 ---
 
@@ -31,14 +53,18 @@
 3. **Single Source of Truth** - One place for each piece of information.
 4. **Context is precious** - Delegate to sub-agents to preserve main context window.
 5. **Decisions are sacred** - Document in ADRs; changes require explicit pivot.
+6. **No magic** - All behavior is explicit in commands and templates.
+7. **Proxies required** - Multi-agent features depend on proxy infrastructure.
 
 ---
 
 ## Non-Goals
 
-- What we explicitly will NOT do
-- Features we are deferring
-- Out of scope items
+- **Not an IDE** - H-Claude enhances Claude Code, doesn't replace it
+- **Not a code generator** - Focus is orchestration, not implementation
+- **Not cloud-native** - Runs locally with Claude Code CLI
+- **Not a testing framework** - Provides QA patterns, not test runners
+- **Defer: GUI/dashboard** - CLI-first for now
 
 ---
 
@@ -51,6 +77,8 @@
 | Context files | Valid YAML, regularly updated |
 | Decisions | Documented as ADRs |
 | Changes | Logged in CHANGELOG.md |
+| Shell scripts | Timeout-wrapped, error-handled |
+| Templates | Version-tagged, tested |
 
 ---
 
@@ -63,6 +91,8 @@ When reviewing work, validate against:
 - [ ] Are decisions documented as ADRs?
 - [ ] Is CHANGELOG.md updated?
 - [ ] Does it break existing workflow?
+- [ ] Are new functions in agent-spawn.sh tested?
+- [ ] Do timeout wrappers prevent zombies?
 
 ---
 
@@ -83,7 +113,7 @@ These MUST stay aligned. NORTHSTAR is the destination; ROADMAP is the route.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  User approve NORTHSTAR.md                                │
+│  User approve NORTHSTAR.md                                  │
 │    └── Vision, goals, features, requirements                │
 │    └── This is the USER Vision - what they want built       │
 └─────────────────────────────────────────────────────────────┘
@@ -104,7 +134,7 @@ These MUST stay aligned. NORTHSTAR is the destination; ROADMAP is the route.
 │                              ↓                              │
 │    git-engineer: Create rollback point                      │
 │                              ↓                              │
-│    /hc-execute                                         │
+│    /hc-execute                                              │
 │      └── Workers implement with QA gates                    │
 │      └── SWEEP & VERIFY catches 20% missed work             │
 │                              ↓                              │
@@ -145,15 +175,18 @@ Side-Quests (recorded in ROADMAP.yaml)
 | `/hc-execute` | Execute approved plans | Implemented code |
 | `/hc-glass` | Scan for issues | Issue report |
 | `/red-team` | Deep quality review | Root cause analysis |
+| `/hc-cy` | Full phase cycle | Orchestrated execution |
 
 ---
 
 ## Success Metrics
 
-1. **Metric 1** - How we measure success
-2. **Metric 2** - How we measure success
-3. **Metric 3** - How we measure success
+1. **Recovery Rate** - 95%+ of crashed cycles recoverable from checkpoint
+2. **Quality Gate Pass** - 80%+ phases pass GLASS audit first time
+3. **Context Protection** - Main session context usage <50% after delegation
+4. **Documentation Coverage** - 100% of decisions have ADRs
+5. **Template Accuracy** - <10% false positives in audit findings
 
 ---
 
-*Last updated: YYYY-MM-DD*
+*Last updated: 2026-01-10*
