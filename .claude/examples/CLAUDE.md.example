@@ -5,10 +5,10 @@
 ## H-Claude Framework
 
 ```yaml
-# Architecture: Orchestrator + HD
+# Architecture: Orchestrator + HD (see $SSOT/HD_INTERFACE.md)
 architecture:
-  orchestrator: Python TDD execution engine (ROOT/orchestrator/)
-  hd: Human-Driven interface for requirements (.claude/skills/)
+  orchestrator: Development engine (Python TDD loop) - ROOT/orchestrator/
+  hd: PO/User-Proxy - manages Orchestrator on user's behalf (.claude/skills/)
 
 # SSoT (Single Source of Truth)
 ssot:
@@ -53,6 +53,13 @@ workflow:
   4_execute: Orchestrator → Implementation
   5_review: /hc-glass → Quality check
   6_commit: Git commit → CHANGELOG update
+
+# HD Role: PO/User-Proxy
+hd_role:
+  dialogue_loop: User-facing conversation (separate from Workflow Loop)
+  can: Interview, clarify, lock ADRs, approve/reject stories, update state
+  cannot: Edit code directly - MUST use Orchestrator process
+  produces: NORTHSTAR, User Stories, ADRs, Logic Trees
 
 # HD Interview Flow
 hd_flow: /genesis → /diamond-diverge → /diamond-converge → /diamond-synthesize → /draft-userstory
