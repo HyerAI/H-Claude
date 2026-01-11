@@ -1,0 +1,51 @@
+# ADR-XXX: [Title]
+
+**Status:** Proposed | Accepted | Deprecated | Superseded
+**Date:** [YYYY-MM-DD]
+**Decision Makers:** [Names/Roles]
+
+## Context
+
+[What is the issue that we're seeing that is motivating this decision or change?]
+
+[What forces are at play? Technical, business, organizational constraints?]
+
+## Decision
+
+[What is the change that we're proposing and/or doing?]
+
+[Be specific and actionable. What will we do?]
+
+## Consequences
+
+### Positive
+- [Benefit 1]
+- [Benefit 2]
+
+### Negative
+- [Cost or risk 1]
+- [Cost or risk 2]
+
+### Neutral
+- [Trade-off or side effect]
+
+## Alternatives Considered
+
+### Option A: [Name]
+- **Pros:** [advantages]
+- **Cons:** [disadvantages]
+- **Why Rejected:** [reason]
+
+### Option B: [Name]
+- **Pros:** [advantages]
+- **Cons:** [disadvantages]
+- **Why Rejected:** [reason]
+
+## References
+
+- [Related ADRs, documents, or external resources]
+
+---
+
+*Created: [DATE]*
+*Last Updated: [DATE]*

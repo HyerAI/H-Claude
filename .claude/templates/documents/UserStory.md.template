@@ -1,0 +1,37 @@
+# US-XXX: [Title]
+
+**Status:** Draft | Ready | In Progress | Complete
+**Priority:** Must | Should | Could | Won't
+**Source:** [Link to interview session or genesis]
+
+## Description
+
+As a [user type], I want [goal/desire] so that [benefit/value].
+
+[Expanded context and background. What problem does this solve? Why is it important?]
+
+## Acceptance Criteria
+
+- [ ] [Specific, testable criterion 1]
+- [ ] [Specific, testable criterion 2]
+- [ ] [Specific, testable criterion 3]
+
+## Boundaries
+
+### In Scope
+- [What IS included in this story]
+
+### Out of Scope
+- [What is explicitly NOT included]
+- [Related features deferred to other stories]
+
+### Dependencies
+- [Other stories or systems this depends on]
+
+### Assumptions
+- [What we're assuming to be true]
+
+---
+
+*Created: [DATE]*
+*Last Updated: [DATE]*

@@ -120,6 +120,32 @@ Project/
 --*INTERNAL NOTE: **DO NOT USE git-engineer in the H-Claude Repo!***
 ---
 
+## Architecture: Orchestrator + HD
+
+H-Claude uses two integrated components:
+
+| Component | Role | Location |
+|-----------|------|----------|
+| **Orchestrator** | Agentic execution engine (Python TDD loop) | `ROOT/orchestrator/` |
+| **HD** | Human-Driven interface (requirements extraction) | `.claude/skills/` |
+
+**Workflow:**
+```
+HD (skills) → Extract requirements → Orchestrator (Python) → Execute via TDD
+```
+
+**HD Skills:**
+| Skill | Purpose |
+|-------|---------|
+| `/genesis` | Bootstrap - detect project state, start interview |
+| `/diamond-diverge` | Explore problem space (Why, What, Edges) |
+| `/diamond-converge` | Prioritize entities (MoSCoW grouping) |
+| `/diamond-synthesize` | Lock decisions, create artifacts |
+| `/draft-userstory` | Generate UserStory from requirements |
+| `/draft-adr` | Generate ADR from decisions |
+
+---
+
 ## HC Role: Factory Operator & Orchestrator
 
 **HC = H-Claude** (the main Claude session interacting with the user)
@@ -209,7 +235,8 @@ HC orchestrates the Factory to build the Product. HC does not do inline work.
 
 | Work Type | Route Through |
 |-----------|---------------|
-| 3+ files OR phase work | `/hc-execute` |
+| Requirements extraction | HD skills (`/genesis` → `/diamond-*` → `/draft-*`) |
+| 3+ files OR phase work | Python Orchestrator (`orchestrator/`) |
 | Decisions, planning | `/tt` (checks existing sessions first) |
 | Code review | `/hc-glass` |
 | Deep investigation | `/red-team` |
@@ -272,7 +299,7 @@ HC continues working while $SCOUT runs.
 
 ## POST-EXECUTION
 
-After `/hc-execute`, `/think-tank`, `/hc-glass`, `/red-team` completion, spawn `$SCOUT` for triage:
+After Orchestrator run, `/think-tank`, `/hc-glass`, `/red-team` completion, spawn `$SCOUT` for triage:
 
 ```
 $SCOUT reviews session and updates:
@@ -326,9 +353,24 @@ $SCOUT reviews session and updates:
 | `/think-tank --roadmap` | Create project phases | `ROADMAP.yaml` |
 | `/think-tank --phase=X` | Plan specific phase | `execution-plan.yaml` |
 | `/think-tank "Topic"` | Ad-hoc research | Findings |
-| `/hc-execute` | Execute approved plan | Implementation |
 | `/hc-glass` | Code/system review | Issues list |
 | `/red-team` | Deep investigation | Root cause analysis |
+| `/ask <file>` | Get Pro agent feedback | Structured review |
+
+### Execution
+
+| Method | When to Use |
+|--------|-------------|
+| Python Orchestrator | Phase work, TDD execution |
+| HD Skills | Requirements extraction |
+
+```bash
+# Run orchestrator
+python orchestrator/main.py
+
+# Or via HD interview
+/genesis → /diamond-diverge → /diamond-converge → /draft-userstory
+```
 
 ### Proxies
 
@@ -369,9 +411,20 @@ graph LR
     B --> C[$ROAD]
     C --> D[/tt --phase=X]
     D --> E[$GIT checkpoint]
-    E --> F[/hc-execute]
+    E --> F[Orchestrator]
     F --> G[Phase complete]
     G --> C
+```
+
+**With HD Interview:**
+```mermaid
+graph LR
+    A[/genesis] --> B[/diamond-diverge]
+    B --> C[/diamond-converge]
+    C --> D[/diamond-synthesize]
+    D --> E[/draft-userstory]
+    E --> F[$NORTH]
+    F --> G[Orchestrator]
 ```
 
 ---

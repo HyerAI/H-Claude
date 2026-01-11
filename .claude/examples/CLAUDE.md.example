@@ -5,6 +5,11 @@
 ## H-Claude Framework
 
 ```yaml
+# Architecture: Orchestrator + HD
+architecture:
+  orchestrator: Python TDD execution engine (ROOT/orchestrator/)
+  hd: Human-Driven interface for requirements (.claude/skills/)
+
 # SSoT (Single Source of Truth)
 ssot:
   northstar: .claude/PM/SSoT/NORTHSTAR.md    # Vision, goals, constraints
@@ -27,19 +32,30 @@ commands:
   /think-tank --roadmap: Create development phases from NORTHSTAR
   /think-tank --phase=X: Plan specific phase execution
   /think-tank "topic": Ad-hoc research/decision session
-  /hc-execute: Execute approved plan
   /hc-glass: Code/system review
   /red-team: Deep investigation audit
-  /hc-phase-cycle: Full cycle - Execute, Audit, Fix, Validate
+  /ask <file>: Get Pro agent feedback on document
+
+# HD Skills (requirements extraction)
+skills:
+  /genesis: Bootstrap - detect project state, start interview
+  /diamond-diverge: Explore problem space (Why, What, Edges)
+  /diamond-converge: Prioritize entities (MoSCoW grouping)
+  /diamond-synthesize: Lock decisions, create artifacts
+  /draft-userstory: Generate UserStory from requirements
+  /draft-adr: Generate ADR from decisions
 
 # Workflow
 workflow:
-  1_vision: Define goals in $NORTH
+  1_requirements: HD interview → UserStories in $NORTH
   2_roadmap: /think-tank --roadmap → $ROAD
   3_plan: /think-tank --phase=X → execution-plan.yaml
-  4_execute: /hc-execute → Implementation
+  4_execute: Orchestrator → Implementation
   5_review: /hc-glass → Quality check
   6_commit: Git commit → CHANGELOG update
+
+# HD Interview Flow
+hd_flow: /genesis → /diamond-diverge → /diamond-converge → /diamond-synthesize → /draft-userstory
 
 # Session Protocol
 session:

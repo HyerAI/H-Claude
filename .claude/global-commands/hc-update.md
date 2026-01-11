@@ -4,18 +4,34 @@ Update framework files from the H-Claude template while preserving project-speci
 
 ---
 
+## Architecture: Orchestrator + HD
+
+H-Claude uses two integrated components:
+
+| Component | Role | Location |
+|-----------|------|----------|
+| **Orchestrator** | Agentic execution engine (Python TDD loop) | `ROOT/orchestrator/` |
+| **HD** | Human-Driven interface (requirements extraction) | `.claude/skills/` |
+
+**Workflow:**
+```
+HD (skills) → Extract requirements → Orchestrator (Python) → Execute via TDD
+```
+
+---
+
 ## What Gets Updated (Framework Files)
 
 These are **replaced** from the template:
 
 | Folder | Contents |
 |--------|----------|
-| `.claude/commands/` | think-tank, hc-execute, hc-glass, red-team |
+| `.claude/commands/` | think-tank, hc-glass, red-team, hc-sys, ask |
 | `.claude/agents/` | git-engineer, hc-scout |
-| `.claude/templates/` | Prompt templates |
+| `.claude/templates/` | Prompt templates, schemas, document templates |
 | `.claude/lib/` | Shared libraries (agent-spawn.sh) |
 | `.claude/scripts/` | Utility scripts |
-| `.claude/skills/` | Reusable skills |
+| `.claude/skills/` | HD interview skills (genesis, diamond-*, draft-*) |
 | `.claude/docs/` | Documentation |
 | `.claude/examples/` | Example files |
 
@@ -171,7 +187,29 @@ echo "  cp -r $BACKUP_DIR/* .claude/"
 1. **Review CHANGELOG** - Check template's `.claude/docs/` for what's new
 2. **Test commands** - Run `/think-tank --help` or similar to verify
 3. **Check hooks** - Enable new hooks if needed (remove `.disabled` suffix)
-4. **Delete backup** - Once verified: `rm -rf .claude/PM/TEMP/update-backup-*`
+4. **Test HD skills** - Run `/genesis` to verify HD interview flow
+5. **Delete backup** - Once verified: `rm -rf .claude/PM/TEMP/update-backup-*`
+
+---
+
+## HD Skills Reference
+
+After update, these HD skills are available:
+
+| Skill | Purpose |
+|-------|---------|
+| `/genesis` | Bootstrap - detect project state, start interview |
+| `/diamond-diverge` | Explore problem space (Why, What, Edges) |
+| `/diamond-converge` | Prioritize entities (MoSCoW grouping) |
+| `/diamond-synthesize` | Lock decisions, create artifacts |
+| `/draft-userstory` | Generate UserStory from requirements |
+| `/draft-adr` | Generate ADR from decisions |
+| `/tt` | Think-tank session router |
+
+**Typical flow:**
+```
+/genesis → /diamond-diverge → /diamond-converge → /diamond-synthesize → /draft-userstory
+```
 
 ---
 

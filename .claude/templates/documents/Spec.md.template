@@ -1,0 +1,67 @@
+# [Feature/Component Name] Specification
+
+**Status:** Draft | Review | Approved | Implemented
+**Version:** [X.Y.Z]
+**Owner:** [Name/Role]
+
+## Overview
+
+[High-level description of what this specification covers. What is the purpose? What problem does it solve?]
+
+### Scope
+[What is covered by this specification]
+
+### Audience
+[Who should read this document]
+
+## Requirements
+
+### Functional Requirements
+
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-01 | [Description] | Must | Pending |
+| FR-02 | [Description] | Should | Pending |
+
+### Non-Functional Requirements
+
+| ID | Requirement | Metric | Target |
+|----|-------------|--------|--------|
+| NFR-01 | [Performance requirement] | [Metric] | [Value] |
+| NFR-02 | [Security requirement] | [Metric] | [Value] |
+
+## Constraints
+
+### Technical Constraints
+- [Constraint 1: e.g., must use existing authentication system]
+- [Constraint 2: e.g., must run on Python 3.10+]
+
+### Business Constraints
+- [Constraint 1: e.g., must not require additional licenses]
+- [Constraint 2: e.g., must be completed before Q2]
+
+### Regulatory Constraints
+- [If applicable: compliance requirements]
+
+## Interface Definition
+
+[If applicable: API contracts, data schemas, integration points]
+
+## Assumptions
+
+- [Assumption 1]
+- [Assumption 2]
+
+## Open Questions
+
+- [ ] [Question that needs resolution]
+- [ ] [Another open question]
+
+## References
+
+- [Related documents, ADRs, external resources]
+
+---
+
+*Created: [DATE]*
+*Last Updated: [DATE]*
