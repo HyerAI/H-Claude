@@ -50,7 +50,6 @@ These are **never touched**:
 | `.claude/PM/BACKLOG.yaml` | Project backlog |
 | `.claude/PM/HC-LOG/` | Project learnings |
 | `.claude/PM/think-tank/*/` | Session artifacts |
-| `.claude/PM/hc-execute/*/` | Session artifacts |
 | `.claude/context.yaml` | Session state |
 | `CLAUDE.md` | Project instructions |
 
@@ -134,14 +133,14 @@ cp "$TEMPLATE/.claude/PM/index.md" "$PROJECT/.claude/PM/" 2>/dev/null || true
 cp "$TEMPLATE/.claude/PM/SSoT/AGENT_ROLES.md" "$PROJECT/.claude/PM/SSoT/" 2>/dev/null || true
 
 # Update command folder index files
-for folder in think-tank hc-execute hc-glass red-team; do
+for folder in think-tank hc-glass red-team; do
   if [ -f "$TEMPLATE/.claude/PM/$folder/index.md" ]; then
     cp "$TEMPLATE/.claude/PM/$folder/index.md" "$PROJECT/.claude/PM/$folder/"
   fi
 done
 
 # Ensure .gitkeep files exist
-for folder in think-tank hc-execute hc-glass red-team SSoT/ADRs TEMP; do
+for folder in think-tank hc-glass red-team SSoT/ADRs TEMP; do
   touch "$PROJECT/.claude/PM/$folder/.gitkeep" 2>/dev/null || true
 done
 ```
@@ -159,7 +158,7 @@ echo ""
 echo "Preserved:"
 echo "  - NORTHSTAR.md, ROADMAP.yaml, ADRs/"
 echo "  - CHANGELOG.md, BACKLOG.yaml, context.yaml"
-echo "  - All session artifacts (think-tank/*, hc-execute/*)"
+echo "  - All session artifacts (think-tank/*, hc-glass/*, red-team/*)"
 echo "  - CLAUDE.md (project instructions)"
 echo ""
 echo "Backup at: $BACKUP_DIR"

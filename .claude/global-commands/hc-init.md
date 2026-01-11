@@ -78,7 +78,7 @@ H_CLAUDE_TEMPLATE: ~/.claude/H-Claude
    done
 
    # PM structure (empty, ready for use)
-   mkdir -p "$TARGET/.claude/PM/"{SSoT/ADRs,SSoT/UserStories,GIT,HC-LOG,TEMP,think-tank,hc-execute,hc-glass,red-team}
+   mkdir -p "$TARGET/.claude/PM/"{SSoT/ADRs,SSoT/UserStories,GIT,HC-LOG,TEMP,think-tank,hc-glass,red-team}
 
    # PM infrastructure files
    cp "$TEMPLATE/.claude/PM/index.md" "$TARGET/.claude/PM/"
@@ -90,7 +90,6 @@ H_CLAUDE_TEMPLATE: ~/.claude/H-Claude
 
    # Index files for command folders
    cp "$TEMPLATE/.claude/PM/think-tank/index.md" "$TARGET/.claude/PM/think-tank/"
-   cp "$TEMPLATE/.claude/PM/hc-execute/index.md" "$TARGET/.claude/PM/hc-execute/"
    cp "$TEMPLATE/.claude/PM/hc-glass/index.md" "$TARGET/.claude/PM/hc-glass/"
    cp "$TEMPLATE/.claude/PM/red-team/index.md" "$TARGET/.claude/PM/red-team/"
    ```
@@ -127,7 +126,6 @@ H_CLAUDE_TEMPLATE: ~/.claude/H-Claude
    .claude/PM/SESSION_STATUS.md
    .claude/PM/TEMP/
    .claude/PM/think-tank/*/
-   .claude/PM/hc-execute/*/
    .claude/PM/hc-glass/*/
    .claude/PM/red-team/*/
    .claude/PM/SSoT/ADRs/ADR-*.md
